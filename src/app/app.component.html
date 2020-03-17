@@ -333,6 +333,11 @@
     <!-- Ethereum -->
     <!-- <p>Current Account : {{ address$ | async }} </p> -->
     <p>Current Account : {{ address }} </p>
+    <ul>
+        <li *ngFor="let address of addresses"> {{address}} </li>
+    </ul>
+    <p>Web3 : {{ web3.currentProvider.networkVersion }} </p>
+    <p>Message from DVSRegistry : {{ message }} </p>
 
     <!-- Resources -->
     <h2>Resources</h2>

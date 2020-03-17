@@ -3,9 +3,7 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { EthereumModule } from './ethereum/ethereum.module';
-import { EthService } from './ethereum/eth.service';
-import { AccountsService } from './ethereum/account.service';
+import { EthereumModule } from './ethereum/eth.module';
 
 @NgModule({
   declarations: [
@@ -16,7 +14,7 @@ import { AccountsService } from './ethereum/account.service';
     AppRoutingModule,
     EthereumModule
   ],
-  providers: [EthService, AccountsService],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
