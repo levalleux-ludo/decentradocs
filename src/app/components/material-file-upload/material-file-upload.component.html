@@ -1,0 +1,23 @@
+<div id="drop-zone" *ngIf="ddarea" (drop)="dropHandler($event)" (dragover)="dragOverHandler($event)">
+    <p style="text-transform: uppercase;">Drag one or more files to this Drop Zone ...</p>
+</div>
+<button mat-button color="warn" (click)="onClick()" type="button">
+<mat-icon>file_upload</mat-icon>
+{{text}}
+</button>
+<br/>
+<ul>
+    <li *ngFor="let file of files" [@fadeInOut]="file.state">
+        <mat-progress-bar [value]="file.progress"></mat-progress-bar>
+        <span id="file-label">
+    {{file.data.name}}
+    <a title="Retry" (click)="retryFile(file)" *ngIf="file.canRetry">
+      <mat-icon>refresh</mat-icon>
+    </a>
+    <a title="Cancel" (click)="cancelFile(file)" *ngIf="file.canCancel">
+      <mat-icon>cancel</mat-icon>
+    </a>
+  </span>
+    </li>
+</ul>
+<input type="file" id="fileUpload" name="fileUpload" multiple="multiple" accept="{{accept}}" style="display:none;" />

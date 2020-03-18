@@ -1,0 +1,7 @@
+<div [formGroup]="formDoc">
+    <mat-form-field>
+        <ngx-mat-file-input formControlName="walletFile" accept=".json" placeholder="Basic Input"></ngx-mat-file-input>
+        <mat-icon matSuffix>folder</mat-icon>
+    </mat-form-field>
+    <p>Selected file: {{formDoc.controls.walletFile.value}}</p>
+</div>

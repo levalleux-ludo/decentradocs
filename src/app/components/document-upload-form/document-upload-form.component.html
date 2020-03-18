@@ -1,0 +1,38 @@
+<form [formGroup]="form">
+    <button class="close" type="cancel" mat-button mat-button-close (click)="close()">X</button>
+    <h1 mat-dialog-title>Upload Document</h1>
+
+    <mat-dialog-content>
+        <div fxLayout="column" style="width: 50em;">
+            <div fxFlex>
+                <mat-form-field>
+                    <input fxFlex matInput required placeholder="Document Title" formControlName="title">
+                </mat-form-field>
+            </div>
+            <div fxFlex>
+                <mat-form-field>
+                    <input fxFlex matInput placeholder="Author" formControlName="author" readonly>
+                </mat-form-field>
+            </div>
+            <div fxFlex>
+                <mat-form-field>
+                    <input fxFlex matInput placeholder="Version" formControlName="version" readonly>
+                </mat-form-field>
+            </div>
+            <div fxFlex>
+                <mat-form-field>
+                    <textarea fxFlex matInput placeholder="Document Description" formControlName="description" rows="5"></textarea>
+                </mat-form-field>
+            </div>
+            <div fxFlex fxLayout="column" fxLayoutAlign="top">
+                <div>
+                    <app-material-file-upload [ddarea]='true' accept="*.*" (fileUpload)="uploadFile($event)"></app-material-file-upload>
+                </div>
+                <div *ngIf="docInstance">
+                    <p>Hash: {{docInstance.hash}}</p>
+                </div>
+            </div>
+        </div>
+    </mat-dialog-content>
+    <button mat-button type="submit" (click)="submit(form)">Submit</button>
+</form>
