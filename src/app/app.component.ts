@@ -85,6 +85,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   docMetadata: DocMetaData;
 
+  txId = '';
+
   showUploadDocumentForm() {
     const dialogConfig = new MatDialogConfig();
 
@@ -103,17 +105,15 @@ export class AppComponent implements OnInit, OnDestroy {
         this.docMetadata = new DocMetaData(data.author, data.title, data.description);
         this.arweaveService.uploadNewVersion(this.docMetadata, data.version, data.docInstance).then((newVersion: DocVersion) => {
           console.log("upload done", newVersion);
+          this.txId = newVersion.txId;
         });
       }
     );
   }
 
-  checkUploadedFile() {
-    if (this.docMetadata) {
-      const newVersion = this.docMetadata.getLatestVersion();
-      this.arweaveService.downloadVersion(newVersion).then((filename: string) => {
+  checkUploadedFile(txId: string) {
+      this.arweaveService.downloadVersion(txId).then((filename: string) => {
         console.log('result', filename);
       });
-    }
   }
 }

@@ -357,7 +357,9 @@
 
     <button mat-button (click)="showUploadDocumentForm()" [disabled]=" arweaveAddress==='' || arweaveAddress===undefined ">Upload a new Document</button>
 
-    <button mat-button (click)="checkUploadedFile()">Check</button>
+    <input #txId value="txId">
+
+    <button mat-button (click)="checkUploadedFile(txId.value)" [disabled]=" arweaveAddress==='' || arweaveAddress===undefined ">Check</button>
 
     <!-- Resources -->
     <h2>Resources</h2>

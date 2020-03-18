@@ -84,8 +84,8 @@ export class ArweaveService {
     });
   }
 
-  public async downloadVersion(docVersion: DocVersion, filename?: string): Promise<string> {
-    return this._arweave.transactions.getData(docVersion.txId, {decode: false, string: true}).then((data: string) => {
+  public async downloadVersion(txId: string, filename?: string): Promise<string> {
+    return this._arweave.transactions.getData(txId, {decode: true, string: true}).then((data: string) => {
       console.log("getData -> ", data);
       if (!data) {
         return ('');
