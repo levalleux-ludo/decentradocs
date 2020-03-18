@@ -26,7 +26,7 @@
             </div>
             <div fxFlex fxLayout="column" fxLayoutAlign="top">
                 <div>
-                    <app-material-file-upload [ddarea]='true' accept="*.*" (fileUpload)="uploadFile($event)"></app-material-file-upload>
+                    <app-material-file-upload [ddarea]='true' accept="*.*" [autoOpen]="true" (fileUpload)="uploadFile($event)" (complete)="onFileUploaded($event)"></app-material-file-upload>
                 </div>
                 <div *ngIf="docInstance">
                     <p>Hash: {{docInstance.hash}}</p>

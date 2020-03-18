@@ -1,6 +1,6 @@
 import { Component, OnInit, NgZone, OnDestroy } from '@angular/core';
 import { AccountsService, EthService } from './ethereum/eth.service';
-import { Observable } from 'rxjs';
+import { Observable, interval } from 'rxjs';
 import contractData from '../../build/contracts/DVSRegistry.json';
 import { Contract } from 'web3-eth-contract';
 import { DVSRegistry } from './ethereum/DVSRegistry';
@@ -11,6 +11,8 @@ import { ArweaveService } from './arweave/arweave.service';
 import { DocMetaData } from './_model/DocMetaData';
 import { DocVersion } from './_model/DocVersion';
 import { DocInstance } from './_model/DocInstance';
+import { TransactionsService, eTransationStatus } from './arweave/transactions.service';
+import { startWith, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -32,6 +34,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private eth: EthService,
     private ethAccounts: AccountsService,
     private arweaveService: ArweaveService,
+    private arTransactionsService: TransactionsService,
     private zone: NgZone,
     private dialog: MatDialog) {}
 
@@ -87,6 +90,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   txId = '';
 
+  status: eTransationStatus = eTransationStatus.UNKNOWN;
+
   showUploadDocumentForm() {
     const dialogConfig = new MatDialogConfig();
 
@@ -105,15 +110,31 @@ export class AppComponent implements OnInit, OnDestroy {
         this.docMetadata = new DocMetaData(data.author, data.title, data.description);
         this.arweaveService.uploadNewVersion(this.docMetadata, data.version, data.docInstance).then((newVersion: DocVersion) => {
           console.log("upload done", newVersion);
-          this.txId = newVersion.txId;
+          this.checkTx(newVersion.txId);
         });
       }
     );
   }
 
   checkUploadedFile(txId: string) {
-      this.arweaveService.downloadVersion(txId).then((filename: string) => {
-        console.log('result', filename);
-      });
+    this.arweaveService.getTxStatus(txId).then((status) => {
+      console.log("Tx status", status);
+    });
+    this.arweaveService.downloadVersion(txId).then((filename: string) => {
+      console.log('result', filename);
+    });
+  }
+
+  checkTx(txId: string) {
+    this.txId = txId;
+    const sub = interval(10000).pipe(
+      startWith(0),
+      switchMap(() => this.arTransactionsService.watchTransactionStatus(this.txId))
+    ).subscribe((status: eTransationStatus) => {
+      this.status = status;
+      if (status === eTransationStatus.CONFIRMED) {
+        sub.unsubscribe();
+      }
+    });
   }
 }

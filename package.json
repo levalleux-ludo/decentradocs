@@ -29,6 +29,7 @@
     "chai-as-promised": "^7.1.1",
     "crypto-js": "^4.0.0",
     "file-saver": "^2.0.2",
+    "http-status-codes": "^1.4.0",
     "ngx-filesaver": "^8.1.0",
     "ngx-material-file-input": "^2.1.1",
     "rxjs": "~6.5.4",

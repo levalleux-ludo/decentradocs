@@ -54,6 +54,8 @@ export class MaterialFileUploadComponent implements OnInit {
   @Input() accept = 'image/*';
   /** Allow you to configure drag and drop area shown or not. */
   @Input() ddarea = false;
+
+  @Input() autoOpen = false;
   /** Allow you to add handler after its completion. Bubble up response text from remote. */
   @Output() complete = new EventEmitter<string>();
 
@@ -63,7 +65,12 @@ export class MaterialFileUploadComponent implements OnInit {
 
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.autoOpen) {
+      console.log("autoopen dialog box");
+      this.onClick();
+    }
+  }
 
   onClick() {
     const fileUpload = document.getElementById(

@@ -18,6 +18,7 @@ import { ArweaveConnectComponent } from './components/arweave-connect/arweave-co
 import { WindowRef } from './_helpers/WindowRef';
 import { DocumentUploadFormComponent } from './components/document-upload-form/document-upload-form.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { MatDialogModule } from '@angular/material/dialog';
     FormsModule,
     ReactiveFormsModule,
     MatDialogModule,
-    FileSaverModule
+    FileSaverModule,
+    HttpClientModule
   ],
   providers: [FormBuilder, WindowRef],
   bootstrap: [AppComponent],

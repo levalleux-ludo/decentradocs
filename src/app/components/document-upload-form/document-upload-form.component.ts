@@ -48,17 +48,24 @@ export class DocumentUploadFormComponent implements OnInit {
 
   uploadFile(data: FileUploadAction) {
     const file = data.fileModel;
-    console.log(`uploadFile(${file})`);
+    console.log(`uploadFile(${file.data.name})`);
+    this.form.patchValue({title: file.data.name});
     file.inProgress = true;
     this.docInstance = new DocInstance();
     this.docInstance.readFromFile(data.fileModel.data, (result) => {
       if (result) {
         console.log("read file completed");
         console.log("hash:", this.docInstance.hash);
+        data.onSuccess('');
       } else {
-        throw new Error("read file failed");
+        data.onFailure("read file failed");
       }
     });
+  }
+
+  onFileUploaded(data: any) {
+    console.log('onFileUploaded', data);
+
   }
 
 }

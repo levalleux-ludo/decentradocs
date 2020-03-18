@@ -101,6 +101,10 @@ export class ArweaveService {
     });
   }
 
+  public async getTxStatus(txId: string): Promise<any> {
+    return this._arweave.transactions.getStatus(txId);
+  }
+
   protected async signAndPostTransaction(tx): Promise<string> {
     return this._arweave.transactions.sign(tx, this._wallet).then(() => {
       console.log("tx", tx.id, "successfully signed");

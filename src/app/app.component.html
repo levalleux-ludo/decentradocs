@@ -357,9 +357,14 @@
 
     <button mat-button (click)="showUploadDocumentForm()" [disabled]=" arweaveAddress==='' || arweaveAddress===undefined ">Upload a new Document</button>
 
-    <input #txId value="txId">
+    <input #txIdInput [(ngModel)]="txId">
+    <mat-progress-bar *ngIf="(txId !== '') && (status == 'PENDING') " mode="indeterminate"></mat-progress-bar>
 
-    <button mat-button (click)="checkUploadedFile(txId.value)" [disabled]=" arweaveAddress==='' || arweaveAddress===undefined ">Check</button>
+
+    <p>Tx Id: {{txId}}, status={{ (txId) ? status : '' }}</p>
+
+    <button mat-button (click)="checkUploadedFile(txIdInput.value)" [disabled]=" arweaveAddress==='' || arweaveAddress===undefined ">CheckFile</button>
+    <button mat-button (click)="checkTx(txIdInput.value)" [disabled]=" arweaveAddress==='' || arweaveAddress===undefined ">CheckTx</button>
 
     <!-- Resources -->
     <h2>Resources</h2>
