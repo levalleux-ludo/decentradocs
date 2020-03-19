@@ -1,5 +1,14 @@
 import { v4 as uuid } from 'uuid';
-import { DocVersion } from './DocVersion';
+import Transaction from 'arweave/web/lib/transaction';
+import { eDataField } from '../arweave/constants';
+import { ArweaveService } from '../arweave/arweave.service';
+
+export enum eDocumentUploadingStatus {
+  UNKNOWN,
+  PENDING,
+  CONFIRMED,
+  FAILED
+}
 
 export class DocMetaData {
   protected _author: string = '';
@@ -7,17 +16,36 @@ export class DocMetaData {
   protected _description: string = '';
   protected _keywords: string[] = [];
   protected _references: Map<string, string> = new Map(); // reference url indexed by reference hash
-  protected _versions: Map<string, DocVersion> = new Map();
-  protected _docId: string = uuid();
-  protected _latestVersion: string = '';
+  protected _version: number = 0;
+  protected _docId: string = '';
+  protected _hash: string = '';
+  protected _uploadingStatus: eDocumentUploadingStatus = eDocumentUploadingStatus.UNKNOWN;
 
-
-  public constructor(author: string, title: string, description?: string) {
+  public constructor(docId: string, author: string, title: string, version: number, hash: string, description?: string) {
+    this._docId = ( docId && ( docId !== '') ) ? docId : uuid();
     this._author = author;
     this._title = title;
+    this._version = version;
+    this._hash = hash;
     if (description) {
       this._description = description;
     }
+  }
+
+  public static fromTransation(tx: Transaction, tags?: Map<eDataField, string>): DocMetaData {
+    if (!tags) {
+      tags = ArweaveService.getTxTags(tx);
+    }
+    const docId = tags.get(eDataField.DOC_ID);
+    const author = tags.get(eDataField.AUTHOR);
+    const title = tags.get(eDataField.TITLE);
+    const description = tags.get(eDataField.DESCRIPTION);
+    const version: number = +tags.get(eDataField.VERSION);
+    const hash = tags.get(eDataField.HASH);
+    const metaData = new DocMetaData(docId, author, title, version, hash, description);
+    metaData.uploadingStatus = eDocumentUploadingStatus.CONFIRMED;
+
+    return metaData;
   }
 
   public get author(): string {
@@ -30,6 +58,26 @@ export class DocMetaData {
 
   public get docId(): string {
     return this._docId;
+  }
+
+  public get hash() {
+    return this._hash;
+  }
+
+  public get version(): number {
+    return this._version;
+  }
+
+  public get description(): string {
+    return this._description;
+  }
+
+  public get uploadingStatus(): eDocumentUploadingStatus {
+    return this._uploadingStatus;
+  }
+
+  public set uploadingStatus(value: eDocumentUploadingStatus) {
+    this._uploadingStatus = value;
   }
 
   public addKeyword(keyword: string) {
@@ -46,26 +94,6 @@ export class DocMetaData {
 
   public removeReference(hash: string) {
     throw Error("not implemented yet");
-  }
-
-  public addVersion(txId: string, hash: string, version: string): DocVersion {
-    const docVersion = new DocVersion(txId, hash);
-    this._versions.set(version, docVersion);
-    this._latestVersion = version;
-    console.log("latest version -> ", this._latestVersion);
-    return docVersion;
-  }
-
-  // public addVersion(newVersion: DocVersion, version: string) {
-  //   this._versions.set(version, newVersion);
-  // }
-
-  public getVersion(version: string): DocVersion {
-    return this._versions.get(version);
-  }
-
-  public getLatestVersion(): DocVersion {
-    return this._versions.get(this._latestVersion);
   }
 
 }

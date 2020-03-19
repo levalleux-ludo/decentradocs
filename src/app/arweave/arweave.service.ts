@@ -15,14 +15,15 @@ import Ar from 'arweave/web/ar';
 import Silo from 'arweave/web/silo';
 import CryptoInterface from 'arweave/web/lib/crypto/crypto-interface';
 import { AxiosResponse } from 'axios';
-
-const APP_NAME = 'DecentraDocs';
-const APP_VERSION = '0.1';
+import { APP_NAME, APP_VERSION, ArQueries, eDataType, eDataField } from './constants';
+import { LibraryService } from '../library/library.service';
+import { ArqlOp } from 'arql-ops';
 
 interface IArweave {
   wallets: IWallets;
   transactions: ITransactions;
   createTransaction(attributes: Partial<CreateTransactionInterface>, jwk: JWKInterface): Promise<Transaction>;
+  arql(query: object): Promise<string[]>;
 }
 
 interface IWallets {
@@ -30,6 +31,7 @@ interface IWallets {
 }
 
 interface ITransactions {
+  get(id: string): Promise<Transaction>;
   search(tagName: string, tagValue: string): Promise<string[]>;
   getStatus(id: string): Promise<TransactionStatusResponse>;
   getData(id: string, options?: {
@@ -57,6 +59,9 @@ class FakeArweave implements IArweave {
   }
   public get transactions(): ITransactions {
     return {
+      get: (id: string) => {
+        throw new Error('not implemented yet');
+      },
       search: (tagName: string, tagValue: string) => {
         throw new Error('not implemented yet');
       },
@@ -78,11 +83,15 @@ class FakeArweave implements IArweave {
       post: (transaction: Transaction | Buffer | string | object) => {
         throw new Error('not implemented yet');
       }
-    }
+    };
   }
   public createTransaction(attributes: Partial<CreateTransactionInterface>, jwk: JWKInterface): Promise<Transaction> {
     throw new Error("Method not implemented.");
   }
+  public arql(query: object): Promise<string[]> {
+    throw new Error("Method not implemented.");
+  }
+
 }
 
 class RealArweave implements IArweave {
@@ -98,6 +107,9 @@ class RealArweave implements IArweave {
   }
   public createTransaction(attributes: Partial<CreateTransactionInterface>, jwk: JWKInterface): Promise<Transaction> {
     return this._arweave.createTransaction(attributes, jwk);
+  }
+  public arql(query: object): Promise<string[]> {
+    return this._arweave.arql(query);
   }
 }
 
@@ -123,7 +135,19 @@ export class ArweaveService {
   private _initialized = false;
   private _public_address: any;
 
-  constructor(private fileSaverService: FileSaverService) { }
+  public static getTxTags(tx: Transaction): Map<eDataField, string> {
+    const tags: Map<eDataField, string> = new Map();
+    tx.tags.forEach(tag => {
+      let key: eDataField = tag.get('name', {decode: true, string: true}) as eDataField;
+      let value = tag.get('value', {decode: true, string: true});
+      tags.set(key, value);
+    });
+    return tags;
+  }
+
+    constructor(
+    private fileSaverService: FileSaverService
+    ) { }
 
   public async useFakeArweave(useFake: boolean): Promise<boolean> {
     this._initialized = false;
@@ -181,7 +205,7 @@ export class ArweaveService {
     return true;
   }
 
-  protected async uploadDocument(docMetadata: DocMetaData, version: string, docInstance: DocInstance): Promise<string> {
+  public async uploadDocument(docMetadata: DocMetaData, docInstance: DocInstance): Promise<string> {
     if (!this.initialized) {
       await this.initialize();
     }
@@ -192,15 +216,15 @@ export class ArweaveService {
       },
       this._wallet
     );
-    this.tagDocument(tx, docMetadata, version);
+    this.tagDocument(tx, docMetadata);
     return this.signAndPostTransaction(tx);
   }
 
-  public async uploadNewVersion(docMetadata: DocMetaData, version: string, docInstance: DocInstance): Promise<DocVersion> {
-    return this.uploadDocument(docMetadata, version, docInstance).then((txId) => {
-      return docMetadata.addVersion(txId, docInstance.hash, version);
-    });
-  }
+  // public async uploadNewVersion(docMetadata: DocMetaData, version: string, docInstance: DocInstance): Promise<DocVersion> {
+  //   return this.uploadDocument(docMetadata, docInstance).then((txId) => {
+  //     return docMetadata.addVersion(txId, docInstance.hash, version);
+  //   });
+  // }
 
   public async downloadVersion(txId: string, filename?: string): Promise<string> {
     return this._arweave.transactions.getData(txId, {decode: true, string: true}).then((data: string) => {
@@ -220,8 +244,59 @@ export class ArweaveService {
   }
 
   public async getTxStatus(txId: string): Promise<any> {
+    if (!this.initialized) {
+      await this.initialize();
+    }
     return this._arweave.transactions.getStatus(txId);
   }
+
+  public async getTxIds(query: ArqlOp): Promise<string[]> {
+    if (!this.initialized) {
+      await this.initialize();
+    }
+    return this._arweave.arql(ArQueries.ALL_DOCS);
+  }
+
+  public async getTransaction(txId: string): Promise<Transaction> {
+    if (!this.initialized) {
+      await this.initialize();
+    }
+    return this._arweave.transactions.get(txId);
+  }
+
+  // public async getAllDocuments(): Promise<DocMetaData[]> {
+  //   if (!this.initialized) {
+  //     await this.initialize();
+  //   }
+  //   return new Promise<DocMetaData[]>(
+  //     (resolve, reject) => {
+  //       this._arweave.arql(ArQueries.ALL_DOCS).then((txIds: string[]) => {
+  //         console.log('getAllDocuments -> ', txIds);
+  //         const allDocs: DocMetaData[] = [];
+  //         txIds.forEach(async (txId) => {
+  //           try {
+  //             await this.retrieveDocMetaData(txId).then((docMetaData) => {
+  //               allDocs.push( docMetaData );
+  //             }).catch(err => { console.error(err); });
+  //           } catch (err) {
+  //             console.error(err);
+  //           }
+  //         });
+  //         resolve(allDocs);
+  //       }).catch((err) => {
+  //         console.error(err);
+  //         reject(err);
+  //       });
+  //     });
+  // }
+
+
+  // protected async retrieveDocMetaData(txId: string): Promise<DocMetaData> {
+  //   return this._arweave.transactions.get(txId).then((tx: Transaction) => {
+  //     const tags = getTxTags(tx);
+  //     return this.libraryService.retrieveDocMetaData(tx, tags);
+  //   });
+  // }
 
   protected async signAndPostTransaction(tx): Promise<string> {
     return this._arweave.transactions.sign(tx, this._wallet).then(() => {
@@ -237,13 +312,16 @@ export class ArweaveService {
     });
   }
 
-  protected tagDocument(tx: Transaction, docMetadata: DocMetaData, version: string) {
-    tx.addTag('App-Name', APP_NAME);
-    tx.addTag('App-Version', APP_VERSION);
-    tx.addTag('Author', docMetadata.author);
-    tx.addTag('Title', docMetadata.title);
-    tx.addTag('DocId', docMetadata.docId);
-    tx.addTag('version', version);
+  protected tagDocument(tx: Transaction, docMetadata: DocMetaData) {
+    tx.addTag(eDataField.APP_NAME, APP_NAME);
+    tx.addTag(eDataField.APP_VERSION, APP_VERSION);
+    tx.addTag(eDataField.TYPE, eDataType.DOC);
+    tx.addTag(eDataField.AUTHOR, docMetadata.author);
+    tx.addTag(eDataField.TITLE, docMetadata.title);
+    tx.addTag(eDataField.DESCRIPTION, docMetadata.description);
+    tx.addTag(eDataField.DOC_ID, docMetadata.docId);
+    tx.addTag(eDataField.VERSION, docMetadata.version.toFixed(0));
+    tx.addTag(eDataField.HASH, docMetadata.hash);
   }
 
 }

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, interval } from 'rxjs';
 import { ArweaveService } from './arweave.service';
 import * as HttpStatus from 'http-status-codes'
+import { startWith, switchMap } from 'rxjs/operators';
 
 export enum eTransationStatus {
   UNKNOWN = 'UNKNOWN',
@@ -22,7 +23,7 @@ export class TransactionsService {
     private arweaveService: ArweaveService
     ) { }
 
-  public watchTransactionStatus(txId: string): Observable<eTransationStatus> {
+  private watchTransactionStatus(txId: string): Observable<eTransationStatus> {
     return new Observable<eTransationStatus>((observer) => {
       this.arweaveService.getTxStatus(txId).then((status: {status: string, confirmed: any}) => {
         if ((+status.status !== HttpStatus.OK) && (+status.status !== HttpStatus.ACCEPTED)) {
@@ -47,4 +48,26 @@ export class TransactionsService {
       };
     });
   }
+
+
+  public watchTx(
+    txId: string,
+    endingStatus: eTransationStatus[],
+    nbConfirmation: number,
+    onStatusChanged: (status: eTransationStatus) => void) {
+      let counter = 0;
+      const sub = interval(10000).pipe(
+      startWith(0),
+      switchMap(() => this.watchTransactionStatus(txId))
+    ).subscribe((status: eTransationStatus) => {
+      onStatusChanged(status);
+      if ( endingStatus.includes(status) ) {
+        counter++;
+        if (counter >= nbConfirmation) {
+          sub.unsubscribe();
+        }
+      }
+    });
+  }
+
 }

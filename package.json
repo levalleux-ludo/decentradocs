@@ -23,6 +23,7 @@
     "@angular/router": "~9.0.6",
     "@types/crypto-js": "^3.1.43",
     "@types/uuid": "^7.0.2",
+    "arql-ops": "^1.0.0",
     "arweave": "^1.6.0",
     "bignumber.js": "^9.0.0",
     "chai": "^4.2.0",

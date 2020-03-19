@@ -13,6 +13,8 @@ import { DocVersion } from './_model/DocVersion';
 import { DocInstance } from './_model/DocInstance';
 import { TransactionsService, eTransationStatus } from './arweave/transactions.service';
 import { startWith, switchMap } from 'rxjs/operators';
+import { LibraryService } from './library/library.service';
+import { DocCollectionData } from './_model/DocCollectionData';
 
 @Component({
   selector: 'app-root',
@@ -35,6 +37,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private ethAccounts: AccountsService,
     private arweaveService: ArweaveService,
     private arTransactionsService: TransactionsService,
+    private libraryService: LibraryService,
     private zone: NgZone,
     private dialog: MatDialog) {}
 
@@ -70,6 +73,9 @@ export class AppComponent implements OnInit, OnDestroy {
         console.error("ethService is not initialized");
       }
     });
+    this.libraryService.collections.subscribe((collections) => {
+      this.collections = collections;
+    })
   }
 
   get arweaveAddress() {
@@ -80,17 +86,20 @@ export class AppComponent implements OnInit, OnDestroy {
     this.alive = false;
   }
 
-  uploadFile(data: FileUploadAction) {
-    const file = data.fileModel;
-    console.log(`uploadFile(${file.data})`);
-    file.inProgress = true;
-  }
+  // uploadFile(data: FileUploadAction) {
+  //   const file = data.fileModel;
+  //   console.log(`uploadFile(${file.data})`);
+  //   file.inProgress = true;
+  // }
 
   docMetadata: DocMetaData;
 
   txId = '';
 
   status: eTransationStatus = eTransationStatus.UNKNOWN;
+
+  // documents: DocMetaData[];
+  collections: DocCollectionData[];
 
   showUploadDocumentForm() {
     const dialogConfig = new MatDialogConfig();
@@ -100,17 +109,17 @@ export class AppComponent implements OnInit, OnDestroy {
     dialogConfig.data = {
       title: '',
       author: this.arweaveService.address,
-      version: '1',
+      version: 1,
       description: ''
     }  ;
     const dialogRef = this.dialog.open(DocumentUploadFormComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(
       data => {
         console.log("after close upload document form", data);
-        this.docMetadata = new DocMetaData(data.author, data.title, data.description);
-        this.arweaveService.uploadNewVersion(this.docMetadata, data.version, data.docInstance).then((newVersion: DocVersion) => {
-          console.log("upload done", newVersion);
-          this.checkTx(newVersion.txId);
+        this.docMetadata = new DocMetaData(data.docId, data.author, data.title, data.version, data.docInstance.hash, data.description);
+        this.arweaveService.uploadDocument(this.docMetadata, data.docInstance).then((txId: string) => {
+          this.libraryService.addInLibrary(this.docMetadata, txId);
+          console.log("upload done", JSON.stringify(this.docMetadata), txId);
         });
       }
     );
@@ -127,14 +136,20 @@ export class AppComponent implements OnInit, OnDestroy {
 
   checkTx(txId: string) {
     this.txId = txId;
-    const sub = interval(10000).pipe(
-      startWith(0),
-      switchMap(() => this.arTransactionsService.watchTransactionStatus(this.txId))
-    ).subscribe((status: eTransationStatus) => {
-      this.status = status;
-      if (status === eTransationStatus.CONFIRMED) {
-        sub.unsubscribe();
-      }
-    });
+    this.arTransactionsService.watchTx(
+        txId,
+        [eTransationStatus.CONFIRMED, eTransationStatus.FAILED],
+        5,
+        (status: eTransationStatus) => {
+          this.status = status;
+        }
+      );
   }
+
+  // getAllDocuments() {
+  //   this.libraryService.updateLibrary().then((documents: DocMetaData[]) => {
+  //     this.documents = documents;
+  //     console.log("all documents", this.documents);
+  //   });
+  // }
 }

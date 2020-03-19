@@ -353,6 +353,11 @@
 
     <app-arweave-connect></app-arweave-connect>
 
+    <!-- <button mat-button (click)="getAllDocuments()">Get All Documents</button> -->
+    <ul>
+        <li *ngFor="let document of collections">{{document.title}} (version: {{document.latestVersion}})</li>
+    </ul>
+
     <!-- <app-material-file-upload [ddarea]='true' accept=".json" (fileUpload)="uploadFile($event)"></app-material-file-upload> -->
 
     <button mat-button (click)="showUploadDocumentForm()" [disabled]=" arweaveAddress==='' || arweaveAddress===undefined ">Upload a new Document</button>

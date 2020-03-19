@@ -20,13 +20,15 @@ import { DocumentUploadFormComponent } from './components/document-upload-form/d
 import { MatDialogModule } from '@angular/material/dialog';
 import { HttpClientModule } from '@angular/common/http';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MaterialFileUploadComponent,
     ArweaveConnectComponent,
-    DocumentUploadFormComponent
+    DocumentUploadFormComponent,
+    ConfirmDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -48,6 +50,9 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
   ],
   providers: [FormBuilder, WindowRef],
   bootstrap: [AppComponent],
-  entryComponents: [DocumentUploadFormComponent]
+  entryComponents: [
+    DocumentUploadFormComponent,
+    ConfirmDialogComponent
+  ]
 })
 export class AppModule { }
