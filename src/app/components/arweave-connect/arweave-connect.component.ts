@@ -10,6 +10,15 @@ import { ArweaveService } from 'src/app/arweave/arweave.service';
 })
 export class ArweaveConnectComponent implements OnInit {
   formDoc: FormGroup;
+  _useFakeArweave = false;
+
+  get useFakeArweave() {
+    return this._useFakeArweave;
+  }
+  set useFakeArweave(value: boolean) {
+    this._useFakeArweave = value;
+    this.arweaveService.useFakeArweave(this._useFakeArweave);
+  }
 
   constructor(private _fb: FormBuilder, private arweaveService: ArweaveService) { }
 

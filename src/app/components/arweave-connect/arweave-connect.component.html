@@ -1,3 +1,9 @@
+<div>
+    <mat-slide-toggle class="example-margin" [(ngModel)]="useFakeArweave">
+        Use fake Arweave!
+    </mat-slide-toggle>
+</div>
+
 <div [formGroup]="formDoc">
     <mat-form-field>
         <ngx-mat-file-input formControlName="walletFile" accept=".json" placeholder="Basic Input"></ngx-mat-file-input>

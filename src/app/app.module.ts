@@ -19,6 +19,7 @@ import { WindowRef } from './_helpers/WindowRef';
 import { DocumentUploadFormComponent } from './components/document-upload-form/document-upload-form.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { HttpClientModule } from '@angular/common/http';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { HttpClientModule } from '@angular/common/http';
     ReactiveFormsModule,
     MatDialogModule,
     FileSaverModule,
-    HttpClientModule
+    HttpClientModule,
+    MatSlideToggleModule
   ],
   providers: [FormBuilder, WindowRef],
   bootstrap: [AppComponent],

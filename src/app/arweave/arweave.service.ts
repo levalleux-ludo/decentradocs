@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import Arweave from 'arweave/web';
+import Arweave, { Config, CreateTransactionInterface } from 'arweave/web';
 import Transaction from 'arweave/web/lib/transaction';
 import { DocInstance } from '../_model/DocInstance';
 import { DocMetaData } from '../_model/DocMetaData';
@@ -7,21 +7,139 @@ import { JWKInterface } from 'arweave/web/lib/wallet';
 import { DocVersion } from '../_model/DocVersion';
 import { FileSaverService } from 'ngx-filesaver';
 import { Hasher } from '../_helpers/Hasher';
+import Api, { ApiConfig } from 'arweave/web/lib/api';
+import Wallets from 'arweave/web/wallets';
+import Transactions, { TransactionStatusResponse } from 'arweave/web/transactions';
+import Network from 'arweave/web/network';
+import Ar from 'arweave/web/ar';
+import Silo from 'arweave/web/silo';
+import CryptoInterface from 'arweave/web/lib/crypto/crypto-interface';
+import { AxiosResponse } from 'axios';
 
 const APP_NAME = 'DecentraDocs';
 const APP_VERSION = '0.1';
+
+interface IArweave {
+  wallets: IWallets;
+  transactions: ITransactions;
+  createTransaction(attributes: Partial<CreateTransactionInterface>, jwk: JWKInterface): Promise<Transaction>;
+}
+
+interface IWallets {
+  jwkToAddress(jwk: JWKInterface): Promise<string>;
+}
+
+interface ITransactions {
+  search(tagName: string, tagValue: string): Promise<string[]>;
+  getStatus(id: string): Promise<TransactionStatusResponse>;
+  getData(id: string, options?: {
+      decode?: boolean;
+      string?: boolean;
+  }): Promise<string | Uint8Array>;
+  sign(transaction: Transaction, jwk: JWKInterface): Promise<void>;
+  verify(transaction: Transaction): Promise<boolean>;
+  post(transaction: Transaction | Buffer | string | object): Promise<AxiosResponse>;
+}
+
+class FakeArweave implements IArweave {
+  public static init(apiConfig: ApiConfig): IArweave {
+    return new FakeArweave(apiConfig);
+  }
+  public constructor(params) {
+    console.log('USE FAKE ARWEAVE FOR TESTING PURPOSE');
+  }
+  public get wallets(): IWallets {
+    return {
+      jwkToAddress: (jwk: JWKInterface) => {
+        throw new Error('not implemented yet');
+       }
+    };
+  }
+  public get transactions(): ITransactions {
+    return {
+      search: (tagName: string, tagValue: string) => {
+        throw new Error('not implemented yet');
+      },
+      getStatus: (id: string) => {
+        throw new Error('not implemented yet');
+      },
+      getData: (id: string, options?: {
+          decode?: boolean;
+          string?: boolean;
+      }) => {
+        throw new Error('not implemented yet');
+      },
+      sign: (transaction: Transaction, jwk: JWKInterface) => {
+        throw new Error('not implemented yet');
+      },
+      verify: (transaction: Transaction) => {
+        throw new Error('not implemented yet');
+      },
+      post: (transaction: Transaction | Buffer | string | object) => {
+        throw new Error('not implemented yet');
+      }
+    }
+  }
+  public createTransaction(attributes: Partial<CreateTransactionInterface>, jwk: JWKInterface): Promise<Transaction> {
+    throw new Error("Method not implemented.");
+  }
+}
+
+class RealArweave implements IArweave {
+  private _arweave: Arweave;
+  public static init(apiConfig: ApiConfig): IArweave {
+    return Arweave.init(apiConfig);
+  }
+  public get wallets(): IWallets {
+    return this._arweave.wallets;
+  }
+  public get transactions(): ITransactions {
+    return this._arweave.transactions;
+  }
+  public createTransaction(attributes: Partial<CreateTransactionInterface>, jwk: JWKInterface): Promise<Transaction> {
+    return this._arweave.createTransaction(attributes, jwk);
+  }
+}
+
+// // tslint:disable-next-line: variable-name
+// const Arweave_inits: { real: any; fake: any; } = {
+//   real: Arweave.init,
+//   fake: FakeArweave.init
+// };
+// // tslint:disable-next-line: variable-name
+// let Arweave_init = Arweave_inits.real;
+// console.log("process.env.FAKE_ARWEAVE", process.env.FAKE_ARWEAVE);
+// if (process.env.FAKE_ARWEAVE) {
+//   Arweave_init = Arweave_inits.fake;
+// }
 
 @Injectable({
   providedIn: 'root'
 })
 export class ArweaveService {
 
-  private _arweave: Arweave;
+  private _arweave: IArweave;
   private _wallet: JWKInterface;
   private _initialized = false;
   private _public_address: any;
 
   constructor(private fileSaverService: FileSaverService) { }
+
+  public async useFakeArweave(useFake: boolean): Promise<boolean> {
+    this._initialized = false;
+    if (useFake) {
+      try {
+        this._arweave = FakeArweave.init({});
+        this._initialized = true;
+      } catch (err) {
+        console.error(err);
+        this._initialized = false;
+      }
+    } else {
+      return this.initialize();
+    }
+    return this._initialized;
+  }
 
   public async initialize(): Promise<boolean> {
     if (!this._initialized) {
