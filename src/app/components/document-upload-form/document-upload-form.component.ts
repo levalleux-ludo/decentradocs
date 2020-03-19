@@ -143,10 +143,11 @@ export class DocumentUploadFormComponent implements OnInit {
         console.log("read file completed");
         console.log("hash:", this.docInstance.hash);
         this.checkDocumentExists(this.docInstance.hash).then(() => {
-          this.checkCollectionExists(filename).then((version) => {
+          this.checkCollectionExists(filename).then((result: {docId: string, version: number}) => {
             this.form.patchValue({title: filename});
-            this.form.patchValue({version: version});
-            console.log('success, version:', version);
+            this.form.patchValue({docId: result.docId});
+            this.form.patchValue({version: result.version});
+            console.log('success, version:', result.version, "docId:", result.docId);
             data.onSuccess('');
           }).catch(() => { // did not agree to add a new version
             console.log('did not agree to add a new version to document', filename);

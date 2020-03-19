@@ -44,8 +44,10 @@ export class LibraryService {
           if (!this._allDocsPerHash.has(key)) {
             this.addInLibrary(value.doc, value.txId);
           }
-          observer.next(Array.from(this._collectionPerId.values()));
         });
+        console.log('return collections of size', this._collectionPerId.size);
+        observer.next(Array.from(this._collectionPerId.values()));
+        observer.complete();
       }).catch(err => {
         console.error(err);
       });
@@ -62,23 +64,26 @@ export class LibraryService {
     this._collectionPerTitle = new Map();
     this._allDocsPerHash = new Map();
     return new Promise<DocMetaData[]> ((resolve, reject) => {
-      this.arweaveService.getTxIds(ArQueries.ALL_DOCS).then((txIds: string[]) => {
+      this.arweaveService.getTxIds(ArQueries.ALL_DOCS).then(async(txIds: string[]) => {
         const allDocs: DocMetaData[] = [];
-        txIds.forEach(async (txId) => {
+        // txIds.forEach(async (txId) => {
+        const promises = [];
+        for (let txId of txIds) {
           try {
-            await this.arweaveService.getTransaction(txId).then((tx: Transaction) => {
+            promises.push( this.arweaveService.getTransaction(txId).then((tx: Transaction) => {
               const docMetaData = this.createDocMetaData(tx);
               if (docMetaData) {
                 this.addInLibrary(docMetaData, txId);
                 allDocs.push( docMetaData );
               }
-            }).catch(err => {
-              reject(err);
-            }).catch(err => { console.error(err); });
+              }).catch(err => {
+                reject(err);
+            }) );
           } catch (err) {
             console.error(err);
           }
-        });
+        }
+        await Promise.all(promises);
         resolve(allDocs);
       }).catch(err => {
         reject(err);

@@ -74,6 +74,7 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     });
     this.libraryService.collections.subscribe((collections) => {
+      console.log("adding collection of size ", collections.length);
       this.collections = collections;
     })
   }
@@ -99,7 +100,7 @@ export class AppComponent implements OnInit, OnDestroy {
   status: eTransationStatus = eTransationStatus.UNKNOWN;
 
   // documents: DocMetaData[];
-  collections: DocCollectionData[];
+  collections: DocCollectionData[] = [];
 
   showUploadDocumentForm() {
     const dialogConfig = new MatDialogConfig();
