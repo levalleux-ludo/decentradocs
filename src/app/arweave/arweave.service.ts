@@ -14,7 +14,7 @@ import Network, { NetworkInfoInterface } from 'arweave/web/network';
 import Ar from 'arweave/web/ar';
 import Silo from 'arweave/web/silo';
 import CryptoInterface from 'arweave/web/lib/crypto/crypto-interface';
-import { APP_NAME, APP_VERSION, ArQueries, eDataType, eDataField } from './constants';
+import { APP_NAME, APP_VERSION, ArQueries, eDataType, eDataField, eLocalStorageDataKey } from './constants';
 import { LibraryService } from '../library/library.service';
 import { ArqlOp } from 'arql-ops';
 import { IArweave, FakeArweave } from './arweave.mock';
@@ -55,7 +55,7 @@ export class ArweaveService {
 
     constructor(
     private fileSaverService: FileSaverService
-    ) { }
+    ) {}
 
   public async useFakeArweave(useFake: boolean): Promise<boolean> {
     this._initialized = false;
@@ -74,17 +74,36 @@ export class ArweaveService {
     return this._initialized;
   }
 
-  public async initialize(): Promise<boolean> {
-    if (!this._initialized) {
-      try {
-        this._arweave = Arweave.init({host: 'arweave.net', port: 443, protocol: 'https'});
-        this._initialized = true;
-      } catch (err) {
-        console.error(err);
-        this._initialized = false;
+  public async initialize(): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      if (this._initialized) {
+        resolve(this._public_address);
+      } else {
+        try {
+          this._arweave = Arweave.init({host: 'arweave.net', port: 443, protocol: 'https'});
+          const localStoredWallet = localStorage.getItem(eLocalStorageDataKey.WALLET);
+          if (localStoredWallet) {
+            this.submitWallet(JSON.parse(localStoredWallet)).then((address) => {
+              console.log("Wallet successfully restored from loaclStorage");
+              resolve(this._public_address);
+              this._initialized = true;
+            }).catch(err => {
+              console.warn('Unable to restore wallet from localStorage ->  clear localStorage', err);
+              localStorage.removeItem(eLocalStorageDataKey.WALLET);
+              resolve(this._public_address);
+              this._initialized = true;
+            });
+          } else {
+            resolve(this._public_address);
+            this._initialized = true;
+          }
+        } catch (err) {
+          console.error(err);
+          this._initialized = false;
+          reject(err);
+        }
       }
-    }
-    return this._initialized;
+    });
   }
 
   public get initialized() {
@@ -92,7 +111,7 @@ export class ArweaveService {
   }
 
   public get authenticated(): boolean {
-    return this._initialized && this._public_address;
+    return this._initialized && (this._public_address !== undefined);
   }
 
   public get address() {
@@ -109,19 +128,39 @@ export class ArweaveService {
       myReader.onload = (e) => {
         console.log("waller read:", e.target.result);
         console.log("Arweave", this._arweave);
-        this._wallet = JSON.parse(e.target.result.toString());
-        return this._arweave.wallets.jwkToAddress(this._wallet).then((address) => {
-          console.log("address", address);
-          this._public_address = address;
-          resolve(address);
-        }).catch(err => reject(err));
+        this.submitWallet(JSON.parse(e.target.result.toString()))
+        .then(address => resolve(address))
+        .catch(err => reject(err));
+        // return this._arweave.wallets.jwkToAddress(this._wallet).then((address) => {
+        //   console.log("address", address);
+        //   this._public_address = address;
+        //   resolve(address);
+        // }).catch(err => reject(err));
       };
       myReader.readAsText(walletFile, 'utf-8');
+    });
+  }
+
+  public submitWallet(wallet: JWKInterface): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      this._arweave.wallets.jwkToAddress(wallet).then((address) => {
+        console.log("address", address);
+        this._public_address = address;
+        this._wallet = wallet;
+        localStorage.setItem(eLocalStorageDataKey.WALLET, JSON.stringify(this._wallet));
+        resolve(address);
+      }).catch(err => {
+        this._wallet = undefined;
+        this._public_address = undefined;
+        reject(err);
+      });
     })
   }
 
   public logout() {
+    this._wallet = undefined;
     this._public_address = undefined;
+    localStorage.removeItem(eLocalStorageDataKey.WALLET);
   }
 
   public async uploadDocument(docMetadata: DocMetaData, docInstance: DocInstance): Promise<string> {

@@ -7,28 +7,24 @@
                 <app-arweave-connect></app-arweave-connect>
             </div>
             <div fxFlex>
-                <!-- <div mat-button class="button" matStepperNext>
-                <mat-icon>keyboard_arrow_down</mat-icon>
-                <span>Next</span>
-        </div> -->
                 <button mat-button class="button" matStepperNext>
-              <mat-icon>keyboard_arrow_down</mat-icon>
-              <span>Next</span>
-            </button>
+                    <mat-icon>keyboard_arrow_down</mat-icon>
+                    <span>Next</span>
+                </button>
             </div>
         </div>
     </mat-step>
-    <mat-step label="Ethereum Account">
-        <div>TBD</div>
-        <div>
-            <!-- <div mat-button class="button" matStepperPrevious>
+    <mat-step label="{{ethereumStepLabel}}">
+        <div fxLayout="column">
+            <div fxFlex>
+                <app-ethereum-connect></app-ethereum-connect>
+            </div>
+            <div>
+                <button mat-button class="button" matStepperPrevious>
                 <mat-icon>keyboard_arrow_up</mat-icon>
                 <span>Back</span>
-            </div> -->
-            <button mat-button class="button" matStepperPrevious>
-              <mat-icon>keyboard_arrow_up</mat-icon>
-              <span>Back</span>
             </button>
+            </div>
         </div>
     </mat-step>
 </mat-vertical-stepper>

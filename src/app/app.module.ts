@@ -33,6 +33,7 @@ import { DocCheckerComponent } from './components/routes/doc-checker/doc-checker
 import { SearchComponent } from './components/routes/search/search.component';
 import { PublishComponent } from './components/routes/publish/publish.component';
 import { AuthenticateComponent } from './components/routes/authenticate/authenticate.component';
+import { EthereumConnectComponent } from './components/ethereum-connect/ethereum-connect.component';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,8 @@ import { AuthenticateComponent } from './components/routes/authenticate/authenti
     DocCheckerComponent,
     SearchComponent,
     PublishComponent,
-    AuthenticateComponent
+    AuthenticateComponent,
+    EthereumConnectComponent
   ],
   imports: [
     BrowserModule,

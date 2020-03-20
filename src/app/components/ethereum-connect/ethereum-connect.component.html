@@ -1,23 +1,11 @@
-<!-- <div>
-    <mat-slide-toggle class="example-margin" [(ngModel)]="useFakeArweave">
-        Use fake Arweave!
-    </mat-slide-toggle>
-</div> -->
-<div fxLayout="row" fxLayoutWrap fxLayoutAlign="center start" class="arweave-connect">
+<div fxLayout="row" fxLayoutWrap fxLayoutAlign="center start" class="ethereum-connect">
     <div fxFlex fxLayout="column" fxLayoutWrap fxLayoutAlign="start center" class="inner-content">
         <div>
-            <img src="../../../assets/arweave.png" height="100px;">
+            <img src="../../../assets/ethereum.png" height="100px;">
         </div>
         <div fxFlex *ngIf=" address == undefined " [formGroup]="formDoc">
-            <mat-form-field style="width:500px;">
-                <ngx-mat-file-input formControlName="walletFile" accept=".json" placeholder="Select your wallet file"></ngx-mat-file-input>
-                <mat-icon matSuffix>vpn_key</mat-icon>
-            </mat-form-field>
-            <div class="mt-3">
-                <p style="text-align: center;">
-                    Don't have a wallet? Get one <a href="https://tokens.arweave.org/" target="_blank">here</a>!
-                </p>
-            </div>
+            <h3>Connect using MetaMask extension.</h3>
+            <img src="../../../assets//MetaMask.png" height="36px;" href="metamask.io" target="_blank">
         </div>
         <div fxFlex *ngIf=" address != undefined ">
             <mat-form-field appearance="fill" style="width:500px;">
@@ -26,13 +14,13 @@
             </mat-form-field>
         </div>
         <div fxFlex fxLayout="row">
-            <div fxFlex *ngIf=" networkInfo != undefined ">
+            <!-- <div fxFlex *ngIf=" provider != undefined ">
                 <mat-form-field appearance="fill" style="width:200px;">
                     <mat-label>Network</mat-label>
-                    <input matInput readonly value="{{networkInfo.network}}">
+                    <input matInput readonly value="">
                 </mat-form-field>
-            </div>
-            <div fxFlex *ngIf=" balance != undefined ">
+            </div> -->
+            <div fxFlex *ngIf=" address != undefined ">
                 <mat-form-field appearance="fill" style="width:200px;">
                     <mat-label>Your Balance</mat-label>
                     <input matInput readonly value="{{balance}}">
@@ -41,7 +29,7 @@
         </div>
         <div fxFlex *ngIf=" address != undefined " class="button" (click)="logout()">
             <mat-icon>clear</mat-icon>
-            <span>Disconnect</span>
+            <span>Reconnect</span>
         </div>
     </div>
 

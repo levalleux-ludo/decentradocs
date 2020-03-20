@@ -24,7 +24,7 @@ export class ArweaveConnectComponent implements OnInit {
     this.arweaveService.useFakeArweave(this._useFakeArweave);
   }
 
-  constructor(private _fb: FormBuilder, private arweaveService: ArweaveService) { }
+  constructor(private _fb: FormBuilder, private arweaveService: ArweaveService) {}
 
   ngOnInit(): void {
 
@@ -33,6 +33,10 @@ export class ArweaveConnectComponent implements OnInit {
         undefined,
         [Validators.required]
       ]
+    });
+
+    this.arweaveService.initialize().then((address) => {
+      this.refreshArweaveInfo();
     });
 
     this.formDoc.get('walletFile').valueChanges.subscribe((val: FileInput) => {

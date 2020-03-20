@@ -16,6 +16,7 @@ import { startWith, switchMap } from 'rxjs/operators';
 import { LibraryService } from './library/library.service';
 import { DocCollectionData } from './_model/DocCollectionData';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { DvsService } from './ethereum/dvs.service';
 
 @Component({
   selector: 'app-root',
@@ -34,7 +35,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public dvsRegistry: DVSRegistry = undefined;
 
   constructor(
-    private eth: EthService,
+    private dvs: DvsService,
     private arweaveService: ArweaveService,
     private arTransactionsService: TransactionsService,
     private libraryService: LibraryService,
@@ -42,41 +43,21 @@ export class AppComponent implements OnInit, OnDestroy {
     private dialog: MatDialog) {}
 
   ngOnInit() {
-    this.eth.initialize().subscribe((initialized) => {
-      if (initialized) {
-        this.eth.currentAccount().subscribe((account: string) => {
-          this.zone.run(() => {
-            this.address = account;
-          })
-        });
-        this.eth.getAccounts().subscribe((accounts: string[]) => {
-          this.zone.run(() => {
-            this.addresses = accounts;
-          })
-        });
-        this.eth.getWeb3().subscribe((web3) => {
-          console.log('web3', web3);
-          this.web3 = web3;
-        });
-        this.dvsRegistry = new DVSRegistry(this.eth);
-        this.dvsRegistry.initialize().then((init) => {
-          this.dvsRegistry.getMessage().then((message: string) => {
-            console.log("message", message);
-            this.message = message;
-          }).catch((err: any) => {
-            console.error(err);
-          });
-        }).catch((err: any) => {
-          console.error(err);
-        });
-      } else {
-        console.error("ethService is not initialized");
-      }
-    });
+
     this.libraryService.collections.subscribe((collections) => {
       console.log("adding collection of size ", collections.length);
       this.collections = collections;
-    })
+    });
+
+
+
+    this.dvs.getContract().then((contract) => {
+      this.dvsRegistry = contract;
+      this.dvsRegistry.getMessage().then((message: string) => {
+        console.log("message", message);
+        this.message = message;
+      }).catch(err => console.error(err));
+    }).catch(err => console.error(err));
   }
 
   get arweaveAddress() {
