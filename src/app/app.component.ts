@@ -1,5 +1,5 @@
 import { Component, OnInit, NgZone, OnDestroy } from '@angular/core';
-import { AccountsService, EthService } from './ethereum/eth.service';
+import { EthService } from './ethereum/eth.service';
 import { Observable, interval } from 'rxjs';
 import contractData from '../../build/contracts/DVSRegistry.json';
 import { Contract } from 'web3-eth-contract';
@@ -15,6 +15,7 @@ import { TransactionsService, eTransationStatus } from './arweave/transactions.s
 import { startWith, switchMap } from 'rxjs/operators';
 import { LibraryService } from './library/library.service';
 import { DocCollectionData } from './_model/DocCollectionData';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-root',
@@ -34,7 +35,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private eth: EthService,
-    private ethAccounts: AccountsService,
     private arweaveService: ArweaveService,
     private arTransactionsService: TransactionsService,
     private libraryService: LibraryService,
@@ -44,12 +44,12 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.eth.initialize().subscribe((initialized) => {
       if (initialized) {
-        this.ethAccounts.currentAccount().subscribe((account: string) => {
+        this.eth.currentAccount().subscribe((account: string) => {
           this.zone.run(() => {
             this.address = account;
           })
         });
-        this.ethAccounts.getAccounts().subscribe((accounts: string[]) => {
+        this.eth.getAccounts().subscribe((accounts: string[]) => {
           this.zone.run(() => {
             this.addresses = accounts;
           })
@@ -147,6 +147,57 @@ export class AppComponent implements OnInit, OnDestroy {
       );
   }
 
+  testDialog1() {
+    const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '350px',
+      data: {
+        title: "Test 1",
+        message: `There should be only one button`,
+        actions: [
+          {text: 'OK', result: true}
+        ]
+      }
+    });
+    confirmDialogRef.afterClosed().subscribe(result => {
+      console.log("Dialog result ->", result);
+    });
+  }
+
+  testDialog2() {
+    const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '350px',
+      data: {
+        title: "Test 2",
+        message: `There should be twos buttons`,
+        actions: [
+          {text: 'OK', result: true},
+          {text: 'Cancel', result: false}
+        ]
+      }
+    });
+    confirmDialogRef.afterClosed().subscribe(result => {
+      console.log("Dialog result ->", result);
+    });
+  }
+
+  testDialog3() {
+    const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '350px',
+      data: {
+        title: "Test 3",
+        message: `There should be 3 buttons`,
+        actions: [
+          {text: 'Yes', result: 'yes'},
+          {text: 'No', result: 'no'},
+          {text: 'Cancel', result: ''}
+        ]
+      }
+    });
+    confirmDialogRef.afterClosed().subscribe(result => {
+      console.log("Dialog result ->", result);
+    });
+  }
+
   // getAllDocuments() {
   //   this.libraryService.updateLibrary().then((documents: DocMetaData[]) => {
   //     this.documents = documents;
@@ -154,3 +205,5 @@ export class AppComponent implements OnInit, OnDestroy {
   //   });
   // }
 }
+
+

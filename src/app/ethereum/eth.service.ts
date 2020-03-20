@@ -6,53 +6,64 @@ import { Contract } from 'web3-eth-contract';
 import { provider } from 'web3-core';
 
 // RXJS
-import { Observable, bindNodeCallback, of } from 'rxjs';
+import { Observable, bindNodeCallback, of, BehaviorSubject } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { WindowRef } from '../_helpers/WindowRef';
 
 // FS
 declare var fs: any;
 
-@Injectable()
-export class AccountsService {
+// @Injectable()
+// export class AccountsService {
 
-    constructor(@Inject(WEB3) private web3: Web3) { }
+//     constructor(@Inject(WEB3) private web3: Web3) { }
 
-    /** Returns all accounts available */
-    public getAccounts(): Observable<string[]> {
-        return bindNodeCallback(this.web3.eth.getAccounts)();
-    }
+//     /** Returns all accounts available */
+//     public getAccounts(): Observable<string[]> {
+//         return bindNodeCallback(this.web3.eth.getAccounts)();
+//     }
 
-    /** Get the current account */
-    public currentAccount(): Observable<string | Error> {
-        if (this.web3.eth.defaultAccount) {
-            return of(this.web3.eth.defaultAccount);
-        } else {
-            return this.getAccounts().pipe(
-                tap((accounts: string[]) => {
-                    if (accounts.length === 0) { throw new Error('No accounts available'); }
-                }),
-                map((accounts: string[]) => accounts[0]),
-                tap((account: string) => this.web3.defaultAccount = account),
-                catchError((err: Error) => of(err))
-            );
-        }
-    }
+//     /** Get the current account */
+//     public currentAccount(): Observable<string | Error> {
+//         if (this.web3.eth.defaultAccount) {
+//             return of(this.web3.eth.defaultAccount);
+//         } else {
+//             return this.getAccounts().pipe(
+//                 tap((accounts: string[]) => {
+//                     if (accounts.length === 0) { throw new Error('No accounts available'); }
+//                 }),
+//                 map((accounts: string[]) => accounts[0]),
+//                 tap((account: string) => this.web3.defaultAccount = account),
+//                 catchError((err: Error) => of(err))
+//             );
+//         }
+//     }
 
-}
+// }
 
 @Injectable()
 export class EthService {
 
   private _initialized = false;
+  private _currentAccountSubject: BehaviorSubject<string>;
+  private _currentAccount: Observable<string>;
+
   constructor(
     @Inject(WEB3) private web3: Web3,
     private winRef: WindowRef
-  ) { }
+  ) {
+    this._currentAccountSubject = new BehaviorSubject<string>(undefined);
+    this._currentAccount = this._currentAccountSubject.asObservable();
+  }
 
   public get initialized(): boolean {
     return this._initialized;
   }
+
+  public get authenticated(): boolean {
+    return this._initialized && (this.currentAccountValue !== undefined);
+  }
+
   public initialize(): Observable<boolean> {
     console.log("eth initializing");
     if (this._initialized) {
@@ -112,4 +123,30 @@ export class EthService {
   public getWeb3(): Observable<any> {
     return of(this.web3);
   }
+
+      /** Returns all accounts available */
+    public getAccounts(): Observable<string[]> {
+        return bindNodeCallback(this.web3.eth.getAccounts)();
+    }
+
+    /** Get the current account */
+    public currentAccount(): Observable<string | Error> {
+        if (this.web3.eth.defaultAccount) {
+            return of(this.web3.eth.defaultAccount);
+        } else {
+            return this.getAccounts().pipe(
+                tap((accounts: string[]) => {
+                    if (accounts.length === 0) { throw new Error('No accounts available'); }
+                }),
+                map((accounts: string[]) => accounts[0]),
+                tap((account: string) => this.web3.defaultAccount = account),
+                catchError((err: Error) => of(err))
+            );
+        }
+    }
+
+    public get currentAccountValue(): string {
+      return this._currentAccountSubject.value;
+    }
+
 }

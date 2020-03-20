@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WEB3 } from './tokens';
-import { AccountsService, EthService } from './eth.service';
+import { EthService } from './eth.service';
 
 const Web3 = require('web3') ;
 
@@ -12,7 +12,6 @@ const Web3 = require('web3') ;
     CommonModule
   ],
   providers: [
-    AccountsService,
     EthService,
     {
     provide: WEB3,

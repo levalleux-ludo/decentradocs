@@ -8,7 +8,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 export class ConfirmDialogComponent {
   constructor(
     private dialogRef: MatDialogRef<ConfirmDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public params: {title: string, message: string}
+    @Inject(MAT_DIALOG_DATA) public params: {title: string, message: string, actions: {text: string, result: any}[]}
   ) {
 
   }

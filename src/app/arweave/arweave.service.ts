@@ -10,108 +10,15 @@ import { Hasher } from '../_helpers/Hasher';
 import Api, { ApiConfig } from 'arweave/web/lib/api';
 import Wallets from 'arweave/web/wallets';
 import Transactions, { TransactionStatusResponse } from 'arweave/web/transactions';
-import Network from 'arweave/web/network';
+import Network, { NetworkInfoInterface } from 'arweave/web/network';
 import Ar from 'arweave/web/ar';
 import Silo from 'arweave/web/silo';
 import CryptoInterface from 'arweave/web/lib/crypto/crypto-interface';
-import { AxiosResponse } from 'axios';
 import { APP_NAME, APP_VERSION, ArQueries, eDataType, eDataField } from './constants';
 import { LibraryService } from '../library/library.service';
 import { ArqlOp } from 'arql-ops';
+import { IArweave, FakeArweave } from './arweave.mock';
 
-interface IArweave {
-  wallets: IWallets;
-  transactions: ITransactions;
-  createTransaction(attributes: Partial<CreateTransactionInterface>, jwk: JWKInterface): Promise<Transaction>;
-  arql(query: object): Promise<string[]>;
-}
-
-interface IWallets {
-  jwkToAddress(jwk: JWKInterface): Promise<string>;
-}
-
-interface ITransactions {
-  get(id: string): Promise<Transaction>;
-  search(tagName: string, tagValue: string): Promise<string[]>;
-  getStatus(id: string): Promise<TransactionStatusResponse>;
-  getData(id: string, options?: {
-      decode?: boolean;
-      string?: boolean;
-  }): Promise<string | Uint8Array>;
-  sign(transaction: Transaction, jwk: JWKInterface): Promise<void>;
-  verify(transaction: Transaction): Promise<boolean>;
-  post(transaction: Transaction | Buffer | string | object): Promise<AxiosResponse>;
-}
-
-class FakeArweave implements IArweave {
-  public static init(apiConfig: ApiConfig): IArweave {
-    return new FakeArweave(apiConfig);
-  }
-  public constructor(params) {
-    console.log('USE FAKE ARWEAVE FOR TESTING PURPOSE');
-  }
-  public get wallets(): IWallets {
-    return {
-      jwkToAddress: (jwk: JWKInterface) => {
-        throw new Error('not implemented yet');
-       }
-    };
-  }
-  public get transactions(): ITransactions {
-    return {
-      get: (id: string) => {
-        throw new Error('not implemented yet');
-      },
-      search: (tagName: string, tagValue: string) => {
-        throw new Error('not implemented yet');
-      },
-      getStatus: (id: string) => {
-        throw new Error('not implemented yet');
-      },
-      getData: (id: string, options?: {
-          decode?: boolean;
-          string?: boolean;
-      }) => {
-        throw new Error('not implemented yet');
-      },
-      sign: (transaction: Transaction, jwk: JWKInterface) => {
-        throw new Error('not implemented yet');
-      },
-      verify: (transaction: Transaction) => {
-        throw new Error('not implemented yet');
-      },
-      post: (transaction: Transaction | Buffer | string | object) => {
-        throw new Error('not implemented yet');
-      }
-    };
-  }
-  public createTransaction(attributes: Partial<CreateTransactionInterface>, jwk: JWKInterface): Promise<Transaction> {
-    throw new Error("Method not implemented.");
-  }
-  public arql(query: object): Promise<string[]> {
-    throw new Error("Method not implemented.");
-  }
-
-}
-
-class RealArweave implements IArweave {
-  private _arweave: Arweave;
-  public static init(apiConfig: ApiConfig): IArweave {
-    return Arweave.init(apiConfig);
-  }
-  public get wallets(): IWallets {
-    return this._arweave.wallets;
-  }
-  public get transactions(): ITransactions {
-    return this._arweave.transactions;
-  }
-  public createTransaction(attributes: Partial<CreateTransactionInterface>, jwk: JWKInterface): Promise<Transaction> {
-    return this._arweave.createTransaction(attributes, jwk);
-  }
-  public arql(query: object): Promise<string[]> {
-    return this._arweave.arql(query);
-  }
-}
 
 // // tslint:disable-next-line: variable-name
 // const Arweave_inits: { real: any; fake: any; } = {
@@ -130,10 +37,11 @@ class RealArweave implements IArweave {
 })
 export class ArweaveService {
 
-  private _arweave: IArweave;
+  // private _arweave: IArweave;
+  private _arweave: Arweave;
   private _wallet: JWKInterface;
   private _initialized = false;
-  private _public_address: any;
+  private _public_address: any = undefined;
 
   public static getTxTags(tx: Transaction): Map<eDataField, string> {
     const tags: Map<eDataField, string> = new Map();
@@ -151,17 +59,18 @@ export class ArweaveService {
 
   public async useFakeArweave(useFake: boolean): Promise<boolean> {
     this._initialized = false;
-    if (useFake) {
-      try {
-        this._arweave = FakeArweave.init({});
-        this._initialized = true;
-      } catch (err) {
-        console.error(err);
-        this._initialized = false;
-      }
-    } else {
-      return this.initialize();
-    }
+    // if (useFake) {
+    //   try {
+    //     this._arweave = FakeArweave.init({});
+    //     this._initialized = true;
+    //   } catch (err) {
+    //     console.error(err);
+    //     this._initialized = false;
+    //   }
+    // } else {
+    //   return this.initialize();
+    // }
+    throw new Error("faxe Arweave is deacivated now");
     return this._initialized;
   }
 
@@ -182,27 +91,37 @@ export class ArweaveService {
     return this._initialized;
   }
 
+  public get authenticated(): boolean {
+    return this._initialized && this._public_address;
+  }
+
   public get address() {
     return this._public_address;
   }
 
-  public async login(walletFile: File): Promise<boolean> {
+  public async login(walletFile: File): Promise<string> {
     if (!this.initialized) {
       await this.initialize();
     }
-    const myReader: FileReader = new FileReader();
-    // console.log("read file", walletFile);
-    myReader.onload = (e) => {
-      console.log("waller read:", e.target.result);
-      console.log("Arweave", this._arweave);
-      this._wallet = JSON.parse(e.target.result.toString())
-      this._arweave.wallets.jwkToAddress(this._wallet).then((address) => {
-        console.log("address", address);
-        this._public_address = address;
-      });
-    };
-    myReader.readAsText(walletFile, 'utf-8');
-    return true;
+    return new Promise<string>((resolve, reject) => {
+      const myReader: FileReader = new FileReader();
+      // console.log("read file", walletFile);
+      myReader.onload = (e) => {
+        console.log("waller read:", e.target.result);
+        console.log("Arweave", this._arweave);
+        this._wallet = JSON.parse(e.target.result.toString());
+        return this._arweave.wallets.jwkToAddress(this._wallet).then((address) => {
+          console.log("address", address);
+          this._public_address = address;
+          resolve(address);
+        }).catch(err => reject(err));
+      };
+      myReader.readAsText(walletFile, 'utf-8');
+    })
+  }
+
+  public logout() {
+    this._public_address = undefined;
   }
 
   public async uploadDocument(docMetadata: DocMetaData, docInstance: DocInstance): Promise<string> {
@@ -264,39 +183,16 @@ export class ArweaveService {
     return this._arweave.transactions.get(txId);
   }
 
-  // public async getAllDocuments(): Promise<DocMetaData[]> {
-  //   if (!this.initialized) {
-  //     await this.initialize();
-  //   }
-  //   return new Promise<DocMetaData[]>(
-  //     (resolve, reject) => {
-  //       this._arweave.arql(ArQueries.ALL_DOCS).then((txIds: string[]) => {
-  //         console.log('getAllDocuments -> ', txIds);
-  //         const allDocs: DocMetaData[] = [];
-  //         txIds.forEach(async (txId) => {
-  //           try {
-  //             await this.retrieveDocMetaData(txId).then((docMetaData) => {
-  //               allDocs.push( docMetaData );
-  //             }).catch(err => { console.error(err); });
-  //           } catch (err) {
-  //             console.error(err);
-  //           }
-  //         });
-  //         resolve(allDocs);
-  //       }).catch((err) => {
-  //         console.error(err);
-  //         reject(err);
-  //       });
-  //     });
-  // }
+  public async getNetworkInfo(): Promise<NetworkInfoInterface> {
+    return this._arweave.network.getInfo();
+  }
 
-
-  // protected async retrieveDocMetaData(txId: string): Promise<DocMetaData> {
-  //   return this._arweave.transactions.get(txId).then((tx: Transaction) => {
-  //     const tags = getTxTags(tx);
-  //     return this.libraryService.retrieveDocMetaData(tx, tags);
-  //   });
-  // }
+  public async getBalance(address?: string): Promise<string> {
+    if (!address) {
+      address = this._public_address;
+    }
+    return this._arweave.wallets.getBalance(address);
+  }
 
   protected async signAndPostTransaction(tx): Promise<string> {
     return this._arweave.transactions.sign(tx, this._wallet).then(() => {

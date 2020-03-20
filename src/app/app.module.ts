@@ -8,6 +8,8 @@ import { MaterialFileInputModule } from 'ngx-material-file-input';
 import { FormsModule, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FileSaverModule } from 'ngx-filesaver';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import {MatStepperModule} from '@angular/material/stepper';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -30,6 +32,7 @@ import { SharedDocumentsComponent } from './components/routes/shared-documents/s
 import { DocCheckerComponent } from './components/routes/doc-checker/doc-checker.component';
 import { SearchComponent } from './components/routes/search/search.component';
 import { PublishComponent } from './components/routes/publish/publish.component';
+import { AuthenticateComponent } from './components/routes/authenticate/authenticate.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +48,8 @@ import { PublishComponent } from './components/routes/publish/publish.component'
     SharedDocumentsComponent,
     DocCheckerComponent,
     SearchComponent,
-    PublishComponent
+    PublishComponent,
+    AuthenticateComponent
   ],
   imports: [
     BrowserModule,
@@ -64,7 +68,9 @@ import { PublishComponent } from './components/routes/publish/publish.component'
     FileSaverModule,
     HttpClientModule,
     MatSlideToggleModule,
-    MatSidenavModule
+    MatSidenavModule,
+    MatStepperModule,
+    FlexLayoutModule
   ],
   providers: [FormBuilder, WindowRef],
   bootstrap: [AppComponent],

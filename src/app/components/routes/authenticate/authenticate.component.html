@@ -1,0 +1,34 @@
+<h1>Get Started !</h1>
+<p>Connect both to Arweave and Ethereum networks</p>
+<mat-vertical-stepper>
+    <mat-step label="{{arweaveStepLabel}}">
+        <div fxLayout="column">
+            <div fxFlex>
+                <app-arweave-connect></app-arweave-connect>
+            </div>
+            <div fxFlex>
+                <!-- <div mat-button class="button" matStepperNext>
+                <mat-icon>keyboard_arrow_down</mat-icon>
+                <span>Next</span>
+        </div> -->
+                <button mat-button class="button" matStepperNext>
+              <mat-icon>keyboard_arrow_down</mat-icon>
+              <span>Next</span>
+            </button>
+            </div>
+        </div>
+    </mat-step>
+    <mat-step label="Ethereum Account">
+        <div>TBD</div>
+        <div>
+            <!-- <div mat-button class="button" matStepperPrevious>
+                <mat-icon>keyboard_arrow_up</mat-icon>
+                <span>Back</span>
+            </div> -->
+            <button mat-button class="button" matStepperPrevious>
+              <mat-icon>keyboard_arrow_up</mat-icon>
+              <span>Back</span>
+            </button>
+        </div>
+    </mat-step>
+</mat-vertical-stepper>

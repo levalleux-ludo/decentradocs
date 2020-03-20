@@ -62,7 +62,14 @@ export class DocumentUploadFormComponent implements OnInit {
       }
       const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
         width: '350px',
-        data: {title: "Adding Version", message: `A document called '${title}' already exists in the library. Are you sure you want to add a new version of this document ?`}
+        data: {
+          title: "Adding Version",
+          message: `A document called '${title}' already exists in the library. Are you sure you want to add a new version of this document ?`,
+          actions: [
+            {text: 'Yes', result: true},
+            {text: 'No', result: false},
+          ]
+        }
       });
       confirmDialogRef.afterClosed().subscribe(result => {
         if (!result) {
@@ -85,7 +92,13 @@ export class DocumentUploadFormComponent implements OnInit {
       }
       const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
         width: '350px',
-        data: {title: "Existing Document", message: `An identical document already exists in the library.`}
+        data: {
+          title: "Existing Document",
+          message: `An identical document already exists in the library.`,
+          actions: [
+            {text: 'OK', result: true}
+          ]
+        }
       });
       confirmDialogRef.afterClosed().subscribe(result => {
         reject();
