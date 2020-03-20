@@ -1,0 +1,14 @@
+<div class="navbar sticky toolbar">
+    <div class="toolbar-container" role="banner">
+        <img width="50" alt="DCD" src="../assets/DecentraDocs.png" />
+        <span>DecentraDocs</span>
+        <div class="spacer"></div>
+        <img width="55" alt="PROFILE" src="../assets/Profile.png" (click)=" profileOpen = !profileOpen " />
+    </div>
+    <!-- Profile Details -->
+    <div class="navbar-drawer">
+        <app-profile-details [opened]="profileOpen"></app-profile-details>
+    </div>
+
+    <div class="toolbar-container bottom-line"></div>
+</div>

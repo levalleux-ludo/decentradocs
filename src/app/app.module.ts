@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MaterialFileInputModule } from 'ngx-material-file-input';
 import { FormsModule, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FileSaverModule } from 'ngx-filesaver';
+import { MatSidenavModule } from '@angular/material/sidenav';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -21,6 +22,14 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { HttpClientModule } from '@angular/common/http';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { ProfileDetailsComponent } from './components/profile-details/profile-details.component';
+import { LeftMenuBarComponent } from './components/left-menu-bar/left-menu-bar.component';
+import { MyDocumentsComponent } from './components/routes/my-documents/my-documents.component';
+import { SharedDocumentsComponent } from './components/routes/shared-documents/shared-documents.component';
+import { DocCheckerComponent } from './components/routes/doc-checker/doc-checker.component';
+import { SearchComponent } from './components/routes/search/search.component';
+import { PublishComponent } from './components/routes/publish/publish.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +37,15 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
     MaterialFileUploadComponent,
     ArweaveConnectComponent,
     DocumentUploadFormComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    NavbarComponent,
+    ProfileDetailsComponent,
+    LeftMenuBarComponent,
+    MyDocumentsComponent,
+    SharedDocumentsComponent,
+    DocCheckerComponent,
+    SearchComponent,
+    PublishComponent
   ],
   imports: [
     BrowserModule,
@@ -46,7 +63,8 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
     MatDialogModule,
     FileSaverModule,
     HttpClientModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    MatSidenavModule
   ],
   providers: [FormBuilder, WindowRef],
   bootstrap: [AppComponent],

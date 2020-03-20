@@ -1,0 +1,38 @@
+.spacer {
+    flex: 1;
+}
+
+.toolbar {
+    // position: fixed;
+}
+
+.toolbar-container {
+    // position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    background-color: #343a40;
+    color: white;
+    font-weight: 600;
+    font-size: xx-large;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.toolbar-container img {
+    margin: 0 16px;
+}
+
+.bottom-line {
+    height: 5px;
+}
+
+.navbar {
+    overflow: hidden;
+}
+
+.navbar-drawer {
+    background-color: darkgray;
+}
