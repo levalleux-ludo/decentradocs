@@ -1,1 +1,21 @@
-<p>my-documents works!</p>
+<h1>My Documents</h1>
+<mat-drawer-container #container id="container" class="example-container" (click)="onContainerClick($event)">
+    <app-document-list #docList [documents]="allCollections" (onSelectDoc)="select($event)"></app-document-list>
+    <mat-drawer #drawer class="example-sidenav" mode="side" position="end">
+        <div #docPanelTitle></div>
+        <div>
+            <mat-icon (click)="drawer.close()">close</mat-icon>
+        </div>
+        <app-document-details #docDetails style="width: 20%;"></app-document-details>
+    </mat-drawer>
+</mat-drawer-container>
+<!-- <div class="example-container">
+    <app-document-list [documents]="allCollections" (onSelectDoc)="select($event)"></app-document-list>
+    <mat-drawer #drawer class="example-sidenav" mode="side" position="end">
+        <div #docPanelTitle></div>
+        <div>
+            <mat-icon (click)="drawer.close()">close</mat-icon>
+        </div>
+        <app-document-details #docDetails></app-document-details>
+    </mat-drawer>
+</div> -->

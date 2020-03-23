@@ -1,0 +1,39 @@
+.document-item {
+    margin: 4px;
+    cursor: cell;
+}
+
+.title {
+    font-weight: bolder;
+}
+
+.version {
+    padding-left: 16px;
+    padding-right: 16px;
+    border-radius: 5px;
+    background-color: darkkhaki;
+    width: 5em;
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 1em;
+}
+
+.selected {
+    background-color: gray;
+}
+
+.doc-list {
+    width: auto;
+    // min-height: 90vh;
+    // overflow: auto;
+    height: fit-content;
+    // position: absolute;
+    // right: 0px;
+    // top: 50px;
+    // bottom: 0px;
+    overflow-x: hidden;
+}
+
+mat-list-item div {
+    margin-right: 16px;
+}

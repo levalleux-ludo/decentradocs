@@ -1,0 +1,44 @@
+.section {
+    margin-bottom: 16px;
+    width: 32em;
+}
+
+.title {
+    font-weight: bolder;
+}
+
+.version {
+    padding-left: 16px;
+    padding-right: 16px;
+    border-radius: 5px;
+    background-color: darkkhaki;
+    width: 5em;
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 1em;
+}
+
+.description {
+    border: 1px;
+    border-style: solid;
+    border-radius: 4px;
+    border-color: black;
+    min-height: 1em;
+    ;
+}
+
+.label {
+    width: 25%;
+}
+
+.property {
+    // width: fit-content;
+    overflow: auto;
+}
+
+.versions {
+    border: 1px;
+    border-style: solid;
+    border-radius: 4px;
+    border-color: black;
+}

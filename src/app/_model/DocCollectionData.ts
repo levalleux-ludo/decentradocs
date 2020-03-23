@@ -33,6 +33,10 @@ export class DocCollectionData {
     return this._latestVersion;
   }
 
+  public get versions(): number[] {
+    return Array.from(this._versions.keys());
+  }
+
   public getDataForVersion(version: number): DocMetaData {
     return this._versions.get(version);
   }

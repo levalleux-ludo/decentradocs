@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material/dialog';
 import { FileUploadAction } from '../material-file-upload/material-file-upload.component';
@@ -9,14 +9,18 @@ import { EROFS } from 'constants';
 import { LibraryService } from 'src/app/library/library.service';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { DocCollectionData } from 'src/app/_model/DocCollectionData';
+import { MaterialFileSelectComponent } from '../material-file-select/material-file-select.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-document-upload-form',
   templateUrl: './document-upload-form.component.html',
-  styleUrls: ['./document-upload-form.component.sass']
+  styleUrls: ['./document-upload-form.component.scss']
 })
 export class DocumentUploadFormComponent implements OnInit {
 
+  @ViewChild('fileSelector')
+  fileSelector: MaterialFileSelectComponent;
   form: FormGroup;
   docInstance: DocInstance;
 
@@ -26,6 +30,7 @@ export class DocumentUploadFormComponent implements OnInit {
     private dialogRef: MatDialogRef<DocumentUploadFormComponent>,
     private arweaveService: ArweaveService,
     private libraryService: LibraryService,
+    private _snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: any) {
   }
 
@@ -144,6 +149,47 @@ export class DocumentUploadFormComponent implements OnInit {
   //     return;
   //   });
   // }
+
+  onFileSelected(file: File) {
+    if (file === undefined) {
+      this.onFileSelectionFailure();
+      return;
+    }
+    const filename = file.name;
+    console.log(`onFileSelected(${filename})`);
+    this.docInstance = new DocInstance();
+    this.docInstance.readFromFile(file, (result) => {
+      if (result) {
+        console.log("read file completed");
+        console.log("hash:", this.docInstance.hash);
+        this.checkDocumentExists(this.docInstance.hash).then(() => {
+          this.checkCollectionExists(filename).then((result: {docId: string, version: number}) => {
+            this.form.patchValue({title: filename});
+            this.form.patchValue({docId: result.docId});
+            this.form.patchValue({version: result.version});
+            console.log('success, version:', result.version, "docId:", result.docId);
+            // data.onSuccess('');
+          }).catch(() => { // did not agree to add a new version
+            this.onFileSelectionFailure();
+          });
+        }).catch(() => { // doc already exists
+          this.onFileSelectionFailure();
+        });
+      } else { // read file failed
+        this.onFileSelectionFailure();
+        this._snackBar.open(`Unexpected error while reading file '${filename}'`, 'ERROR', {
+          duration: 2000,
+        });
+      }
+    });
+  }
+
+  onFileSelectionFailure() {
+    this.form.patchValue({title: ''});
+    this.form.patchValue({version: 0});
+    this.docInstance = undefined;
+    this.fileSelector.selectedFile = undefined;
+  }
 
   uploadFile(data: FileUploadAction) {
     const file = data.fileModel;

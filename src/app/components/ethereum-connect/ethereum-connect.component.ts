@@ -51,11 +51,16 @@ export class EthereumConnectComponent implements OnInit {
               this.balance = '';
             }
           });
+        }, err => {
+          this.address = undefined;
+          this.balance = '';
         });
         this.ethService.getAccounts().subscribe((accounts: string[]) => {
           this.zone.run(() => {
             this.addresses = accounts;
           })
+        }, err => {
+          this.addresses = [];
         });
         this.ethService.getWeb3().subscribe((web3) => {
           this.provider = web3.currentProvider;

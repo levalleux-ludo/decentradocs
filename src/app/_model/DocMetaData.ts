@@ -4,10 +4,10 @@ import { eDataField } from '../arweave/constants';
 import { ArweaveService } from '../arweave/arweave.service';
 
 export enum eDocumentUploadingStatus {
-  UNKNOWN,
-  PENDING,
-  CONFIRMED,
-  FAILED
+  UNKNOWN = 'unknown',
+  PENDING = 'Pending',
+  CONFIRMED = 'Confirmed',
+  FAILED = 'Failed'
 }
 
 export class DocMetaData {

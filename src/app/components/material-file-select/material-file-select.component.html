@@ -1,0 +1,15 @@
+<button *ngIf="selectedFile === undefined" mat-button color="warn" (click)="onClickSelect()" type="button" class="button">
+  <mat-icon>file_upload</mat-icon>Select File
+</button>
+<div *ngIf="selectedFile !== undefined" fxLayout="row">
+    <!-- <input class="file" readonly placeholder="Selected File" value> -->
+    <mat-form-field>
+        <mat-icon>insert_drive_file</mat-icon>
+        <!-- <span class="file">{{selectedFile.name}}</span> -->
+        <input matInput class="file" placeHolder="Selected Document" value="{{selectedFile.name}}" readonly>
+    </mat-form-field>
+    <span class="button small-button" (click)="selectFile(undefined)">
+      <mat-icon matTooltip='Select Another Document'>backspace</mat-icon>
+  </span>
+</div>
+<input #fileUpload type="file" id="fileUpload" name="fileUpload" multiple="false" style="display:none;" />

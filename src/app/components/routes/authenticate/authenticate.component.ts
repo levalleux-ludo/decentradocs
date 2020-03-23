@@ -20,6 +20,8 @@ export class AuthenticateComponent implements OnInit {
   ngOnInit(): void {
     this.ethService.currentAccount().subscribe((account: string) => {
       this.ethAddress = account;
+    }, err => {
+      this.ethAddress = undefined;
     });
   }
 

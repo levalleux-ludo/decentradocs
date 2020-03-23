@@ -12,10 +12,10 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class LibraryService {
-
   _collectionPerId: Map<string, DocCollectionData> = new Map();
   _collectionPerTitle: Map<string, DocCollectionData> = new Map();
   _allDocsPerHash: Map<string, DocMetaData> = new Map();
+  _allDocsPerAuthor: Map<string, DocMetaData> = new Map();
   _pendingDocumentsPerHash: Map<string, {doc: DocMetaData, txId: string}> = new Map();
 
   constructor(
@@ -47,7 +47,7 @@ export class LibraryService {
         });
         console.log('return collections of size', this._collectionPerId.size);
         observer.next(Array.from(this._collectionPerId.values()));
-        observer.complete();
+        // observer.complete();
       }).catch(err => {
         console.error(err);
       });
@@ -135,6 +135,7 @@ export class LibraryService {
     collection.addVersion(docMetaData);
     console.log("new doc", JSON.stringify(docMetaData));
     this._allDocsPerHash.set(docMetaData.hash, docMetaData);
+    this._allDocsPerAuthor.set(docMetaData.author, docMetaData);
     if (docMetaData.uploadingStatus !== eDocumentUploadingStatus.CONFIRMED) {
       this._pendingDocumentsPerHash.set(docMetaData.hash, { doc: docMetaData, txId: txId });
       this.transactionsService.watchTx(
@@ -165,4 +166,28 @@ export class LibraryService {
         });
     }
   }
+
+  public getAuthors(): Observable<string[]> {
+    return new Observable((observer) => {
+
+      this.updateLibrary().then((documents) => {
+        this._pendingDocumentsPerHash.forEach((value, key) => {
+          if (!this._allDocsPerHash.has(key)) {
+            this.addInLibrary(value.doc, value.txId);
+          }
+        });
+        console.log('return collections of size', this._collectionPerId.size);
+        observer.next(Array.from(this._allDocsPerAuthor.keys()));
+      }).catch(err => {
+        console.error(err);
+      });
+      return {
+        unsubscribe() {
+          console.log(`unsubscribe authors`);
+        }
+      };
+    });
+  }
+
+
 }

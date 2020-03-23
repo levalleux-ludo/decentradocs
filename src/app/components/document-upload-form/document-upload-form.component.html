@@ -3,7 +3,14 @@
     <h1 mat-dialog-title>Upload Document</h1>
 
     <mat-dialog-content>
-        <div fxLayout="column" style="width: 50em;">
+        <div fxLayout="row"></div>
+        <div>
+            <app-material-file-select #fileSelector [autoOpen]="true" (cancel)="close()" (fileSelected)="onFileSelected($event)"></app-material-file-select>
+            <mat-form-field *ngIf="docInstance" class="hash">
+                <input fxFlex matInput readonly required placeholder="Document Fingerprint (hash)" value="{{docInstance.hash}}">
+            </mat-form-field>
+        </div>
+        <div fxLayout="column">
             <div fxFlex>
                 <mat-form-field>
                     <input fxFlex matInput required placeholder="Document Title" formControlName="title">
@@ -24,15 +31,10 @@
                     <textarea fxFlex matInput placeholder="Document Description" formControlName="description" rows="5"></textarea>
                 </mat-form-field>
             </div>
-            <div fxFlex fxLayout="column" fxLayoutAlign="top">
-                <div>
-                    <app-material-file-upload [ddarea]='true' accept="*.*" [autoOpen]="true" (fileUpload)="uploadFile($event)" (complete)="onFileUploaded($event)"></app-material-file-upload>
-                </div>
-                <div *ngIf="docInstance">
-                    <p>Hash: {{docInstance.hash}}</p>
-                </div>
-            </div>
         </div>
     </mat-dialog-content>
-    <button mat-button type="submit" (click)="submit(form)">Submit</button>
+    <div fxLayout="row" fxLayoutAlign="center center">
+        <div class="button" mat-button type="submit" (click)="submit(form)">Submit</div>
+        <div class="button" mat-button type="cancel" (click)="close()">Cancel</div>
+    </div>
 </form>

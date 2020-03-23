@@ -54,6 +54,7 @@ export class EthService {
   ) {
     this._currentAccountSubject = new BehaviorSubject<string>(undefined);
     this._currentAccount = this._currentAccountSubject.asObservable();
+    this.initialize();
   }
 
   public get initialized(): boolean {
@@ -61,7 +62,17 @@ export class EthService {
   }
 
   public get authenticated(): boolean {
-    return this._initialized && (this.currentAccountValue !== undefined);
+    return this.initialized && (this.currentAccountValue !== undefined);
+  }
+
+  public async isAuthenticated(): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      this.initialize().subscribe((initialized) => {
+        this.currentAccount().subscribe((account) => {
+          resolve(this.authenticated);
+        }, err => reject(err));
+      }, err => reject(err));
+    });
   }
 
   public initialize(): Observable<boolean> {

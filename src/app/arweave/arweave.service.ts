@@ -53,9 +53,11 @@ export class ArweaveService {
     return tags;
   }
 
-    constructor(
+  constructor(
     private fileSaverService: FileSaverService
-    ) {}
+  ) {
+    this.initialize();
+  }
 
   public async useFakeArweave(useFake: boolean): Promise<boolean> {
     this._initialized = false;
@@ -111,7 +113,15 @@ export class ArweaveService {
   }
 
   public get authenticated(): boolean {
-    return this._initialized && (this._public_address !== undefined);
+    return this.initialized && (this._public_address !== undefined);
+  }
+
+  public async isAuthenticated(): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      this.initialize().then((address) => {
+        resolve(this.authenticated);
+      }).catch(err => reject(err));
+    });
   }
 
   public get address() {

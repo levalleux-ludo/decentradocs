@@ -1,0 +1,48 @@
+<!-- <table>
+    <tr>
+        <th>Title</th>
+        <th>Latest Version</th>
+        <th>Author</th>
+        <th>Status</th>
+        <th>Access</th>
+        <th></th>
+        <th></th>
+    </tr>
+    <tr *ngFor="let document of documents">
+        <td>
+            <div class="title">{{document.title}}</div>
+        </td>
+        <td>
+            <div class="version">{{document.latestVersion}}</div>
+        </td>
+        <td>
+            <div class="author">{{document.getDataForLatestVersion().author}}</div>
+        </td>
+        <td>
+            <div class="status">{{document.getDataForLatestVersion().uploadingStatus}}</div>
+        </td>
+        <td>
+            <div class="access">Public</div>
+        </td>
+        <td style="vertical-align: top; text-align: center;">
+            <button [disabled]="true" mat-raised-button color="primary" title="Edit"><i class="fa fa-edit"></i>Edit</button>
+        </td>
+        <td style="vertical-align: top; text-align: center;">
+            <button [disabled]="true" mat-raised-button color="primary" title="Delete"><i class="fa fa-trash"></i>Delete</button>
+        </td>
+    </tr>
+</table> -->
+<mat-list #selectedDocument class="doc-list" fxLayout="column">
+    <mat-list-item fxFlex *ngFor="let document of documents" class="document-item" [ngClass]="{selected: selectedDoc === document}" (click)="selectedDoc=document">
+        <mat-icon>description</mat-icon>
+        <div class="title">{{document.title}}</div>
+        <div class="version">version:{{document.latestVersion}}</div>
+        <div class="status">
+            <mat-icon *ngIf="document.getDataForLatestVersion().uploadingStatus == 'Pending'" matTooltip='Waiting for uploading transaction to complete'>hourglass_empty</mat-icon>
+            <mat-icon *ngIf="document.getDataForLatestVersion().uploadingStatus == 'Failed'" matTooltip='Uploading transaction failed'>error_outline</mat-icon>
+        </div>
+        <div class="access">
+            <mat-icon matTooltip='Public access'>lock_open</mat-icon>
+        </div>
+    </mat-list-item>
+</mat-list>

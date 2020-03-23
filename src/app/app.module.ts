@@ -8,8 +8,16 @@ import { MaterialFileInputModule } from 'ngx-material-file-input';
 import { FormsModule, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FileSaverModule } from 'ngx-filesaver';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import {MatStepperModule} from '@angular/material/stepper';
+import { MatStepperModule } from '@angular/material/stepper';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatListModule } from '@angular/material/list';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -34,6 +42,11 @@ import { SearchComponent } from './components/routes/search/search.component';
 import { PublishComponent } from './components/routes/publish/publish.component';
 import { AuthenticateComponent } from './components/routes/authenticate/authenticate.component';
 import { EthereumConnectComponent } from './components/ethereum-connect/ethereum-connect.component';
+import { HomeComponent } from './components/routes/home/home.component';
+import { DocumentListComponent } from './components/document-list/document-list.component';
+import { DocumentDetailsComponent, ReversePipe } from './components/document-details/document-details.component';
+import { DocumentUploadComponent } from './components/document-upload/document-upload.component';
+import { MaterialFileSelectComponent } from './components/material-file-select/material-file-select.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +64,13 @@ import { EthereumConnectComponent } from './components/ethereum-connect/ethereum
     SearchComponent,
     PublishComponent,
     AuthenticateComponent,
-    EthereumConnectComponent
+    EthereumConnectComponent,
+    HomeComponent,
+    DocumentListComponent,
+    DocumentDetailsComponent,
+    ReversePipe,
+    DocumentUploadComponent,
+    MaterialFileSelectComponent
   ],
   imports: [
     BrowserModule,
@@ -72,7 +91,15 @@ import { EthereumConnectComponent } from './components/ethereum-connect/ethereum
     MatSlideToggleModule,
     MatSidenavModule,
     MatStepperModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatListModule,
+    MatBadgeModule,
+    MatTooltipModule,
+    MatExpansionModule,
+    MatSnackBarModule
   ],
   providers: [FormBuilder, WindowRef],
   bootstrap: [AppComponent],

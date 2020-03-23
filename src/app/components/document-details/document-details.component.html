@@ -1,0 +1,75 @@
+<div class="document-details" fxLayout="column" *ngIf=" document !== undefined">
+    <h3>{{document.title}}</h3>
+
+    <div fxFlex class="section">
+        <mat-label class="label">Title:</mat-label>
+        <div fxFlex class="property">
+            <div class="title">{{document.title}}</div>
+        </div>
+    </div>
+    <div fxFlex class="section">
+        <mat-label class="label">Latest Version:</mat-label>
+        <div fxFlex class="property">
+            <div class="version">version:{{document.latestVersion}}</div>
+        </div>
+    </div>
+    <div fxFlex class="section">
+        <mat-label class="label"></mat-label>
+        <div fxFlex class="property">
+            <div class="status">
+                <mat-icon *ngIf="document.getDataForLatestVersion().uploadingStatus == 'Pending'" matTooltip='Waiting for uploading transaction to complete'>hourglass_empty</mat-icon>
+                <mat-icon *ngIf="document.getDataForLatestVersion().uploadingStatus == 'Failed'" matTooltip='Uploading transaction failed'>error_outline</mat-icon>
+            </div>
+        </div>
+    </div>
+    <div fxFlex class="section">
+        <mat-label class="label">Access Type:</mat-label>
+        <div fxFlex class="property">
+            <div class="access">
+                <mat-icon matTooltip='Public access'>lock_open</mat-icon>
+            </div>
+        </div>
+    </div>
+    <div fxFlex class="section">
+        <mat-label class="label">Author:</mat-label>
+        <div fxFlex class="property">
+            <mat-icon>account_box</mat-icon>
+            <div class="author">{{document.getDataForLatestVersion().author}}</div>
+        </div>
+    </div>
+    <div fxFlex class="section">
+        <mat-label class="label">Description:</mat-label>
+        <div fxFlex class="property">
+            <div class="description">{{document.getDataForLatestVersion().description}}</div>
+        </div>
+    </div>
+    <div fxFlex class="section versions" fxLayout="column">
+        <h4>Versions:</h4>
+        <div fxFlex>
+            <mat-accordion>
+                <mat-expansion-panel *ngFor="let version of document.versions | reverse">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <div class="version">version:{{version}}</div>
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <div fxLayout="column">
+                        <div fxFlex class="section">
+                            <mat-label class="label">Author:</mat-label>
+                            <div fxFlex class="property">
+                                <mat-icon>account_box</mat-icon>
+                                <div class="author">{{document.getDataForVersion(version).author}}</div>
+                            </div>
+                        </div>
+                        <div fxFlex class="section">
+                            <mat-label class="label">Description:</mat-label>
+                            <div fxFlex class="property">
+                                <div class="description">{{document.getDataForLatestVersion().description}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </mat-expansion-panel>
+            </mat-accordion>
+        </div>
+    </div>
+</div>

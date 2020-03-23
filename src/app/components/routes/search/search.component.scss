@@ -1,0 +1,84 @@
+.button {
+    border-radius: 4px;
+    border: 1px solid #eee;
+    background-color: #fafafa;
+    height: 40px;
+    width: 200px;
+    margin: 8px;
+    // padding: 16px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+    // line-height: 24px;
+    cursor: pointer;
+}
+
+.button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 17px rgba(black, 0.35);
+}
+
+.button:hover .material-icons path {
+    fill: rgb(105, 103, 103);
+}
+
+.spacer {
+    flex: 1;
+}
+
+.mat-icon {
+    margin: 8px;
+}
+
+.filter {
+    width: 30em;
+    background-color: lightgrey;
+    padding: 8px;
+}
+
+.searchin-section {
+    display: flex;
+    align-content: center;
+    align-items: center;
+    height: 60px;
+}
+
+.searchin-margin {
+    margin: 0 10px;
+}
+
+.author-filter {
+    border: 1px;
+    border-style: solid;
+    border-radius: 4px;
+    border-color: black;
+    margin: 8px;
+    padding: 8px;
+    min-height: 100px;
+}
+
+.keywords-filter {
+    border: 1px;
+    border-style: solid;
+    border-radius: 4px;
+    border-color: black;
+    margin: 8px;
+    padding: 8px;
+    min-height: 150px;
+}
+
+.author-select {
+    display: subgrid;
+}
+
+.results {
+    border-bottom-style: solid;
+    width: auto;
+}
+
+.example-container {
+    // overflow: scroll;
+    height: 100%;
+}

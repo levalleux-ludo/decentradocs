@@ -1,1 +1,64 @@
-<p>search works!</p>
+<mat-drawer-container class="example-container" autosize>
+    <h1>Search in PermaLibrary</h1>
+    <form [formGroup]="form" (ngSubmit)="submit(form)">
+        <div class="filter">
+            <h3>Select your Filter Criteria</h3>
+            <mat-dialog-content>
+                <div fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
+                    <div fxFlex fxLayout="column" style="width: 20em;">
+                        <div class="author-filter">
+                            <h4>Author:</h4>
+                            <mat-slide-toggle #filterByAuthor class="" formControlName="filterByAuthor">
+                                <mat-label *ngIf="!filterByAuthor.checked">All</mat-label>
+                            </mat-slide-toggle>
+                            <mat-select *ngIf="filterByAuthor.checked" placeholder="Author" formControlName="author" class="author-select">
+                                <mat-option *ngFor="let author of allAuthors" [value]="author">
+                                    {{author}}
+                                </mat-option>
+                            </mat-select>
+                        </div>
+                        <div class="keywords-filter">
+                            <h4>Keywords</h4>
+                            <div fxLayout="row">
+                                <mat-form-field fxFlex>
+                                    <mat-label>Enter some keywords</mat-label>
+                                    <mat-chip-list #keywordsList aria-label="Keywords">
+                                        <mat-chip *ngFor="let keyword of keywords" [selectable]="true" [removable]="true" (removed)="removeKeyword(keyword)">
+                                            {{keyword}}
+                                            <mat-icon matChipRemove>cancel</mat-icon>
+                                        </mat-chip>
+                                        <input placeholder="New keyword..." [matChipInputFor]="keywordsList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="addKeyword($event)">
+                                    </mat-chip-list>
+                                    <!-- <input required #keywords matInput placeholder="Enter Some Keywords" formControlName="keywords"> -->
+                                </mat-form-field>
+                                <section fxFlex class="searchin-section">
+                                    <div fxLayout="column">
+                                        <div fxFlex>search in:</div>
+                                        <mat-checkbox fxFlex class="searchin-margin">Titles</mat-checkbox>
+                                        <mat-checkbox fxFlex class="searchin-margin">Descriptions</mat-checkbox>
+                                        <mat-checkbox fxFlex class="searchin-margin">Content (public docs only)</mat-checkbox>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </mat-dialog-content>
+            <div>
+                <button mat-button class="button">
+              <mat-icon>search</mat-icon>
+              <span>Search</span>
+            </button>
+            </div>
+        </div>
+    </form>
+    <div class="results">
+        <h2>Results:</h2>
+        <app-document-list [documents]="searchResults" (onSelectDoc)="select($event)"></app-document-list>
+    </div>
+    <mat-drawer #drawer class="example-sidenav" mode="side" position="end">
+        <div #docPanelTitle></div>
+        <app-document-details #docDetails></app-document-details>
+    </mat-drawer>
+
+</mat-drawer-container>

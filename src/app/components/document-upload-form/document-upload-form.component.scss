@@ -24,29 +24,25 @@
     fill: rgb(105, 103, 103);
 }
 
-.spacer {
-    flex: 1;
+.close {
+    position: relative;
+    left: 97%;
 }
 
-.mat-icon {
-    margin: 8px;
+.close:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 17px rgba(black, 0.35);
+    fill: rgb(105, 103, 103);
 }
 
-.ethereum-connect {
-    width: 550px;
-    border-radius: 16px;
-    border: 1px;
-    border-color: cadetblue;
-    margin: 8px;
-    border-block-end: 8px;
-    border-style: outset;
-    background-color: white;
+.mat-dialog-content {
+    text-align: -webkit-center;
 }
 
-img {
-    margin: 8px;
-}
-
-input {
+.mat-dialog-title {
     text-align: center;
+}
+
+.mat-form-field {
+    width: -webkit-fill-available;
 }
