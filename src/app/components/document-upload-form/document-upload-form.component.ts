@@ -11,6 +11,9 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 import { DocCollectionData } from 'src/app/_model/DocCollectionData';
 import { MaterialFileSelectComponent } from '../material-file-select/material-file-select.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatChipInputEvent } from '@angular/material/chips';
+import { ENTER, COMMA } from '@angular/cdk/keycodes';
+import { EthService } from 'src/app/ethereum/eth.service';
 
 @Component({
   selector: 'app-document-upload-form',
@@ -27,6 +30,9 @@ export class DocumentUploadFormComponent implements OnInit {
   canChangeVersion = false;
   canChangeDescription = true;
   existingCollection = false;
+  subscriptionFee: string = '0.0001';
+  authorizedAddresses: string[] = [];
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
   constructor(
     private dialog: MatDialog,
@@ -34,6 +40,7 @@ export class DocumentUploadFormComponent implements OnInit {
     private dialogRef: MatDialogRef<DocumentUploadFormComponent>,
     private arweaveService: ArweaveService,
     private libraryService: LibraryService,
+    private ethService: EthService,
     private _snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: any) {
   }
@@ -50,7 +57,10 @@ export class DocumentUploadFormComponent implements OnInit {
       author: this.data.author,
       description: this.data.description,
       version: this.data.version,
-      docInstance: undefined
+      docInstance: undefined,
+      subscriptionFee: this.subscriptionFee,
+      protected: false,
+      authorizedAddresses: this.authorizedAddresses
     });
   }
 
@@ -243,5 +253,47 @@ export class DocumentUploadFormComponent implements OnInit {
   //   console.log('onFileUploaded', data);
 
   // }
+
+  public setFee(value) {
+    let regex = new RegExp(/\d[\d,\,, ]*[.|,]?\d*/);
+    if (!regex.test(value)) {
+      throw new Error(`Unable to parse entry '${value}' from currency format to a number.`);
+    }
+    let results = regex.exec(value);
+    console.log("setFee() value =", value, "regex.results = ", results[0]);
+    this.subscriptionFee = results[0];
+  }
+
+  public removeAddress(address: string) {
+    const index = this.authorizedAddresses.indexOf(address);
+    if (index >= 0) {
+      this.authorizedAddresses.splice(index, 1);
+    }
+  }
+
+  public addAddress(event: MatChipInputEvent): void {
+    const input = event.input;
+    const value = event.value;
+
+    // Add our fruit
+    if ((value || '').trim()) {
+      const address = value.trim();
+      if (!this.isAddress(address)) {
+        return;
+      }
+      this.authorizedAddresses.push(value.trim());
+    }
+
+    // Reset the input value
+    if (input) {
+      input.value = '';
+    }
+  }
+
+  public isAddress(address: string): boolean {
+    return this.ethService.isAddress(address);
+  }
+
+
 
 }

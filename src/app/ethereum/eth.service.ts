@@ -227,4 +227,8 @@ export class EthService {
       return this._currentAccountSubject.value;
     }
 
+    public isAddress(address: string): boolean {
+      return this.web3.utils.isAddress(address);
+    }
+
 }

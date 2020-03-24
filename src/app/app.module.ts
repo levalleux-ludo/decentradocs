@@ -19,6 +19,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatRadioModule } from '@angular/material/radio';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -103,7 +104,8 @@ import { DownloadComponent } from './components/routes/download/download.compone
     MatTooltipModule,
     MatExpansionModule,
     MatSnackBarModule,
-    MatMenuModule
+    MatMenuModule,
+    MatRadioModule
   ],
   providers: [FormBuilder, WindowRef],
   bootstrap: [AppComponent],
