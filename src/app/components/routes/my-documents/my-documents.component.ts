@@ -24,7 +24,7 @@ export class MyDocumentsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.library.collections.subscribe((collections: DocCollectionData[]) => {
+    this.library.libraryCollections.subscribe((collections: DocCollectionData[]) => {
       this.allCollections = collections;
       // for (let i = 0; i < 10; i++) {
       //   this.allCollections = this.allCollections.concat(collections);

@@ -8,6 +8,12 @@
         </div>
     </div>
     <div fxFlex class="section">
+        <mat-label class="label">Document Id:</mat-label>
+        <div fxFlex class="property">
+            <div class="docId">{{document.docId}}</div>
+        </div>
+    </div>
+    <div fxFlex class="section">
         <mat-label class="label">Latest Version:</mat-label>
         <div fxFlex class="property">
             <div class="version">version:{{document.latestVersion}}</div>
@@ -44,7 +50,12 @@
         </div>
     </div>
     <div fxFlex class="section versions" fxLayout="column">
-        <h4>Versions:</h4>
+        <div fxLayout="row">
+            <h4>Versions:</h4>
+            <div class="button add-version" [routerLink]="['/publish', {docId: document.docId}]">
+                <mat-icon matTooltip='Publish a new version'>library_add</mat-icon>
+            </div>
+        </div>
         <div fxFlex>
             <mat-accordion>
                 <mat-expansion-panel *ngFor="let version of document.versions | reverse">

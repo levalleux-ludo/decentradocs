@@ -42,3 +42,20 @@
     border-radius: 4px;
     border-color: black;
 }
+
+.add-version {
+    position: relative;
+    left: 79%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 17px rgba(black, 0.35);
+}
+
+.button:hover .material-icons path {
+    fill: rgb(105, 103, 103);
+}

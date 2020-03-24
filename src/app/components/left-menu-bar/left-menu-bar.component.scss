@@ -14,7 +14,7 @@
 .card {
     border-radius: 4px;
     border: 1px solid #eee;
-    background-color: #fafafa;
+    background-color: lightgrey;
     height: 40px;
     // // width: 200px;
     // margin: 0 8px 16px 8px;
@@ -48,8 +48,8 @@
 }
 
 .card.highlight-card {
-    background-color: #1976d2;
-    color: white;
+    background-color: darkslategrey;
+    color: darkslategrey;
     font-weight: 600;
     border: none;
     width: auto;
@@ -59,4 +59,12 @@
 
 .mat-icon {
     margin: 8px;
+}
+
+.active {
+    transform: translateX(8px);
+    background-color: white !important;
+    border-style: solid;
+    border-color: darkslategrey;
+    font-weight: bold;
 }

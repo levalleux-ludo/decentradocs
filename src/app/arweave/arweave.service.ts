@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import { Injectable } from '@angular/core';
 import Arweave, { Config, CreateTransactionInterface } from 'arweave/web';
 import Transaction from 'arweave/web/lib/transaction';
@@ -31,6 +32,8 @@ import { IArweave, FakeArweave } from './arweave.mock';
 // if (process.env.FAKE_ARWEAVE) {
 //   Arweave_init = Arweave_inits.fake;
 // }
+
+const debug = true;
 
 @Injectable({
   providedIn: 'root'
@@ -178,6 +181,10 @@ export class ArweaveService {
       await this.initialize();
     }
     console.log("upload doc with hash", docInstance.hash);
+    if (debug) {
+      console.warn('DEBUG MODE: real uploading deactivated')
+      return uuid();
+    }
     const tx = await this._arweave.createTransaction(
       {
         data: docInstance.content

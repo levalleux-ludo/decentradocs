@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import { DocMetaData, eDocumentUploadingStatus } from '../_model/DocMetaData';
 import { eDataField, ArQueries } from '../arweave/constants';
 import Transaction from 'arweave/web/lib/transaction';
@@ -6,7 +6,7 @@ import { DocCollectionData } from '../_model/DocCollectionData';
 import { ArweaveService } from '../arweave/arweave.service';
 import { rejects } from 'assert';
 import { TransactionsService, eTransationStatus } from '../arweave/transactions.service';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -17,15 +17,36 @@ export class LibraryService {
   _allDocsPerHash: Map<string, DocMetaData> = new Map();
   _allDocsPerAuthor: Map<string, DocMetaData> = new Map();
   _pendingDocumentsPerHash: Map<string, {doc: DocMetaData, txId: string}> = new Map();
+  private _librarySubject: BehaviorSubject<DocMetaData[]>;
+  private _library: Observable<DocMetaData[]>;
+  private _libraryCollectionsSubject: BehaviorSubject<DocCollectionData[]>;
+  private _libraryCollections: Observable<DocCollectionData[]>;
+
 
   constructor(
     private arweaveService: ArweaveService,
     private transactionsService: TransactionsService
-  ) { }
+  ) {
+    this._librarySubject = new BehaviorSubject<DocMetaData[]>([]);
+    this._library = this._librarySubject.asObservable();
+    this._libraryCollectionsSubject = new BehaviorSubject<DocCollectionData[]>([]);
+    this._libraryCollections = this._libraryCollectionsSubject.asObservable();
+  }
+
+  public get libraryCollections(): Observable<DocCollectionData[]> {
+    return this._libraryCollections;
+  }
 
   findCollectionByTitle(title: string): DocCollectionData {
     if (this._collectionPerTitle.has(title)) {
       return this._collectionPerTitle.get(title);
+    }
+    return undefined;
+  }
+
+  findCollectionByDocId(docId: string): DocCollectionData {
+    if (this._collectionPerId.has(docId)) {
+      return this._collectionPerId.get(docId);
     }
     return undefined;
   }
@@ -132,10 +153,14 @@ export class LibraryService {
       this._collectionPerTitle.set(docMetaData.title, collection);
       console.log("new collection", JSON.stringify(collection));
     }
+    console.log("Update Subject: LibraryCollection");
+    this._libraryCollectionsSubject.next(Array.from(this._collectionPerId.values()));
     collection.addVersion(docMetaData);
     console.log("new doc", JSON.stringify(docMetaData));
     this._allDocsPerHash.set(docMetaData.hash, docMetaData);
     this._allDocsPerAuthor.set(docMetaData.author, docMetaData);
+    console.log("Update Subject: Library");
+    this._librarySubject.next(Array.from(this._allDocsPerHash.values()));
     if (docMetaData.uploadingStatus !== eDocumentUploadingStatus.CONFIRMED) {
       this._pendingDocumentsPerHash.set(docMetaData.hash, { doc: docMetaData, txId: txId });
       this.transactionsService.watchTx(

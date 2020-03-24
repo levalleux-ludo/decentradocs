@@ -34,7 +34,7 @@
         </div>
     </mat-dialog-content>
     <div fxLayout="row" fxLayoutAlign="center center">
-        <div class="button" mat-button type="submit" (click)="submit(form)">Submit</div>
-        <div class="button" mat-button type="cancel" (click)="close()">Cancel</div>
+        <div class="button" mat-raised-button color="accent" [mat-dialog-close]="true" type="submit" (click)="submit(form)">Submit</div>
+        <div class="button" mat-raised-button color="accent" mat-dialog-close type="cancel" (click)="close()">Cancel</div>
     </div>
 </form>

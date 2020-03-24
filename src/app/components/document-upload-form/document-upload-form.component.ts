@@ -23,6 +23,10 @@ export class DocumentUploadFormComponent implements OnInit {
   fileSelector: MaterialFileSelectComponent;
   form: FormGroup;
   docInstance: DocInstance;
+  canChangeTitle = true;
+  canChangeVersion = false;
+  canChangeDescription = true;
+  existingCollection = false;
 
   constructor(
     private dialog: MatDialog,
@@ -36,13 +40,16 @@ export class DocumentUploadFormComponent implements OnInit {
 
   ngOnInit(): void {
     // this.form = new FormGroup({});
+    if (this.data.docId) {
+      this.canChangeTitle = false;
+      this.existingCollection = true;
+    }
     this.form = this.fb.group({
       docId: this.data.docId,
       title: this.data.title,
       author: this.data.author,
       description: this.data.description,
       version: this.data.version,
-      canChangeVersion: this.data.canChangeVersion,
       docInstance: undefined
     });
   }
@@ -57,12 +64,16 @@ export class DocumentUploadFormComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  checkCollectionExists(title: string): Promise<{docId: string, version: number}> {
+  checkCollectionExists(title: string): Promise<{docId: string, title: string, version: number}> {
     // If the filename already exist in the library, warn the user and increment the version
     return new Promise((resolve, reject) => {
+      if (this.existingCollection) {
+        resolve({docId: this.data.docId, title: this.data.title, version: this.data.version});
+        return;
+      }
       let existingCollection: DocCollectionData = this.libraryService.findCollectionByTitle(title);
       if (!existingCollection) {
-        resolve({docId: '', version: 1}); // initial version
+        resolve({docId: '', title, version: 1}); // initial version
         return;
       }
       const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -82,7 +93,7 @@ export class DocumentUploadFormComponent implements OnInit {
             return;
         }
         const newVersion = existingCollection.latestVersion + 1;
-        resolve({docId: existingCollection.docId, version: newVersion});
+        resolve({docId: existingCollection.docId, title, version: newVersion});
       });
     });
   }
@@ -163,8 +174,8 @@ export class DocumentUploadFormComponent implements OnInit {
         console.log("read file completed");
         console.log("hash:", this.docInstance.hash);
         this.checkDocumentExists(this.docInstance.hash).then(() => {
-          this.checkCollectionExists(filename).then((result: {docId: string, version: number}) => {
-            this.form.patchValue({title: filename});
+          this.checkCollectionExists(filename).then((result: {docId: string, title: string, version: number}) => {
+            this.form.patchValue({title: result.title});
             this.form.patchValue({docId: result.docId});
             this.form.patchValue({version: result.version});
             console.log('success, version:', result.version, "docId:", result.docId);
@@ -191,46 +202,46 @@ export class DocumentUploadFormComponent implements OnInit {
     this.fileSelector.selectedFile = undefined;
   }
 
-  uploadFile(data: FileUploadAction) {
-    const file = data.fileModel;
-    const filename = file.data.name;
-    console.log(`uploadFile(${filename})`);
-    file.inProgress = true;
-    this.docInstance = new DocInstance();
-    this.docInstance.readFromFile(data.fileModel.data, (result) => {
-      if (result) {
-        console.log("read file completed");
-        console.log("hash:", this.docInstance.hash);
-        this.checkDocumentExists(this.docInstance.hash).then(() => {
-          this.checkCollectionExists(filename).then((result: {docId: string, version: number}) => {
-            this.form.patchValue({title: filename});
-            this.form.patchValue({docId: result.docId});
-            this.form.patchValue({version: result.version});
-            console.log('success, version:', result.version, "docId:", result.docId);
-            data.onSuccess('');
-          }).catch(() => { // did not agree to add a new version
-            console.log('did not agree to add a new version to document', filename);
-            this.form.patchValue({title: ''});
-            this.form.patchValue({version: 1});
-            data.onFailure("did not agree to add a new version to document");
-          });
-        }).catch(() => {
-          this.form.patchValue({title: ''});
-          this.form.patchValue({version: 0});
-          this.docInstance = undefined;
-          data.onFailure("doc already exists");
-        });
-      } else {
-        this.form.patchValue({title: ''});
-        this.form.patchValue({version: 0});
-        this.docInstance = undefined;
-        data.onFailure("read file failed");
-      }
-    });
-  }
-  onFileUploaded(data: any) {
-    console.log('onFileUploaded', data);
+  // uploadFile(data: FileUploadAction) {
+  //   const file = data.fileModel;
+  //   const filename = file.data.name;
+  //   console.log(`uploadFile(${filename})`);
+  //   file.inProgress = true;
+  //   this.docInstance = new DocInstance();
+  //   this.docInstance.readFromFile(data.fileModel.data, (result) => {
+  //     if (result) {
+  //       console.log("read file completed");
+  //       console.log("hash:", this.docInstance.hash);
+  //       this.checkDocumentExists(this.docInstance.hash).then(() => {
+  //         this.checkCollectionExists(filename).then((result: {docId: string, version: number}) => {
+  //           this.form.patchValue({title: filename});
+  //           this.form.patchValue({docId: result.docId});
+  //           this.form.patchValue({version: result.version});
+  //           console.log('success, version:', result.version, "docId:", result.docId);
+  //           data.onSuccess('');
+  //         }).catch(() => { // did not agree to add a new version
+  //           console.log('did not agree to add a new version to document', filename);
+  //           this.form.patchValue({title: ''});
+  //           this.form.patchValue({version: 1});
+  //           data.onFailure("did not agree to add a new version to document");
+  //         });
+  //       }).catch(() => {
+  //         this.form.patchValue({title: ''});
+  //         this.form.patchValue({version: 0});
+  //         this.docInstance = undefined;
+  //         data.onFailure("doc already exists");
+  //       });
+  //     } else {
+  //       this.form.patchValue({title: ''});
+  //       this.form.patchValue({version: 0});
+  //       this.docInstance = undefined;
+  //       data.onFailure("read file failed");
+  //     }
+  //   });
+  // }
+  // onFileUploaded(data: any) {
+  //   console.log('onFileUploaded', data);
 
-  }
+  // }
 
 }

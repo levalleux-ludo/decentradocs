@@ -12,6 +12,7 @@ export enum eTransationStatus {
   FAILED = 'FAILED'
 };
 
+const debug = true;
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +26,12 @@ export class TransactionsService {
 
   private watchTransactionStatus(txId: string): Observable<eTransationStatus> {
     return new Observable<eTransationStatus>((observer) => {
-      this.arweaveService.getTxStatus(txId).then((status: {status: string, confirmed: any}) => {
+        if (debug) {
+          console.warn('DEBUG MODE: always return PENDING status')
+          observer.next(eTransationStatus.PENDING);
+          return;
+        }
+        this.arweaveService.getTxStatus(txId).then((status: {status: string, confirmed: any}) => {
         if ((+status.status !== HttpStatus.OK) && (+status.status !== HttpStatus.ACCEPTED)) {
           console.error(`Tx ${txId} failed with status ${JSON.stringify(status)} (error:${HttpStatus.getStatusText(+status.status)})`);
           observer.next(eTransationStatus.FAILED);
