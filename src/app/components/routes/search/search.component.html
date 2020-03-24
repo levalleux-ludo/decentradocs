@@ -56,8 +56,15 @@
         <h2>Results:</h2>
         <app-document-list [documents]="searchResults" (onSelectDoc)="select($event)"></app-document-list>
     </div>
+    <div class="card card-small " tabindex="0 " [routerLink]="[{ outlets: { publish: ['publish'] } }]">
+        <mat-icon>publish</mat-icon>
+        <span>Publish</span>
+    </div>
     <mat-drawer #drawer class="example-sidenav" mode="side" position="end">
         <div #docPanelTitle></div>
+        <div>
+            <mat-icon class="button-icon" (click)="drawer.close()">close</mat-icon>
+        </div>
         <app-document-details #docDetails></app-document-details>
     </mat-drawer>
 

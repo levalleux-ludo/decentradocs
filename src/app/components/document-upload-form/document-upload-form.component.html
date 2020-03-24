@@ -7,13 +7,13 @@
         <div>
             <app-material-file-select #fileSelector [autoOpen]="true" (cancel)="close()" (fileSelected)="onFileSelected($event)"></app-material-file-select>
             <mat-form-field *ngIf="docInstance" class="hash">
-                <input fxFlex matInput readonly required placeholder="Document Fingerprint (hash)" value="{{docInstance.hash}}">
+                <input fxFlex matInput readonly placeholder="Document Fingerprint (hash)" value="{{docInstance.hash}}">
             </mat-form-field>
         </div>
         <div fxLayout="column">
             <div fxFlex>
                 <mat-form-field>
-                    <input fxFlex matInput required placeholder="Document Title" formControlName="title">
+                    <input fxFlex matInput required placeholder="Document Title" formControlName="title" [readonly]="canChangeTitle">
                 </mat-form-field>
             </div>
             <div fxFlex>

@@ -1,3 +1,28 @@
+<div>
+    <app-material-file-select #fileSelector [autoOpen]="false" (fileSelected)="onFileSelected($event)"></app-material-file-select>
+    <mat-form-field *ngIf="docInstance" class="hash">
+        <input fxFlex matInput readonly required placeholder="Document Fingerprint (hash)" value="{{docInstance.hash}}">
+    </mat-form-field>
+    <div *ngIf="fileSelector.selectedFile && !docMetaData" fxLayout="column">
+        <div fxFlex class="section">
+            <h3 style="background-color: red;">Document not found!</h3>
+        </div>
+    </div>
+    <div *ngIf="docMetaData" fxLayout="column">
+        <div fxFlex class="section">
+            <h3 style="background-color: green;">Document found!</h3>
+        </div>
+        <div fxFlex class="section">
+            <mat-label class="label">Matching Version:</mat-label>
+            <div fxFlex class="property">
+                <div class="version">version:{{docMetaData.version}}</div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="collectionData">
+        <app-document-details [document]="collectionData"></app-document-details>
+    </div>
+</div>
+
 <!-- Ethereum -->
-<!-- <p>Current Account : {{ address$ | async }} </p> -->
-<p>Message from DVSRegistry : {{ message }} </p>
+<p>Message : {{ message }} </p>

@@ -15,9 +15,13 @@
         <span>Search</span>
     </div>
 
-    <div class="card card-small " tabindex="0 " routerLink="/publish" routerLinkActive="active">
+    <!-- <div class="card card-small " tabindex="0 " [routerLink]="[{ outlets: { publish: ['publish'] } }]"> -->
+    <!-- <div class="card card-small " tabindex="0 " (click)="clickOnPublish()"> -->
+    <div class="card card-small " tabindex="0 " routerLink="/publish">
         <mat-icon>publish</mat-icon>
         <span>Publish</span>
     </div>
 
 </div>
+
+<router-outlet name='publish'></router-outlet>

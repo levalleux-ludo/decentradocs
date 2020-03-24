@@ -44,5 +44,11 @@
         <div class="access">
             <mat-icon matTooltip='Public access'>lock_open</mat-icon>
         </div>
+        <div class="download" [routerLink]="[{ outlets: { download: ['download', {docId:document.docId, title: document.title, txId:document.getDataForLatestVersion().txId, version:document.latestVersion}] } }]">
+            <!-- <div class="download" [routerLink]="['download']"> -->
+            <mat-icon matTooltip='Download latest version'>cloud_download</mat-icon>
+        </div>
     </mat-list-item>
 </mat-list>
+<router-outlet name='download'></router-outlet>
+<router-outlet name='publish'></router-outlet>

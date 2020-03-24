@@ -7,15 +7,35 @@ import { PublishComponent } from './components/routes/publish/publish.component'
 import { DocCheckerComponent } from './components/routes/doc-checker/doc-checker.component';
 import { SearchComponent } from './components/routes/search/search.component';
 import { HomeComponent } from './components/routes/home/home.component';
+import { DownloadComponent } from './components/routes/download/download.component';
 
 
 const routes: Routes = [
   { path: 'authenticate', component: AuthenticateComponent },
-  { path: 'mydocuments', component: MyDocumentsComponent, canActivate: [AuthGuard] },
-  { path: 'check', component: DocCheckerComponent, canActivate: [AuthGuard] },
-  { path: 'search', component: SearchComponent, canActivate: [AuthGuard] },
+  { path: 'mydocuments', component: MyDocumentsComponent, canActivate: [AuthGuard],
+    children: [
+      {path: 'download', outlet: 'download', component: DownloadComponent},
+      {path: 'publish', outlet: 'publish', component: PublishComponent}
+  ]},
+  { path: 'check', component: DocCheckerComponent, canActivate: [AuthGuard],
+  children: [
+    {path: 'download', outlet: 'download', component: DownloadComponent},
+    {path: 'publish', outlet: 'publish', component: PublishComponent}
+  ]},
+  { path: 'search', component: SearchComponent, canActivate: [AuthGuard],
+  children: [
+    {path: 'download', outlet: 'download', component: DownloadComponent},
+    {path: 'publish', outlet: 'publish', component: PublishComponent}
+  ]},
   { path: 'publish', component: PublishComponent, canActivate: [AuthGuard] },
-  { path: '', component: HomeComponent }
+  { path: '', component: HomeComponent, children: [
+    {path: 'download', outlet: 'download', component: DownloadComponent},
+    {path: 'publish', outlet: 'publish', component: PublishComponent}
+  ] },
+  { path: '**', children: [
+  {path: 'download', outlet: 'download', component: DownloadComponent},
+  {path: 'publish', outlet: 'publish', component: PublishComponent}
+  ] }
 ];
 
 @NgModule({

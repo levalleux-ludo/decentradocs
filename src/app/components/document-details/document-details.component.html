@@ -1,11 +1,28 @@
 <div class="document-details" fxLayout="column" *ngIf=" document !== undefined">
-    <h3>{{document.title}}</h3>
-
+    <div fxFlex class="section">
+    </div>
     <div fxFlex class="section">
         <mat-label class="label">Title:</mat-label>
         <div fxFlex class="property">
             <div class="title">{{document.title}}</div>
         </div>
+        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+          <mat-icon>more_horiz</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item [routerLink]="[{ outlets: { download: ['download', {docId:document.docId, title:document.title, txId:document.getDataForLatestVersion().txId, version:document.latestVersion}] } }]">
+            <mat-icon>cloud_download</mat-icon>
+            <span>Download latest version</span>
+          </button>
+            <button mat-menu-item disabled>
+            <mat-icon>enhance_encryption</mat-icon>
+            <span>Access Control</span>
+          </button>
+            <button mat-menu-item [routerLink]="[{  outlets: { publish: ['publish', {docId: document.docId}] }}] ">
+            <mat-icon>library_add</mat-icon>
+            <span>Publish new version</span>
+          </button>
+        </mat-menu>
     </div>
     <div fxFlex class="section">
         <mat-label class="label">Document Id:</mat-label>
@@ -52,7 +69,7 @@
     <div fxFlex class="section versions" fxLayout="column">
         <div fxLayout="row">
             <h4>Versions:</h4>
-            <div class="button add-version" [routerLink]="['/publish', {docId: document.docId}]">
+            <div class="add-version" [routerLink]="[{  outlets: { publish: ['publish', {docId: document.docId}] }}] ">
                 <mat-icon matTooltip='Publish a new version'>library_add</mat-icon>
             </div>
         </div>
@@ -78,6 +95,8 @@
                                 <div class="description">{{document.getDataForLatestVersion().description}}</div>
                             </div>
                         </div>
+                        <div class="button" [routerLink]="[{ outlets: { download: ['download', {docId:document.docId, title:document.title, txId:document.getDataForVersion(version).txId, version:version}] } }]">
+                            <mat-icon>cloud_download</mat-icon>Download</div>
                     </div>
                 </mat-expansion-panel>
             </mat-accordion>

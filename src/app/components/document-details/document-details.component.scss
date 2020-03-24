@@ -1,10 +1,12 @@
 .section {
     margin-bottom: 16px;
     width: 32em;
+    line-height: 32px;
 }
 
 .title {
     font-weight: bolder;
+    font-size: large;
 }
 
 .version {
@@ -49,9 +51,32 @@
     justify-content: center;
     align-items: center;
     display: flex;
+    cursor: pointer;
+}
+
+.button {
+    border-radius: 4px;
+    border: 1px solid #eee;
+    background-color: #fafafa;
+    height: 16px;
+    width: 200px;
+    margin: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+    line-height: 24px;
+    cursor: pointer;
 }
 
 .button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 17px rgba(black, 0.35);
+}
+
+.add-version:hover {
     transform: translateY(-3px);
     box-shadow: 0 4px 17px rgba(black, 0.35);
 }

@@ -11,6 +11,7 @@ export enum eDocumentUploadingStatus {
 }
 
 export class DocMetaData {
+  protected _txId: string = '';
   protected _author: string = '';
   protected _title: string = '';
   protected _description: string = '';
@@ -30,6 +31,14 @@ export class DocMetaData {
     if (description) {
       this._description = description;
     }
+  }
+
+  public get txId(): string {
+    return this._txId;
+  }
+
+  public set txId(value: string) {
+    this._txId = value;
   }
 
   public static fromTransation(tx: Transaction, tags?: Map<eDataField, string>): DocMetaData {

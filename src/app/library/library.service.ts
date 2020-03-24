@@ -146,6 +146,8 @@ export class LibraryService {
   // }
 
   public addInLibrary(docMetaData: DocMetaData, txId: string) {
+    console.log("adding txId", txId, " for doc ", docMetaData.docId, "version", docMetaData.version);
+    docMetaData.txId = txId;
     let collection = this._collectionPerId.get(docMetaData.docId);
     if (!collection) {
       collection = new DocCollectionData(docMetaData.title, docMetaData.docId);

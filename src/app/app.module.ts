@@ -18,6 +18,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatMenuModule } from '@angular/material/menu';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -47,6 +48,7 @@ import { DocumentListComponent } from './components/document-list/document-list.
 import { DocumentDetailsComponent, ReversePipe } from './components/document-details/document-details.component';
 import { DocumentUploadComponent } from './components/document-upload/document-upload.component';
 import { MaterialFileSelectComponent } from './components/material-file-select/material-file-select.component';
+import { DownloadComponent } from './components/routes/download/download.component';
 
 @NgModule({
   declarations: [
@@ -70,7 +72,8 @@ import { MaterialFileSelectComponent } from './components/material-file-select/m
     DocumentDetailsComponent,
     ReversePipe,
     DocumentUploadComponent,
-    MaterialFileSelectComponent
+    MaterialFileSelectComponent,
+    DownloadComponent
   ],
   imports: [
     BrowserModule,
@@ -99,7 +102,8 @@ import { MaterialFileSelectComponent } from './components/material-file-select/m
     MatBadgeModule,
     MatTooltipModule,
     MatExpansionModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatMenuModule
   ],
   providers: [FormBuilder, WindowRef],
   bootstrap: [AppComponent],

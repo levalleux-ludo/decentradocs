@@ -33,7 +33,11 @@ export class PublishComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.params.pipe(map(p => p.docId)).subscribe(docId => this.showUploadDocumentForm(docId));
-    this.router.navigate(['/mydocuments']);
+    if (this.route.outlet === "primary") {
+      this.router.navigate(['/mydocuments']);
+    } else {
+      this.router.navigate(this.route.snapshot.parent.url);
+    }
   }
 
   showUploadDocumentForm(docId?: string) {
