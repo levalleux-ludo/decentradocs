@@ -48,6 +48,8 @@ contract('Test DVSRegistry contract', function(accounts) {
         subscriptionFee: 0
     }
     const ERROR_NOT_ALLOWED_TO_GET_KEY = createExceptionMessage('not allowed to get the key for this document', false);
+    const ERROR_DOC_ALREADY_EXISTS = createExceptionMessage('a document with this id already exists', false);
+    const ERROR_ONLY_OWNER_ALLOWED = createExceptionMessage('only the owner of the document can change authorisations', false);
 
     it('be able to register a protected document', async() => {
         dVSRegistry = await DVSRegistry.new();
@@ -58,7 +60,7 @@ contract('Test DVSRegistry contract', function(accounts) {
         expect(await dVSRegistry.docExists(doc2.docId)).to.be.false;
     })
     it('not be able to regsiter the same document again', async() => {
-        expect(false).to.be.true
+        await dVSRegistry.registerDoc(doc1.docId, doc1.encryptedKey, doc1.authorized, { from: accounts[0] }).should.be.rejectedWith(ERROR_DOC_ALREADY_EXISTS);;
     })
     it('be able to get encryption key if owner', async() => {
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[0] })).to.eq(doc1.encryptedKey);
@@ -73,18 +75,23 @@ contract('Test DVSRegistry contract', function(accounts) {
         await dVSRegistry.getDocumentKey(doc2.docId, { from: accounts[3] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
     })
     it('be able to add authorized address to a document if owner', async() => {
-        await dVSRegistry.setAccess(doc1.docId, [accounts[1]], [], { from: accounts[0] });
+        await dVSRegistry.setAccess(doc1.docId, [accounts[1], accounts[3]], [], { from: accounts[0] });
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[0] })).to.eq(doc1.encryptedKey);
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[1] })).to.eq(doc1.encryptedKey);
+        expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[3] })).to.eq(doc1.encryptedKey);
         await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[2] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
     })
-    it('not be able to authorized address if not owner', async() => {
-        expect(false).to.be.true
+    it('not be able to add authorized address if not owner', async() => {
+        await dVSRegistry.setAccess(doc1.docId, [accounts[2]], [], { from: accounts[1] }).should.be.rejectedWith(ERROR_ONLY_OWNER_ALLOWED);
     })
     it('be able to deny address if owner', async() => {
-        expect(false).to.be.true
+        await dVSRegistry.setAccess(doc1.docId, [], [accounts[1], accounts[2]], { from: accounts[0] });
+        expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[0] })).to.eq(doc1.encryptedKey);
+        expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[3] })).to.eq(doc1.encryptedKey);
+        await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[1] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
+        await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[2] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
     })
     it('not be able to deny address if not owner', async() => {
-        expect(false).to.be.true
+        await dVSRegistry.setAccess(doc1.docId, [], [accounts[2]], { from: accounts[3] }).should.be.rejectedWith(ERROR_ONLY_OWNER_ALLOWED);
     })
 })
