@@ -2,6 +2,7 @@ import { v4 as uuid } from 'uuid';
 import Transaction from 'arweave/web/lib/transaction';
 import { eDataField } from '../arweave/constants';
 import { ArweaveService } from '../arweave/arweave.service';
+import { last } from 'rxjs/operators';
 
 export enum eDocumentUploadingStatus {
   UNKNOWN = 'unknown',
@@ -21,16 +22,26 @@ export class DocMetaData {
   protected _docId: string = '';
   protected _hash: string = '';
   protected _uploadingStatus: eDocumentUploadingStatus = eDocumentUploadingStatus.UNKNOWN;
+  protected _lastModified = -1;
+  protected _datePublication = -1;
 
-  public constructor(docId: string, author: string, title: string, version: number, hash: string, description?: string) {
+  public constructor(
+    docId: string,
+    author: string,
+    title: string,
+    version: number,
+    hash: string,
+    description: string,
+    lastModified: number,
+    datePublication: number) {
     this._docId = ( docId && ( docId !== '') ) ? docId : uuid();
     this._author = author;
     this._title = title;
     this._version = version;
     this._hash = hash;
-    if (description) {
-      this._description = description;
-    }
+    this._description = description;
+    this._lastModified = lastModified;
+    this._datePublication = datePublication;
   }
 
   public get txId(): string {
@@ -51,7 +62,9 @@ export class DocMetaData {
     const description = tags.get(eDataField.DESCRIPTION);
     const version: number = +tags.get(eDataField.VERSION);
     const hash = tags.get(eDataField.HASH);
-    const metaData = new DocMetaData(docId, author, title, version, hash, description);
+    const lastModified: number = +tags.get(eDataField.LAST_MODIFIED);
+    const datePublication: number = +tags.get(eDataField.DATE_PUBLISH);
+    const metaData = new DocMetaData(docId, author, title, version, hash, description, lastModified, datePublication);
     metaData.uploadingStatus = eDocumentUploadingStatus.CONFIRMED;
 
     return metaData;
@@ -87,6 +100,14 @@ export class DocMetaData {
 
   public set uploadingStatus(value: eDocumentUploadingStatus) {
     this._uploadingStatus = value;
+  }
+
+  public get lastModified(): number {
+    return this._lastModified;
+  }
+
+  public get datePublication(): number {
+    return this._datePublication;
   }
 
   public addKeyword(keyword: string) {

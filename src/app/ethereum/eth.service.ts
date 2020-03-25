@@ -4,11 +4,13 @@ import { WEB3 } from './tokens';
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
 import { provider } from 'web3-core';
+import { Units } from 'web3-utils';
 
 // RXJS
 import { Observable, bindNodeCallback, of, BehaviorSubject } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { WindowRef } from '../_helpers/WindowRef';
+import BigNumber from 'bignumber.js';
 
 // FS
 declare var fs: any;
@@ -229,6 +231,10 @@ export class EthService {
 
     public isAddress(address: string): boolean {
       return this.web3.utils.isAddress(address);
+    }
+
+    public toWei(amount_inETH: number): string {
+      return this.web3.utils.toWei(amount_inETH.toString(), 'ether');
     }
 
 }

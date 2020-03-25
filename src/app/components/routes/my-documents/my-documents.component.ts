@@ -4,6 +4,8 @@ import { DocumentDetailsComponent } from '../../document-details/document-detail
 import { LibraryService } from 'src/app/library/library.service';
 import { DocCollectionData } from 'src/app/_model/DocCollectionData';
 import { DocumentListComponent } from '../../document-list/document-list.component';
+import { ArweaveService } from 'src/app/arweave/arweave.service';
+import { DVSRegistry } from 'src/app/ethereum/DVSRegistry';
 
 @Component({
   selector: 'app-my-documents',
@@ -20,15 +22,12 @@ export class MyDocumentsComponent implements OnInit {
   docList: DocumentListComponent;
 
   constructor(
-    private library: LibraryService,
+    private library: LibraryService
   ) { }
 
   ngOnInit(): void {
     this.library.libraryCollections.subscribe((collections: DocCollectionData[]) => {
-      this.allCollections = collections;
-      // for (let i = 0; i < 10; i++) {
-      //   this.allCollections = this.allCollections.concat(collections);
-      // }
+      this.allCollections = collections.filter(this.filterCollection);
     });
   }
 
@@ -45,5 +44,9 @@ export class MyDocumentsComponent implements OnInit {
       this.docDetails.document = undefined;
       this.docList.selectedDoc = undefined;
     }
+  }
+
+  private filterCollection(coll: DocCollectionData): boolean {
+    return coll.accessKey !== undefined;
   }
 }

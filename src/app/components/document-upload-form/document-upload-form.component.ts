@@ -60,13 +60,14 @@ export class DocumentUploadFormComponent implements OnInit {
       docInstance: undefined,
       subscriptionFee: this.subscriptionFee,
       protected: false,
-      authorizedAddresses: this.authorizedAddresses
+      authorizedAddresses: this.authorizedAddresses,
     });
   }
 
   submit(form: FormGroup) {
     console.log("Upload Document: submit form");
     form.patchValue({docInstance: this.docInstance});
+    form.patchValue({authorizedAddresses: this.authorizedAddresses});
     this.dialogRef.close(form.value);
   }
 

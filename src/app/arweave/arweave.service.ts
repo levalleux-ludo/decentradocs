@@ -187,7 +187,7 @@ export class ArweaveService {
     }
     const tx = await this._arweave.createTransaction(
       {
-        data: docInstance.content
+        data: new Uint8Array(docInstance.content)
       },
       this._wallet
     );
@@ -202,7 +202,7 @@ export class ArweaveService {
   // }
 
   public async downloadVersion(txId: string, filename?: string): Promise<string> {
-    return this._arweave.transactions.getData(txId, {decode: true, string: true}).then((data: string) => {
+    return this._arweave.transactions.getData(txId, {decode: true, string: true}).then((data: Uint8Array) => {
       console.log("getData -> ", data);
       if (!data) {
         return ('');
@@ -210,7 +210,7 @@ export class ArweaveService {
       if (!filename) {
         filename = 'temp.dat';
       }
-      this.fileSaverService.saveText(data, filename);
+      this.fileSaverService.save(new Blob([data]), filename);
       return filename;
     }).catch(err => {
       console.error(err);

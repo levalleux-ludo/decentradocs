@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DocumentUploadFormComponent } from '../../document-upload-form/document-upload-form.component';
@@ -9,6 +10,8 @@ import { LibraryService } from 'src/app/library/library.service';
 import { DocMetaData } from 'src/app/_model/DocMetaData';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { DVSRegistry } from 'src/app/ethereum/DVSRegistry';
+import { EthService } from 'src/app/ethereum/eth.service';
 
 @Component({
   selector: 'app-publish',
@@ -20,10 +23,13 @@ export class PublishComponent implements OnInit {
   docMetadata: DocMetaData;
   txId = '';
   status: eTransationStatus = eTransationStatus.UNKNOWN;
+  public dvsRegistry: DVSRegistry = undefined;
+
 
   constructor(
     private dvs: DvsService,
     private arweaveService: ArweaveService,
+    private ethService: EthService,
     private arTransactionsService: TransactionsService,
     private libraryService: LibraryService,
     private router: Router,
@@ -38,6 +44,9 @@ export class PublishComponent implements OnInit {
     } else {
       this.router.navigate(this.route.snapshot.parent.url);
     }
+    this.dvs.getContract().then((contract) => {
+      this.dvsRegistry = contract;
+    });
   }
 
   showUploadDocumentForm(docId?: string) {
@@ -72,10 +81,37 @@ export class PublishComponent implements OnInit {
       data => {
         console.log("after close upload document form", data);
         if (data && data.docInstance) {
-          this.docMetadata = new DocMetaData(data.docId, data.author, data.title, data.version, data.docInstance.hash, data.description);
+          this.docMetadata = new DocMetaData(
+            data.docId,
+            data.author,
+            data.title,
+            data.version,
+            data.docInstance.hash,
+            data.description,
+            data.docInstance.lastModified,
+            Date.now());
+
+          const accessKey = uuid();
+          const subscriptionFee: number = +data.subscriptionFee;
+          const authorizedAddresses = data.authorizedAddresses;
           this.arweaveService.uploadDocument(this.docMetadata, data.docInstance).then((txId: string) => {
-            this.libraryService.addInLibrary(this.docMetadata, txId);
             console.log("upload done", JSON.stringify(this.docMetadata), txId);
+            this.dvsRegistry.registerDoc(this.docMetadata.docId, accessKey, subscriptionFee, authorizedAddresses).then(() => {
+              console.log("dvsRegistry has registered new doc", this.docMetadata.docId);
+              this.libraryService.getCollectionOrCreate(
+                this.docMetadata,
+                {
+                  accessKey,
+                  subscriptionFee,
+                  authorEthAccount: this.ethService.currentAccountValue,
+                  authorizedAccounts: authorizedAddresses
+                }
+              ).then((collection) => {
+                this.libraryService.addInLibrary(this.docMetadata, txId, collection).then(() => {
+
+                }).catch(err => console.error(err));
+              }).catch(err => console.error(err));
+            }).catch(err => console.error(err));
           });
         }
       }

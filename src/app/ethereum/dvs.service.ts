@@ -18,8 +18,9 @@ export class DvsService {
       if (this._dvsRegistry) {
         resolve(this._dvsRegistry);
       } else {
-        this._dvsRegistry = new DVSRegistry(this.ethService);
-        this._dvsRegistry.initialize().then((init) => {
+        const dvsRegistry = new DVSRegistry(this.ethService);
+        dvsRegistry.initialize().then((init) => {
+          this._dvsRegistry = dvsRegistry;
           resolve(this._dvsRegistry);
         }).catch((err: any) => {
           reject(err);

@@ -34,9 +34,9 @@
                                 <section fxFlex class="searchin-section">
                                     <div fxLayout="column">
                                         <div fxFlex>search in:</div>
-                                        <mat-checkbox fxFlex class="searchin-margin">Titles</mat-checkbox>
-                                        <mat-checkbox fxFlex class="searchin-margin">Descriptions</mat-checkbox>
-                                        <mat-checkbox fxFlex class="searchin-margin">Content (public docs only)</mat-checkbox>
+                                        <mat-checkbox fxFlex class="searchin-margin" formControlName="searchInTitles">Titles</mat-checkbox>
+                                        <mat-checkbox fxFlex class="searchin-margin" formControlName="searchInDescriptions">Descriptions</mat-checkbox>
+                                        <mat-checkbox fxFlex disabled class="searchin-margin" formControlName="searchInContents">Content (public docs only)</mat-checkbox>
                                     </div>
                                 </section>
                             </div>
@@ -56,10 +56,10 @@
         <h2>Results:</h2>
         <app-document-list [documents]="searchResults" (onSelectDoc)="select($event)"></app-document-list>
     </div>
-    <div class="card card-small " tabindex="0 " [routerLink]="[{ outlets: { publish: ['publish'] } }]">
+    <!-- <div class="card card-small " tabindex="0 " [routerLink]="[{ outlets: { publish: ['publish'] } }]">
         <mat-icon>publish</mat-icon>
         <span>Publish</span>
-    </div>
+    </div> -->
     <mat-drawer #drawer class="example-sidenav" mode="side" position="end">
         <div #docPanelTitle></div>
         <div>

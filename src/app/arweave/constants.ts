@@ -1,7 +1,7 @@
 import { and, or, equals } from 'arql-ops';
 
 export const APP_NAME = 'DecentraDocs';
-export const APP_VERSION = '0.1';
+export const APP_VERSION = '0.2';
 export enum eLocalStorageDataKey {
   WALLET = 'arweave.wallet'
 }
@@ -17,7 +17,9 @@ export enum eDataField {
   DESCRIPTION = 'Description',
   DOC_ID = 'DocId',
   VERSION = 'Version',
-  HASH = 'hash'
+  HASH = 'hash',
+  LAST_MODIFIED = 'LastModified',
+  DATE_PUBLISH = 'DatePublish'
 }
 
 export const ArQueries = {

@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormGroup, FormBuilder, AbstractControl } from '@angular/forms';
 import { LibraryService } from 'src/app/library/library.service';
 import { DocCollectionData } from 'src/app/_model/DocCollectionData';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
@@ -34,28 +34,32 @@ export class SearchComponent implements OnInit {
     // });
     this.form = this.fb.group({
       filterByAuthor: false,
-      author: ''
+      author: '',
+      keywords: [],
+      searchInTitles: true,
+      searchInDescriptions: true,
+      searchInContents: false
     });
   }
 
   ngOnInit(): void {
-    this.library.collections.subscribe((collections: DocCollectionData[]) => {
-      this.library.getAuthors().subscribe((authors: string[]) => {
-        this.allAuthors = authors;
-      });
+    // this.library.collections.subscribe((collections: DocCollectionData[]) => {
+    //   this.library.getAuthors().subscribe((authors: string[]) => {
+    //     this.allAuthors = authors;
+    //   });
+    //   this.allCollections = collections;
+    // });
+    this.library.libraryCollections.subscribe((collections: DocCollectionData[]) => {
       this.allCollections = collections;
-      for (let i = 0; i < 10; i++) {
-        this.allCollections = this.allCollections.concat(collections);
-      }
-
+      this.allAuthors = this.library.authors;
     });
-
 
   }
 
   submit(form: FormGroup) {
     console.log("Search: submit form");
-    this.searchResults = this.allCollections;
+    form.patchValue({keywords: this.keywords});
+    this.searchResults = this.allCollections.filter(this.filterCollection(form.controls));
   }
 
   addKeyword(event: MatChipInputEvent): void {
@@ -85,6 +89,33 @@ export class SearchComponent implements OnInit {
     console.log("selected doc", event);
     this.drawer.open();
     this.docDetails.document = event.document;
+  }
+
+  filterCollection(controls: { [key: string]: AbstractControl }): (coll: DocCollectionData) => boolean {
+    return (coll: DocCollectionData) => {
+      let result = true;
+      if (controls.filterByAuthor.value) {
+        result = coll.getDataForLatestVersion().author === controls.author.value;
+      }
+      if (result && (controls.keywords.value.length > 0)) {
+        result = false;
+        for (let keyword of controls.keywords.value) {
+          if (controls.searchInTitles.value) {
+            if (coll.title.includes(keyword)) {
+              result = true;
+              break;
+            }
+          }
+          if (controls.searchInDescriptions.value) {
+            if (coll.getDataForLatestVersion().description.includes(keyword)) {
+              result = true;
+              break;
+            }
+          }
+        }
+      }
+      return result;
+    };
   }
 
 }

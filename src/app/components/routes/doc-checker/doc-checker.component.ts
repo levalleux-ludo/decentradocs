@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { DvsService } from 'src/app/ethereum/dvs.service';
-import { DVSRegistry } from 'src/app/ethereum/DVSRegistry';
 import { DocMetaData } from 'src/app/_model/DocMetaData';
 import { DocInstance } from 'src/app/_model/DocInstance';
 import { LibraryService } from 'src/app/library/library.service';
@@ -13,23 +11,15 @@ import { DocCollectionData } from 'src/app/_model/DocCollectionData';
 })
 export class DocCheckerComponent implements OnInit {
 
-  message = '';
   docInstance: DocInstance = undefined;
   collectionData: DocCollectionData = undefined;
   docMetaData: DocMetaData = undefined;
 
   constructor(
-    private dvsService: DvsService,
     private libraryService: LibraryService
   ) { }
 
-  ngOnInit(): void {
-    this.dvsService.getContract().then((contract: DVSRegistry) => {
-      contract.getMessage().then((message) => {
-        this.message = message;
-      });
-    });
-  }
+  ngOnInit(): void {}
 
   onFileSelected(file: File) {
     if (file === undefined) {

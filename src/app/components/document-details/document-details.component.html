@@ -22,6 +22,10 @@
             <mat-icon>library_add</mat-icon>
             <span>Publish new version</span>
           </button>
+            <button mat-menu-item (click)="docService.subscribe(document.docId)">
+            <mat-icon>add_shopping_cart</mat-icon>
+            <span>Subscribe</span>
+          </button>
         </mat-menu>
     </div>
     <div fxFlex class="section">
@@ -49,7 +53,8 @@
         <mat-label class="label">Access Type:</mat-label>
         <div fxFlex class="property">
             <div class="access">
-                <mat-icon matTooltip='Public access'>lock_open</mat-icon>
+                <mat-icon *ngIf="document.accessKey" matTooltip='Public access'>lock_open</mat-icon>
+                <mat-icon *ngIf="!document.accessKey" matTooltip='Public access'>lock</mat-icon>
             </div>
         </div>
     </div>
@@ -58,6 +63,15 @@
         <div fxFlex class="property">
             <mat-icon>account_box</mat-icon>
             <div class="author">{{document.getDataForLatestVersion().author}}</div>
+            <div class="author">@ETH:{{document.authorEthAccount}}</div>
+        </div>
+    </div>
+    <div fxFlex class="section">
+        <mat-label class="label">Subscription Fee:</mat-label>
+        <div fxFlex class="property">
+            <div class="price">{{document.subscriptionFee}} ETH</div>
+            <input matInput type="number" readonly placeholder="Subscription Fee" value="document.subscriptionFee">
+            <span matSuffix>ETH</span>
         </div>
     </div>
     <div fxFlex class="section">
@@ -90,9 +104,21 @@
                             </div>
                         </div>
                         <div fxFlex class="section">
+                            <mat-label class="label">Last Modified:</mat-label>
+                            <div fxFlex class="property">
+                                <div class="last-modified">{{document.getDataForVersion(version).lastModified | date:'medium'}}</div>
+                            </div>
+                        </div>
+                        <div fxFlex class="section">
+                            <mat-label class="label">Published On:</mat-label>
+                            <div fxFlex class="property">
+                                <div class="date-publication">{{document.getDataForVersion(version).datePublication | date:'medium'}}</div>
+                            </div>
+                        </div>
+                        <div fxFlex class="section">
                             <mat-label class="label">Description:</mat-label>
                             <div fxFlex class="property">
-                                <div class="description">{{document.getDataForLatestVersion().description}}</div>
+                                <div class="description">{{document.getDataForVersion(version).description}}</div>
                             </div>
                         </div>
                         <div class="button" [routerLink]="[{ outlets: { download: ['download', {docId:document.docId, title:document.title, txId:document.getDataForVersion(version).txId, version:version}] } }]">
