@@ -8,11 +8,22 @@ export class DVSRegistry extends Contract{
   public async getMessage(): Promise<string> {
     return this._contract.methods.message().call();
   }
+  public async docExists(docId: string): Promise<boolean> {
+    return this._contract.methods.docExists(docId).call();
+  }
   public async getDocumentKey(docId: string): Promise<string> {
     return this._contract.methods.getDocumentKey(docId).call();
   }
   public async getSubscriptionFee(docId: string): Promise<number> {
-    return this._contract.methods.getSubscriptionFee(docId).call();
+    return new Promise<number>((resolve, reject) => {
+      this._contract.methods.getSubscriptionFee(docId).call().then((fee: string) => {
+        try {
+          resolve(parseInt(fee, 10));
+        } catch (err) {
+          reject(err);
+        }
+      }).catch(err => reject(err));
+    });
   }
   public async getAuthorAccount(docId: string): Promise<string> {
     return this._contract.methods.getAuthor(docId).call();

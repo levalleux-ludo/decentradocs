@@ -12,7 +12,6 @@ export const PUBLIC_KEY = '00000-00000-00000-00000-00000';
   providedIn: 'root'
 })
 export class DocService {
-
   _dvsRegistry: DVSRegistry;
 
   constructor(
@@ -37,8 +36,9 @@ export class DocService {
    }
 
    public canSubscribe(document: DocCollectionData): boolean {
-    return ((document.accessKey === undefined)
-    && (document.authorEthAccount !== this.ethService.currentAccountValue));
+    // return ((document.accessKey === undefined)
+    // && (document.authorEthAccount !== this.ethService.currentAccountValue));
+    return !this.isInMyLibrary(document);
    }
    public canDownload(document: DocCollectionData, version: number): boolean {
      return ((document.getDataForVersion(version).uploadingStatus === eDocumentUploadingStatus.CONFIRMED)
@@ -50,4 +50,10 @@ export class DocService {
   public canChangeAccessControl(document: DocCollectionData): boolean {
     return document.authorEthAccount === this.ethService.currentAccountValue;
   }
+  isInMyLibrary(coll: DocCollectionData): boolean {
+    return ((coll.authorEthAccount === this.ethService.currentAccountValue)
+    || coll.authorizedAccounts.includes(this.ethService.currentAccountValue));
+  }
+
+
 }

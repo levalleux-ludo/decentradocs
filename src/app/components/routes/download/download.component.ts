@@ -46,7 +46,14 @@ export class DownloadComponent implements OnInit {
           this.router.navigate(this.route.snapshot.parent.url);
         });
       } else {
-        this.arweaveService.downloadVersion(txId, title);
+        let filename = title;
+        const idx = filename.lastIndexOf('.');
+        if (idx > 0) {
+          filename = filename.slice(0,idx) + '_v' + version + filename.slice(idx);
+         } else {
+          filename = filename + '_v' + version;
+         }
+        this.arweaveService.downloadVersion(txId, filename);
         this.router.navigate(this.route.snapshot.parent.url);
       }
     });

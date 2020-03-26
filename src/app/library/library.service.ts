@@ -135,7 +135,9 @@ export class LibraryService {
             console.error(err);
           }
         }
-        await Promise.all(promises);
+        try {
+          await Promise.all(promises);
+        } catch(err) {console.error(err);}
         resolve(allDocs);
       }).catch(err => {
         reject(err);
@@ -181,9 +183,6 @@ export class LibraryService {
       let collection = this._collectionPerId.get(docMetaData.docId);
       if (!collection) {
         collection = new DocCollectionData(docMetaData.title, docMetaData.docId);
-        this._collectionPerId.set(docMetaData.docId, collection);
-        this._collectionPerTitle.set(docMetaData.title, collection);
-        console.log("new collection", JSON.stringify(collection));
         if (accessControl) {
           collection.accessKey = accessControl.accessKey;
           collection.subscriptionFee = accessControl.subscriptionFee;
@@ -191,28 +190,37 @@ export class LibraryService {
           collection.authorizedAccounts = accessControl.authorizedAccounts;
           collection.accessType = (accessControl.accessKey === PUBLIC_KEY) ? eAccessType.PUBLIC : eAccessType.RESTRICTED;
         } else {
-          const promises = [
-            this.dvsRegistry.getAuthorAccount(docMetaData.docId).then((account) => {
-              console.log("got authorEthAccount", account);
-              collection.authorEthAccount = account;
-            }).catch(err => console.error(err)),
-            this.dvsRegistry.getSubscriptionFee(docMetaData.docId).then((fee: number) => {
-              console.log("got subscriptionFee", fee);
-              collection.subscriptionFee = fee;
-            }).catch(err => console.error(err)),
-            this.dvsRegistry.getAuthorizedAccounts(docMetaData.docId).then((authorized: string[]) => {
-              console.log("got authorized", authorized);
-              collection.authorizedAccounts = authorized;
-            }).catch(err => console.error(err)),
-            this.dvsRegistry.getDocumentKey(docMetaData.docId).then((key) => {
-              console.log("got document key", key);
-              collection.accessKey = key;
-              collection.accessType = (key === PUBLIC_KEY) ? eAccessType.PUBLIC : eAccessType.RESTRICTED;
-            }).catch(err => console.error(err))
-          ];
-          await Promise.all(promises);
+          if (await this.dvsRegistry.docExists(docMetaData.docId)) {
+            const promises = [
+              this.dvsRegistry.getAuthorAccount(docMetaData.docId).then((account) => {
+                console.log("got authorEthAccount", account);
+                collection.authorEthAccount = account;
+              }).catch(err => console.error(err)),
+              this.dvsRegistry.getSubscriptionFee(docMetaData.docId).then((fee: number) => {
+                console.log("got subscriptionFee", fee);
+                collection.subscriptionFee = fee;
+              }).catch(err => console.error(err)),
+              this.dvsRegistry.getAuthorizedAccounts(docMetaData.docId).then((authorized: string[]) => {
+                console.log("got authorized", authorized);
+                collection.authorizedAccounts = authorized;
+              }).catch(err => console.error(err)),
+              this.dvsRegistry.getDocumentKey(docMetaData.docId).then((key: string) => {
+                console.log("got document key", key);
+                collection.accessKey = key;
+                collection.accessType = (key === PUBLIC_KEY) ? eAccessType.PUBLIC : eAccessType.RESTRICTED;
+              }).catch(err => console.error(err))
+            ];
+            await Promise.all(promises);
+          } else {
+            console.warn(`Document ${JSON.stringify(docMetaData)} published on ${new Date(docMetaData.datePublication).toISOString()} is not registered in DVS contract`);
+            reject(`Document ${docMetaData.title} with id ${docMetaData.docId} is not registered in DVS contract`);
+            return;
+          }
         }
-      }
+        console.log("new collection", JSON.stringify(collection));
+        this._collectionPerId.set(docMetaData.docId, collection);
+        this._collectionPerTitle.set(docMetaData.title, collection);
+        }
       resolve(collection);
     });
   }

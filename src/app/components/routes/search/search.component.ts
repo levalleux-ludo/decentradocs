@@ -59,7 +59,7 @@ export class SearchComponent implements OnInit {
   submit(form: FormGroup) {
     console.log("Search: submit form");
     form.patchValue({keywords: this.keywords});
-    this.searchResults = this.allCollections.filter(this.filterCollection(form.controls));
+    this.searchResults = this.allCollections.filter(() => this.filterCollection(form.controls));
   }
 
   addKeyword(event: MatChipInputEvent): void {

@@ -9,6 +9,7 @@ var DVSRegistry = artifacts.require('DVSRegistry');
 
 const ERROR_GENERIC = 'VM Exception while processing transaction\: revert';
 const REASON_GIVEN = '\-\- Reason given\:';
+const PUBLIC_KEY = '00000-00000-00000-00000-00000';
 
 function createExceptionMessage(reason, addReasonGiven = true) {
     if (addReasonGiven) {
@@ -47,6 +48,12 @@ contract('Test DVSRegistry contract', function(accounts) {
         subscriptionFee: 0,
         authorized: [accounts[1], accounts[2]]
     }
+    const doc3_public = {
+        docId: uuidv4(),
+        encryptedKey: PUBLIC_KEY,
+        subscriptionFee: 0,
+        authorized: []
+    }
     const ERROR_NOT_ALLOWED_TO_GET_KEY = createExceptionMessage('not allowed to get the key for this document', false);
     const ERROR_DOC_ALREADY_EXISTS = createExceptionMessage('a document with this id already exists', false);
     const ERROR_DOC_DOES_NOT_EXISTS = createExceptionMessage('this document has not been registered', false);
@@ -72,7 +79,7 @@ contract('Test DVSRegistry contract', function(accounts) {
     })
     it('be able to get encryption key if author', async() => {
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[0] })).to.eq(doc1.encryptedKey);
-        await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[1] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
+        expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[1] })).to.eq('');
     })
     it('be able to get encryption key if authorized', async() => {
         await dVSRegistry.registerDoc(doc2.docId, doc2.encryptedKey, doc2.subscriptionFee, doc2.authorized, { from: accounts[0] });
@@ -80,11 +87,18 @@ contract('Test DVSRegistry contract', function(accounts) {
         expect(await dVSRegistry.getDocumentKey(doc2.docId, { from: accounts[0] })).to.eq(doc2.encryptedKey);
         expect(await dVSRegistry.getDocumentKey(doc2.docId, { from: accounts[1] })).to.eq(doc2.encryptedKey);
         expect(await dVSRegistry.getDocumentKey(doc2.docId, { from: accounts[2] })).to.eq(doc2.encryptedKey);
-        await dVSRegistry.getDocumentKey(doc2.docId, { from: accounts[3] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
+        expect(await dVSRegistry.getDocumentKey(doc2.docId, { from: accounts[3] })).to.eq('');
         let authorized = await dVSRegistry.getAuthorizedAccounts(doc2.docId);
         expect(authorized.length).to.be.eq(doc2.authorized.length);
         expect(await dVSRegistry.getAuthor(doc2.docId)).to.be.eq(accounts[0]);
-
+    })
+    it('be able to get encryption key if key is public_key', async() => {
+        await dVSRegistry.registerDoc(doc3_public.docId, doc3_public.encryptedKey, doc3_public.subscriptionFee, doc3_public.authorized, { from: accounts[0] });
+        expect(await dVSRegistry.docExists(doc3_public.docId)).to.be.true;
+        expect(await dVSRegistry.getDocumentKey(doc3_public.docId, { from: accounts[0] })).to.eq(doc3_public.encryptedKey);
+        expect(await dVSRegistry.getDocumentKey(doc3_public.docId, { from: accounts[1] })).to.eq(doc3_public.encryptedKey);
+        expect(await dVSRegistry.getDocumentKey(doc3_public.docId, { from: accounts[2] })).to.eq(doc3_public.encryptedKey);
+        expect(await dVSRegistry.getDocumentKey(doc3_public.docId, { from: accounts[3] })).to.eq(doc3_public.encryptedKey);
     })
     it('be able to add authorized address to a document if author', async() => {
         await dVSRegistry.setAccess(doc1.docId, [accounts[1], accounts[3]], [], { from: accounts[0] });
@@ -96,7 +110,7 @@ contract('Test DVSRegistry contract', function(accounts) {
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[0] })).to.eq(doc1.encryptedKey);
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[1] })).to.eq(doc1.encryptedKey);
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[3] })).to.eq(doc1.encryptedKey);
-        await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[2] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
+        expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[2] })).to.eq('');
     })
     it('not be able to add authorized address if not author', async() => {
         await dVSRegistry.setAccess(doc1.docId, [accounts[2]], [], { from: accounts[1] }).should.be.rejectedWith(ERROR_ONLY_AUTHOR_ALLOWED);
@@ -110,8 +124,8 @@ contract('Test DVSRegistry contract', function(accounts) {
         expect(authorized.includes(accounts[3])).to.be.true;
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[0] })).to.eq(doc1.encryptedKey);
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[3] })).to.eq(doc1.encryptedKey);
-        await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[1] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
-        await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[2] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
+        expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[1] })).to.eq('');
+        expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[2] })).to.eq('');
     })
     it('be able to mix authorized/denied address to a document if author', async() => {
         await dVSRegistry.setAccess(doc1.docId, [accounts[1], accounts[2], accounts[4]], [accounts[3], accounts[4]], { from: accounts[0] });
@@ -124,8 +138,8 @@ contract('Test DVSRegistry contract', function(accounts) {
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[0] })).to.eq(doc1.encryptedKey);
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[1] })).to.eq(doc1.encryptedKey);
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[2] })).to.eq(doc1.encryptedKey);
-        await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[3] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
-        await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[4] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
+        expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[3] })).to.eq('');
+        expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[4] })).to.eq('');
         await dVSRegistry.setAccess(doc1.docId, [accounts[3], accounts[4]], [accounts[1], accounts[2]], { from: accounts[0] });
         authorized = await dVSRegistry.getAuthorizedAccounts(doc1.docId);
         expect(authorized.length).to.be.eq(2);
@@ -138,9 +152,13 @@ contract('Test DVSRegistry contract', function(accounts) {
         await dVSRegistry.setAccess(doc1.docId, [], [accounts[2]], { from: accounts[3] }).should.be.rejectedWith(ERROR_ONLY_AUTHOR_ALLOWED);
     })
     it('be able to subscribe to a free document', async() => {
-        await dVSRegistry.getDocumentKey(doc2.docId, { from: accounts[3] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
+        expect(await dVSRegistry.getDocumentKey(doc2.docId, { from: accounts[3] })).to.eq('');
+        let authorized = await dVSRegistry.getAuthorizedAccounts(doc2.docId);
+        expect(authorized.includes(accounts[3])).to.be.false;
         await dVSRegistry.subscribe(doc2.docId, { from: accounts[3] });
         expect(await dVSRegistry.getDocumentKey(doc2.docId, { from: accounts[3] })).to.eq(doc2.encryptedKey);
+        authorized = await dVSRegistry.getAuthorizedAccounts(doc2.docId);
+        expect(authorized.includes(accounts[3])).to.be.true;
     })
     it('not be able to subscribe twice to a document', async() => {
         await dVSRegistry.subscribe(doc2.docId, { from: accounts[3] }).should.be.rejectedWith(ERROR_ALREADY_SUBSCRIBED);
@@ -150,12 +168,16 @@ contract('Test DVSRegistry contract', function(accounts) {
         await dVSRegistry.subscribe(doc2.docId, { from: accounts[0] }).should.be.rejectedWith(ERROR_ALREADY_SUBSCRIBED);
     })
     it('be able to subscribe to a paid document', async() => {
-        await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[1] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
+        expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[1] })).to.eq('');
+        let authorized = await dVSRegistry.getAuthorizedAccounts(doc1.docId);
+        expect(authorized.includes(accounts[1])).to.be.false;
         await dVSRegistry.subscribe(doc1.docId, { from: accounts[1], value: doc1.subscriptionFee });
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[1] })).to.eq(doc1.encryptedKey);
+        authorized = await dVSRegistry.getAuthorizedAccounts(doc1.docId);
+        expect(authorized.includes(accounts[1])).to.be.true;
     })
     it('not be able to subscribe for less than subscription fee', async() => {
-        await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[2] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
+        expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[2] })).to.eq('');
         await dVSRegistry.subscribe(doc1.docId, { from: accounts[2], value: 0 }).should.be.rejectedWith(ERROR_NOT_ENOUGH_FEE);
         await dVSRegistry.subscribe(doc1.docId, { from: accounts[2], value: doc1.subscriptionFee - 1 }).should.be.rejectedWith(ERROR_NOT_ENOUGH_FEE);
         await dVSRegistry.subscribe(doc1.docId, { from: accounts[2], value: 0 }).should.be.rejectedWith(ERROR_NOT_ENOUGH_FEE);
@@ -163,7 +185,7 @@ contract('Test DVSRegistry contract', function(accounts) {
     it('be able to subscribe for more than subscription fee', async() => {
         let balance = await web3.eth.getBalance(dVSRegistry.address)
         expect(balance).to.equal("0")
-        await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[2] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
+        expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[2] })).to.eq('');
         await dVSRegistry.subscribe(doc1.docId, { from: accounts[2], value: doc1.subscriptionFee + 1 });
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[2] })).to.eq(doc1.encryptedKey);
         balance = await web3.eth.getBalance(dVSRegistry.address)
@@ -214,7 +236,7 @@ contract('Test DVSRegistry contract', function(accounts) {
         await dVSRegistry.setSubscriptionFee(doc1.docId, 654321, { from: accounts[0] });
         fee = await dVSRegistry.getSubscriptionFee(doc1.docId);
         expect(fee.toNumber()).to.equal(654321);
-        await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[5] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
+        expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[5] })).to.eq('');
         await dVSRegistry.subscribe(doc1.docId, { from: accounts[5], value: doc1.subscriptionFee }).should.be.rejectedWith(ERROR_NOT_ENOUGH_FEE);
         await dVSRegistry.subscribe(doc1.docId, { from: accounts[5], value: 654321 });
         expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[5] })).to.eq(doc1.encryptedKey);

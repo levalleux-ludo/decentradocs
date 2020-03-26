@@ -1,5 +1,6 @@
 <mat-drawer-container class="example-container" autosize>
     <h1>Search in PermaLibrary</h1>
+    <h4>(total: {{allCollections.length}} documents)</h4>
     <form [formGroup]="form" (ngSubmit)="submit(form)">
         <div class="filter">
             <h3>Select your Filter Criteria</h3>

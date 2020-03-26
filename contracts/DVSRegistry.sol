@@ -14,6 +14,7 @@ contract AddressList {
 contract DVSRegistry {
     string public message = "Hello World";
     address private _owner;
+    string public constant PUBLIC_KEY = '00000-00000-00000-00000-00000';
 
     modifier onlyOwner() {
         require(
@@ -28,6 +29,38 @@ contract DVSRegistry {
     mapping(string => mapping(address => bool)) private _authorizedAddressPerDocId;
     mapping(string => address[]) private _authorizedAddressArrayPerDocId;
     mapping(string => uint256) private _subscriptionFeePerDocId;
+
+    event Register(
+      address indexed from,
+      string docId,
+      string key,
+      uint256 fee,
+      address[] authorized
+    );
+
+    event Subscribe(
+      address indexed from,
+      string docId,
+      uint256 amount
+    );
+
+    event Withdraw(
+      address indexed from,
+      address indexed to,
+      uint256 amount
+    );
+
+    event ChangeFee(
+      address indexed from,
+      string docId,
+      uint256 fee
+    );
+
+    event ChangeAuthorized(
+      address indexed from,
+      string docId,
+      address[] authorized
+    );
 
     constructor() public {
         _owner = msg.sender;
@@ -46,6 +79,10 @@ contract DVSRegistry {
         return author != address(0);
     }
 
+    function compareStrings (string memory a, string memory b) internal view returns (bool) {
+      return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))) );
+    }
+
     function registerDoc(
         string calldata docId,
         string calldata encryptedKey,
@@ -62,6 +99,13 @@ contract DVSRegistry {
             _authorizedAddressPerDocId[docId][account] = true;
         }
         _authorizedAddressArrayPerDocId[docId] = authorizedAddresses;
+        emit Register(
+          msg.sender,
+          docId,
+          _encryptedKeyPerDocId[docId],
+          _subscriptionFeePerDocId[docId],
+          _authorizedAddressArrayPerDocId[docId]
+        );
     }
 
     function getDocumentKey(string calldata docId)
@@ -69,12 +113,13 @@ contract DVSRegistry {
         view
         returns (string memory)
     {
-        require(
-            (msg.sender == _authorPerDocId[docId]) ||
-                _authorizedAddressPerDocId[docId][msg.sender],
-            "not allowed to get the key for this document"
-        );
-        return _encryptedKeyPerDocId[docId];
+      if((msg.sender == _authorPerDocId[docId]) ||
+                _authorizedAddressPerDocId[docId][msg.sender] ||
+                compareStrings(_encryptedKeyPerDocId[docId], PUBLIC_KEY) ) {
+          return _encryptedKeyPerDocId[docId];
+        } else {
+          return '';
+        }
     }
 
     function getSubscriptionFee(string calldata docId) external view returns (uint256 fee) {
@@ -89,6 +134,11 @@ contract DVSRegistry {
             "only the author of the document can change authorisations"
         );
       _subscriptionFeePerDocId[docId] = subscriptionFee;
+      emit ChangeFee(
+        msg.sender,
+        docId,
+        _subscriptionFeePerDocId[docId]
+      );
     }
 
     function getAuthor(string calldata docId) external view returns (address) {
@@ -120,6 +170,11 @@ contract DVSRegistry {
             delete _authorizedAddressPerDocId[docId][account];
             removeAccount(docId, account);
         }
+        emit ChangeAuthorized(
+          msg.sender,
+          docId,
+          _authorizedAddressArrayPerDocId[docId]
+        );
     }
 
     function removeAccount(string memory docId, address account) private {
@@ -158,6 +213,12 @@ contract DVSRegistry {
         address payable author = address(uint160(_authorPerDocId[docId]));
         author.transfer(_subscriptionFeePerDocId[docId]);
         _authorizedAddressPerDocId[docId][msg.sender] = true;
+        addAccount(docId, msg.sender);
+        emit Subscribe(
+          msg.sender,
+          docId,
+          msg.value
+        );
     }
 
     function withdraw(uint256 amount, address payable to) external onlyOwner {
@@ -166,6 +227,11 @@ contract DVSRegistry {
             "requested amount too high compared to actual balance"
         );
         to.transfer(amount);
+        emit Withdraw(
+          msg.sender,
+          to,
+          amount
+        );
     }
 
 }

@@ -202,7 +202,7 @@ export class ArweaveService {
   // }
 
   public async downloadVersion(txId: string, filename?: string): Promise<string> {
-    return this._arweave.transactions.getData(txId, {decode: true, string: true}).then((data: Uint8Array) => {
+    return this._arweave.transactions.getData(txId, {decode: true, string: false}).then((data: Uint8Array) => {
       console.log("getData -> ", data);
       if (!data) {
         return ('');
