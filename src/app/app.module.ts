@@ -20,6 +20,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -50,6 +52,8 @@ import { DocumentDetailsComponent, ReversePipe } from './components/document-det
 import { DocumentUploadComponent } from './components/document-upload/document-upload.component';
 import { MaterialFileSelectComponent } from './components/material-file-select/material-file-select.component';
 import { DownloadComponent } from './components/routes/download/download.component';
+import { AccessCtrlComponent } from './components/routes/access-ctrl/access-ctrl.component';
+import { AccessCtrlDialogComponent } from './components/access-ctrl-dialog/access-ctrl-dialog.component';
 
 @NgModule({
   declarations: [
@@ -74,7 +78,9 @@ import { DownloadComponent } from './components/routes/download/download.compone
     ReversePipe,
     DocumentUploadComponent,
     MaterialFileSelectComponent,
-    DownloadComponent
+    DownloadComponent,
+    AccessCtrlComponent,
+    AccessCtrlDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -105,7 +111,9 @@ import { DownloadComponent } from './components/routes/download/download.compone
     MatExpansionModule,
     MatSnackBarModule,
     MatMenuModule,
-    MatRadioModule
+    MatRadioModule,
+    NgSelectModule,
+    MatProgressSpinnerModule
   ],
   providers: [FormBuilder, WindowRef],
   bootstrap: [AppComponent],

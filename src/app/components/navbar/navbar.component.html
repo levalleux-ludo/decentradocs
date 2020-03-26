@@ -3,12 +3,28 @@
         <img width="50" alt="DCD" src="../assets/DecentraDocs.png" />
         <span>DecentraDocs</span>
         <div class="spacer"></div>
-        <img width="55" alt="PROFILE" src="../assets/Profile.png" (click)=" profileOpen = !profileOpen " />
+        <div class="account-container" fxLayout="column" fxLayoutAlign="center end">
+            <div fxFlex class="account" matTooltip="Arweave account">
+                <img fxFlex src="../assets/arweave-logo-1-crop.png" height="30px">
+                <span *ngIf="arweaveService.authenticated"> {{arweaveService.address}}</span>
+                <span *ngIf="!arweaveService.authenticated" style="color:red;">
+                  <mat-icon>warning</mat-icon>Arweave login required</span>
+            </div>
+            <div fxFlex class="account" fxLayout="row" xLayoutAlign="end center" matTooltip="Ethereum account">
+                <img fxFlex src=" ../assets/ethereum-icon-purple.56fbef66.svg " height="30px">
+                <span *ngIf="ethService.currentAccountValue "> {{ethService.currentAccountValue}}</span>
+                <span *ngIf="!ethService.currentAccountValue " style="color:red; ">
+                    <mat-icon>warning</mat-icon>
+                    <span>ETH login required</span>
+                </span>
+            </div>
+        </div>
+        <img width="55 " alt="PROFILE " src="../assets/Profile.png " (click)=" profileOpen=! profileOpen " />
     </div>
     <!-- Profile Details -->
-    <div class="navbar-drawer">
-        <app-profile-details [opened]="profileOpen"></app-profile-details>
+    <div class="navbar-drawer ">
+        <app-profile-details [opened]="profileOpen "></app-profile-details>
     </div>
 
-    <div class="toolbar-container bottom-line"></div>
+    <div class="toolbar-container bottom-line "></div>
 </div>

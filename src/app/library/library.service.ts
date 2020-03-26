@@ -2,13 +2,14 @@ import { Injectable, EventEmitter } from '@angular/core';
 import { DocMetaData, eDocumentUploadingStatus } from '../_model/DocMetaData';
 import { eDataField, ArQueries } from '../arweave/constants';
 import Transaction from 'arweave/web/lib/transaction';
-import { DocCollectionData } from '../_model/DocCollectionData';
+import { DocCollectionData, eAccessType } from '../_model/DocCollectionData';
 import { ArweaveService } from '../arweave/arweave.service';
 import { rejects } from 'assert';
 import { TransactionsService, eTransationStatus } from '../arweave/transactions.service';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { DVSRegistry } from '../ethereum/DVSRegistry';
 import { DvsService } from '../ethereum/dvs.service';
+import { PUBLIC_KEY } from '../doc-manager/doc.service';
 
 @Injectable({
   providedIn: 'root'
@@ -188,6 +189,7 @@ export class LibraryService {
           collection.subscriptionFee = accessControl.subscriptionFee;
           collection.authorEthAccount = accessControl.authorEthAccount;
           collection.authorizedAccounts = accessControl.authorizedAccounts;
+          collection.accessType = (accessControl.accessKey === PUBLIC_KEY) ? eAccessType.PUBLIC : eAccessType.RESTRICTED;
         } else {
           const promises = [
             this.dvsRegistry.getAuthorAccount(docMetaData.docId).then((account) => {
@@ -205,6 +207,7 @@ export class LibraryService {
             this.dvsRegistry.getDocumentKey(docMetaData.docId).then((key) => {
               console.log("got document key", key);
               collection.accessKey = key;
+              collection.accessType = (key === PUBLIC_KEY) ? eAccessType.PUBLIC : eAccessType.RESTRICTED;
             }).catch(err => console.error(err))
           ];
           await Promise.all(promises);

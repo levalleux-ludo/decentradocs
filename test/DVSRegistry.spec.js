@@ -208,4 +208,22 @@ contract('Test DVSRegistry contract', function(accounts) {
         expect(fee.toNumber()).to.equal(doc2.subscriptionFee);
         await dVSRegistry.getSubscriptionFee(uuidv4()).should.be.rejectedWith(ERROR_DOC_DOES_NOT_EXISTS);
     })
+    it('be able to change subscription fee if author', async() => {
+        let fee = await dVSRegistry.getSubscriptionFee(doc1.docId);
+        expect(fee.toNumber()).to.equal(doc1.subscriptionFee);
+        await dVSRegistry.setSubscriptionFee(doc1.docId, 654321, { from: accounts[0] });
+        fee = await dVSRegistry.getSubscriptionFee(doc1.docId);
+        expect(fee.toNumber()).to.equal(654321);
+        await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[5] }).should.be.rejectedWith(ERROR_NOT_ALLOWED_TO_GET_KEY);
+        await dVSRegistry.subscribe(doc1.docId, { from: accounts[5], value: doc1.subscriptionFee }).should.be.rejectedWith(ERROR_NOT_ENOUGH_FEE);
+        await dVSRegistry.subscribe(doc1.docId, { from: accounts[5], value: 654321 });
+        expect(await dVSRegistry.getDocumentKey(doc1.docId, { from: accounts[5] })).to.eq(doc1.encryptedKey);
+    })
+    it('npt be able to change subscription fee if not author', async() => {
+        let fee = await dVSRegistry.getSubscriptionFee(doc1.docId);
+        expect(fee.toNumber()).to.equal(654321);
+        await dVSRegistry.setSubscriptionFee(doc1.docId, 654321, { from: accounts[1] }).should.be.rejectedWith(ERROR_ONLY_AUTHOR_ALLOWED);
+        fee = await dVSRegistry.getSubscriptionFee(doc1.docId);
+        expect(fee.toNumber()).to.equal(654321);
+    })
 })

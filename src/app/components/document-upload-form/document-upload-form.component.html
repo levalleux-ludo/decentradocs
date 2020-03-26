@@ -16,7 +16,7 @@
                         </mat-form-field>
                     </div>
                     <div fxFlex>
-                        <mat-form-field>
+                        <mat-form-field class="author">
                             <input fxFlex matInput placeholder="Author" formControlName="author" readonly>
                         </mat-form-field>
                     </div>
@@ -32,15 +32,15 @@
                     </mat-form-field>
                 </div>
             </div>
-            <div fxFlex fxLayout="column" fxLayoutAlign="start start">
+            <div fxFlex fxLayout="column" fxLayoutAlign="start start" *ngIf="!existingCollection">
                 <mat-label fxFlex fxFlex>Access Control</mat-label>
                 <div fxFlex>
                     <span matTooltip='Allow everybody to download/view the document'><mat-icon>lock_open</mat-icon></span>
-                    <mat-slide-toggle #protected class="" formControlName="protected"></mat-slide-toggle>
+                    <mat-slide-toggle #restricted class="" formControlName="restricted"></mat-slide-toggle>
                     <span matTooltip='Document is encrypted. Only authorized users/subscribers that owns the key can decrypt the document.'><mat-icon>lock</mat-icon></span>
                 </div>
-                <div *ngIf="protected.checked" fxFlex>
-                    <mat-radio-group #protectionType class="example-radio-group">
+                <div *ngIf="restricted.checked" fxFlex>
+                    <mat-radio-group #protectionType class="example-radio-group" formControlName="protectionType">
                         <!-- <div fxFlex> -->
                         <mat-radio-button #usersList class="example-radio-button" [value]="'usersList'">Authorized Users</mat-radio-button>
                         <div *ngIf="usersList.checked">

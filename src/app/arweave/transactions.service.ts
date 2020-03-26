@@ -12,7 +12,7 @@ export enum eTransationStatus {
   FAILED = 'FAILED'
 };
 
-const debug = true;
+const debug = false;
 
 @Injectable({
   providedIn: 'root'

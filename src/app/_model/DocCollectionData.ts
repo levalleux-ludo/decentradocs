@@ -1,16 +1,9 @@
 import { v4 as uuid } from 'uuid';
 import { DocMetaData } from './DocMetaData';
 
-export enum eAccesType {
+export enum eAccessType {
   PUBLIC = 'Public',
   RESTRICTED = 'Restricted'
-}
-
-export class DocAccess {
-  _type: eAccesType;
-  _subscriptionFee: number;
-  _authorizedUsers: string[];
-
 }
 
 export class DocCollectionData {
@@ -18,7 +11,7 @@ export class DocCollectionData {
   protected _title: string = '';
   protected _docId: string = '';
   protected _latestVersion: number = 0;
-  protected _access: DocAccess;
+  protected _accessType: eAccessType;
   protected _accessKey: string = undefined;
   protected _subscriptionFee: number;
   protected _authorEthAccount: string;
@@ -84,6 +77,14 @@ export class DocCollectionData {
 
   public get versions(): number[] {
     return Array.from(this._versions.keys());
+  }
+
+  public get accessType(): eAccessType {
+    return this._accessType;
+  }
+
+  public set accessType(value: eAccessType) {
+    this._accessType = value;
   }
 
   public getDataForVersion(version: number): DocMetaData {

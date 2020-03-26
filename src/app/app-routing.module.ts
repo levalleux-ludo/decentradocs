@@ -8,34 +8,34 @@ import { DocCheckerComponent } from './components/routes/doc-checker/doc-checker
 import { SearchComponent } from './components/routes/search/search.component';
 import { HomeComponent } from './components/routes/home/home.component';
 import { DownloadComponent } from './components/routes/download/download.component';
+import { AccessCtrlComponent } from './components/routes/access-ctrl/access-ctrl.component';
 
+
+const commonChildren = [
+  {path: 'download', outlet: 'download', component: DownloadComponent},
+  {path: 'accessCtrl', outlet: 'accessCtrl', component: AccessCtrlComponent},
+  {path: 'publish', outlet: 'publish', component: PublishComponent}
+];
 
 const routes: Routes = [
-  { path: 'authenticate', component: AuthenticateComponent },
-  { path: 'mydocuments', component: MyDocumentsComponent, canActivate: [AuthGuard],
-    children: [
-      {path: 'download', outlet: 'download', component: DownloadComponent},
-      {path: 'publish', outlet: 'publish', component: PublishComponent}
-  ]},
-  { path: 'check', component: DocCheckerComponent, canActivate: [AuthGuard],
-  children: [
-    {path: 'download', outlet: 'download', component: DownloadComponent},
-    {path: 'publish', outlet: 'publish', component: PublishComponent}
-  ]},
-  { path: 'search', component: SearchComponent, canActivate: [AuthGuard],
-  children: [
-    {path: 'download', outlet: 'download', component: DownloadComponent},
-    {path: 'publish', outlet: 'publish', component: PublishComponent}
-  ]},
-  { path: 'publish', component: PublishComponent, canActivate: [AuthGuard] },
-  { path: '', component: HomeComponent, children: [
-    {path: 'download', outlet: 'download', component: DownloadComponent},
-    {path: 'publish', outlet: 'publish', component: PublishComponent}
-  ] },
-  { path: '**', children: [
-  {path: 'download', outlet: 'download', component: DownloadComponent},
-  {path: 'publish', outlet: 'publish', component: PublishComponent}
-  ] }
+  { path: 'authenticate',
+    component: AuthenticateComponent },
+  { path: 'mydocuments',
+    component: MyDocumentsComponent, canActivate: [AuthGuard],
+    children: commonChildren},
+  { path: 'check',
+    component: DocCheckerComponent, canActivate: [AuthGuard],
+    children: commonChildren},
+  { path: 'search',
+    component: SearchComponent, canActivate: [AuthGuard],
+    children: commonChildren},
+  { path: 'publish',
+    component: PublishComponent, canActivate: [AuthGuard] },
+  { path: '',
+    component: HomeComponent,
+    children: commonChildren},
+  { path: '**',
+    children: commonChildren}
 ];
 
 @NgModule({

@@ -20,6 +20,22 @@ export class DVSRegistry extends Contract{
   public async getAuthorizedAccounts(docId: string): Promise<string[]> {
     return this._contract.methods.getAuthorizedAccounts(docId).call();
   }
+  public async setAccess(docId: string, addressToAdd: string[], addressToRemove: string[]): Promise<void> {
+    return this._contract.methods.setAccess(docId, addressToAdd, addressToRemove).send({from: this.eth.currentAccountValue});
+  }
+  public async setSubscriptionFee(docId: string, subscriptionFee_inETH: number): Promise<void> {
+    return new Promise<any>((resolve, reject) => {
+      const subscriptionFee: string = this.eth.toWei(subscriptionFee_inETH);
+      this._contract.methods.setSubscriptionFee(docId, subscriptionFee)
+      .send({from: this.eth.currentAccountValue}).then((receipt: any) => {
+        console.log("DVSResgitry::setSubscriptionFee", receipt);
+        resolve(receipt);
+      }).catch(err => {
+        console.error(err);
+        reject(err);
+      });
+    });
+  }
   public async registerDoc(docId: string, encryptedKey: string, subscriptionFee_inETH: number, authorizedAddresses: string[]) {
     return new Promise<any>((resolve, reject) => {
       const subscriptionFee: string = this.eth.toWei(subscriptionFee_inETH);

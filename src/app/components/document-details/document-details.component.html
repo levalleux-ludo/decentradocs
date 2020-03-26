@@ -10,21 +10,17 @@
           <mat-icon>more_horiz</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
-            <button mat-menu-item [routerLink]="[{ outlets: { download: ['download', {docId:document.docId, title:document.title, txId:document.getDataForLatestVersion().txId, version:document.latestVersion}] } }]">
-            <mat-icon>cloud_download</mat-icon>
-            <span>Download latest version</span>
+            <button mat-menu-item (click)="docService.subscribe(document.docId)" [disabled]="!docService.canSubscribe(document)">
+            <mat-icon>add_shopping_cart</mat-icon>
+            <span>Subscribe</span>
           </button>
-            <button mat-menu-item disabled>
+            <button mat-menu-item [routerLink]="[{  outlets: { accessCtrl: ['accessCtrl', {docId: document.docId}] }}] " *ngIf="docService.canChangeAccessControl(document)">
             <mat-icon>enhance_encryption</mat-icon>
             <span>Access Control</span>
           </button>
-            <button mat-menu-item [routerLink]="[{  outlets: { publish: ['publish', {docId: document.docId}] }}] ">
+            <button mat-menu-item [routerLink]="[{  outlets: { publish: ['publish', {docId: document.docId}] }}] " *ngIf="docService.canPublishNewVersion(document)">
             <mat-icon>library_add</mat-icon>
             <span>Publish new version</span>
-          </button>
-            <button mat-menu-item (click)="docService.subscribe(document.docId)">
-            <mat-icon>add_shopping_cart</mat-icon>
-            <span>Subscribe</span>
           </button>
         </mat-menu>
     </div>
@@ -32,30 +28,6 @@
         <mat-label class="label">Document Id:</mat-label>
         <div fxFlex class="property">
             <div class="docId">{{document.docId}}</div>
-        </div>
-    </div>
-    <div fxFlex class="section">
-        <mat-label class="label">Latest Version:</mat-label>
-        <div fxFlex class="property">
-            <div class="version">version:{{document.latestVersion}}</div>
-        </div>
-    </div>
-    <div fxFlex class="section">
-        <mat-label class="label"></mat-label>
-        <div fxFlex class="property">
-            <div class="status">
-                <mat-icon *ngIf="document.getDataForLatestVersion().uploadingStatus == 'Pending'" matTooltip='Waiting for uploading transaction to complete'>hourglass_empty</mat-icon>
-                <mat-icon *ngIf="document.getDataForLatestVersion().uploadingStatus == 'Failed'" matTooltip='Uploading transaction failed'>error_outline</mat-icon>
-            </div>
-        </div>
-    </div>
-    <div fxFlex class="section">
-        <mat-label class="label">Access Type:</mat-label>
-        <div fxFlex class="property">
-            <div class="access">
-                <mat-icon *ngIf="document.accessKey" matTooltip='Public access'>lock_open</mat-icon>
-                <mat-icon *ngIf="!document.accessKey" matTooltip='Public access'>lock</mat-icon>
-            </div>
         </div>
     </div>
     <div fxFlex class="section">
@@ -67,23 +39,31 @@
         </div>
     </div>
     <div fxFlex class="section">
+        <mat-label class="label">Access Type:</mat-label>
+        <div fxFlex class="property">
+            <div class="access">
+                <mat-icon *ngIf="document.accessType == 'Public'" matTooltip='Public access'>lock_open</mat-icon>
+                <mat-icon *ngIf="document.accessType == 'Restricted'" matTooltip='Restricted access'>lock</mat-icon>
+            </div>
+        </div>
+    </div>
+    <div fxFlex class="section" *ngIf="document.accessType === 'Restricted'">
         <mat-label class="label">Subscription Fee:</mat-label>
         <div fxFlex class="property">
             <div class="price">{{document.subscriptionFee}} ETH</div>
-            <input matInput type="number" readonly placeholder="Subscription Fee" value="document.subscriptionFee">
-            <span matSuffix>ETH</span>
         </div>
     </div>
     <div fxFlex class="section">
-        <mat-label class="label">Description:</mat-label>
+        <mat-label class="label">Latest Version:</mat-label>
         <div fxFlex class="property">
-            <div class="description">{{document.getDataForLatestVersion().description}}</div>
+            <div class="version">version:{{document.latestVersion}}</div>
+            <div>(Latest)</div>
         </div>
     </div>
     <div fxFlex class="section versions" fxLayout="column">
         <div fxLayout="row">
             <h4>Versions:</h4>
-            <div class="add-version" [routerLink]="[{  outlets: { publish: ['publish', {docId: document.docId}] }}] ">
+            <div class="add-version" [routerLink]="[{  outlets: { publish: ['publish', {docId: document.docId}] }}] " *ngIf="docService.canPublishNewVersion(document)">
                 <mat-icon matTooltip='Publish a new version'>library_add</mat-icon>
             </div>
         </div>
@@ -93,14 +73,17 @@
                     <mat-expansion-panel-header>
                         <mat-panel-title>
                             <div class="version">version:{{version}}</div>
+                            <div class="status">
+                                <mat-spinner *ngIf="document.getDataForLatestVersion().uploadingStatus == 'Pending'" [diameter]=24 matTooltip='Waiting for uploading transaction to complete'></mat-spinner>
+                                <mat-icon *ngIf="document.getDataForLatestVersion().uploadingStatus == 'Failed'" matTooltip='Uploading transaction failed'>error_outline</mat-icon>
+                            </div>
                         </mat-panel-title>
                     </mat-expansion-panel-header>
                     <div fxLayout="column">
                         <div fxFlex class="section">
-                            <mat-label class="label">Author:</mat-label>
+                            <mat-label class="label">Published On:</mat-label>
                             <div fxFlex class="property">
-                                <mat-icon>account_box</mat-icon>
-                                <div class="author">{{document.getDataForVersion(version).author}}</div>
+                                <div class="date-publication">{{document.getDataForVersion(version).datePublication | date:'medium'}}</div>
                             </div>
                         </div>
                         <div fxFlex class="section">
@@ -110,22 +93,25 @@
                             </div>
                         </div>
                         <div fxFlex class="section">
-                            <mat-label class="label">Published On:</mat-label>
-                            <div fxFlex class="property">
-                                <div class="date-publication">{{document.getDataForVersion(version).datePublication | date:'medium'}}</div>
-                            </div>
-                        </div>
-                        <div fxFlex class="section">
                             <mat-label class="label">Description:</mat-label>
                             <div fxFlex class="property">
                                 <div class="description">{{document.getDataForVersion(version).description}}</div>
                             </div>
                         </div>
-                        <div class="button" [routerLink]="[{ outlets: { download: ['download', {docId:document.docId, title:document.title, txId:document.getDataForVersion(version).txId, version:version}] } }]">
-                            <mat-icon>cloud_download</mat-icon>Download</div>
+                        <div class="button" [routerLink]="[{ outlets: { download: ['download', {docId:document.docId, title:document.title, txId:document.getDataForVersion(version).txId, version:version}] } }]" *ngIf="docService.canDownload(document, version)">
+                            <mat-icon>cloud_download</mat-icon>
+                            <span>Download</span>
+                        </div>
+                        <div class="button" (click)="docService.subscribe(document.docId)" *ngIf="docService.canSubscribe(document)">
+                            <mat-icon>add_shopping_cart</mat-icon>
+                            <span>Subscribe</span>
+                        </div>
                     </div>
                 </mat-expansion-panel>
             </mat-accordion>
         </div>
     </div>
 </div>
+<router-outlet name='download'></router-outlet>
+<router-outlet name='publish'></router-outlet>
+<router-outlet name="accessCtrl"></router-outlet>

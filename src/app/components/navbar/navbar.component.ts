@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { EthService } from 'src/app/ethereum/eth.service';
+import { ArweaveService } from 'src/app/arweave/arweave.service';
 
 @Component({
   selector: 'app-navbar',
@@ -9,7 +11,10 @@ export class NavbarComponent implements OnInit {
 
   profileOpen = false;
 
-  constructor() { }
+  constructor(
+    public ethService: EthService,
+    public arweaveService: ArweaveService,
+  ) { }
 
   ngOnInit(): void {
   }

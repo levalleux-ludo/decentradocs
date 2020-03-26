@@ -17,8 +17,26 @@ export class ReversePipe implements PipeTransform {
 })
 export class DocumentDetailsComponent implements OnInit {
 
+  _document: DocCollectionData = undefined;
+  _selectedVersion: number;
+
+  public get selectedVersion(): number {
+    return this._selectedVersion;
+  }
+
+  public set selectedVersion(value: number) {
+    console.log("select version", value);
+    this._selectedVersion = value;
+  }
+
+  public get document(): DocCollectionData {
+    return this._document;
+  }
   @Input()
-  document: DocCollectionData = undefined;
+  public set document(value: DocCollectionData) {
+    this._document = value;
+    this.selectedVersion = (this._document) ? this._document.latestVersion : 0;
+  }
 
 
   constructor(

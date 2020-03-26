@@ -3,3 +3,21 @@ body {
 }
 
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
+@import "~@ng-select/ng-select/themes/material.theme.css";
+.ng-select.custom {
+    height: 56px !important;
+}
+
+.ng-select.custom .ng-select-container {
+    height: 56px !important;
+}
+
+.version {
+    border-radius: 5px;
+    background-color: darkkhaki;
+    width: 110px;
+    height: 32px;
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 1em;
+}

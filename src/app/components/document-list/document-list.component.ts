@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { DocMetaData } from 'src/app/_model/DocMetaData';
 import { DocCollectionData } from 'src/app/_model/DocCollectionData';
+import { DocService } from 'src/app/doc-manager/doc.service';
 
 @Component({
   selector: 'app-document-list',
@@ -17,7 +18,9 @@ export class DocumentListComponent implements OnInit {
   // tslint:disable-next-line: variable-name
   _selectedDoc: DocCollectionData = undefined;
 
-  constructor() { }
+  constructor(
+    public docService: DocService
+  ) { }
 
   ngOnInit(): void {
   }

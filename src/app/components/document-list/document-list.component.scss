@@ -7,17 +7,6 @@
     font-weight: bolder;
 }
 
-.version {
-    padding-left: 16px;
-    padding-right: 16px;
-    border-radius: 5px;
-    background-color: darkkhaki;
-    width: 5em;
-    text-align: center;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 1em;
-}
-
 .selected {
     background-color: gray;
 }
@@ -39,6 +28,6 @@ mat-list-item div {
     line-height: 32px !important;
 }
 
-.download {
+.button {
     cursor: pointer;
 }

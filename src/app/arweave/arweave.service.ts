@@ -33,7 +33,7 @@ import { IArweave, FakeArweave } from './arweave.mock';
 //   Arweave_init = Arweave_inits.fake;
 // }
 
-const debug = true;
+const debug = false;
 
 @Injectable({
   providedIn: 'root'
@@ -274,6 +274,8 @@ export class ArweaveService {
     tx.addTag(eDataField.DOC_ID, docMetadata.docId);
     tx.addTag(eDataField.VERSION, docMetadata.version.toFixed(0));
     tx.addTag(eDataField.HASH, docMetadata.hash);
+    tx.addTag(eDataField.LAST_MODIFIED, docMetadata.lastModified.toFixed(0));
+    tx.addTag(eDataField.DATE_PUBLISH, docMetadata.datePublication.toFixed(0));
   }
 
 }

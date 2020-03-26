@@ -59,15 +59,21 @@ export class DocumentUploadFormComponent implements OnInit {
       version: this.data.version,
       docInstance: undefined,
       subscriptionFee: this.subscriptionFee,
-      protected: false,
+      restricted: false,
       authorizedAddresses: this.authorizedAddresses,
+      existingCollection: this.existingCollection,
+      protectionType: (this.authorizedAddresses.length > 0) ? 'usersList' : 'subscription'
     });
   }
 
   submit(form: FormGroup) {
     console.log("Upload Document: submit form");
     form.patchValue({docInstance: this.docInstance});
+    if (!form.controls.restricted.value) {
+      form.patchValue({subscriptionFee: '0'});
+    }
     form.patchValue({authorizedAddresses: this.authorizedAddresses});
+    form.patchValue({existingCollection: this.existingCollection});
     this.dialogRef.close(form.value);
   }
 
@@ -82,8 +88,8 @@ export class DocumentUploadFormComponent implements OnInit {
         resolve({docId: this.data.docId, title: this.data.title, version: this.data.version});
         return;
       }
-      let existingCollection: DocCollectionData = this.libraryService.findCollectionByTitle(title);
-      if (!existingCollection) {
+      const existingCollectionData: DocCollectionData = this.libraryService.findCollectionByTitle(title);
+      if (!existingCollectionData) {
         resolve({docId: '', title, version: 1}); // initial version
         return;
       }
@@ -103,8 +109,9 @@ export class DocumentUploadFormComponent implements OnInit {
             reject('did not agree to add a new version');
             return;
         }
-        const newVersion = existingCollection.latestVersion + 1;
-        resolve({docId: existingCollection.docId, title, version: newVersion});
+        this.existingCollection = true;
+        const newVersion = existingCollectionData.latestVersion + 1;
+        resolve({docId: existingCollectionData.docId, title, version: newVersion});
       });
     });
   }

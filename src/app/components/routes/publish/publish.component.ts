@@ -12,6 +12,8 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DVSRegistry } from 'src/app/ethereum/DVSRegistry';
 import { EthService } from 'src/app/ethereum/eth.service';
+import { PUBLIC_KEY } from 'src/app/doc-manager/doc.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-publish',
@@ -34,7 +36,8 @@ export class PublishComponent implements OnInit {
     private libraryService: LibraryService,
     private router: Router,
     private dialog: MatDialog,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private _snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -91,12 +94,22 @@ export class PublishComponent implements OnInit {
             data.docInstance.lastModified,
             Date.now());
 
-          const accessKey = uuid();
+          const accessKey = (data.restricted) ? uuid() : PUBLIC_KEY;
           const subscriptionFee: number = +data.subscriptionFee;
           const authorizedAddresses = data.authorizedAddresses;
+          const existingCollection = data.existingCollection;
+          this._snackBar.open('Uploading document to Permaweb ...');
           this.arweaveService.uploadDocument(this.docMetadata, data.docInstance).then((txId: string) => {
             console.log("upload done", JSON.stringify(this.docMetadata), txId);
-            this.dvsRegistry.registerDoc(this.docMetadata.docId, accessKey, subscriptionFee, authorizedAddresses).then(() => {
+            let registerPromise;
+            if (existingCollection) {
+              registerPromise = new Promise((resolve, reject) => resolve());
+            } else {
+              registerPromise = this.dvsRegistry.registerDoc(this.docMetadata.docId, accessKey, subscriptionFee, authorizedAddresses);
+            }
+            this._snackBar.open('Connecting contract... Please validate transaction !');
+            registerPromise.then(() => {
+              this._snackBar.open('Transaction sent.', '', {duration: 2000});
               console.log("dvsRegistry has registered new doc", this.docMetadata.docId);
               this.libraryService.getCollectionOrCreate(
                 this.docMetadata,
@@ -108,10 +121,30 @@ export class PublishComponent implements OnInit {
                 }
               ).then((collection) => {
                 this.libraryService.addInLibrary(this.docMetadata, txId, collection).then(() => {
-
-                }).catch(err => console.error(err));
-              }).catch(err => console.error(err));
-            }).catch(err => console.error(err));
+                  this._snackBar.dismiss();
+                }).catch(err => { // add in library failed
+                  console.error(err);
+                  this._snackBar.open('Unexpected error when adding document to library', 'ERROR', {
+                    duration: 2000,
+                  });
+                });
+              }).catch(err => { // get collection failed
+                console.error(err);
+                this._snackBar.open('Unexpected error when creating document in library', 'ERROR', {
+                  duration: 2000,
+                });
+              });
+            }).catch(err => {
+              console.error(err);
+              this._snackBar.open('Transaction failed', 'ERROR', {
+                duration: 2000,
+              });
+            });
+          }).catch(err => {
+            console.error(err);
+            this._snackBar.open('Uploading failed', 'ERROR', {
+              duration: 2000,
+            });
           });
         }
       }

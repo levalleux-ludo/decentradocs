@@ -82,6 +82,15 @@ contract DVSRegistry {
       return _subscriptionFeePerDocId[docId];
     }
 
+    function setSubscriptionFee(string calldata docId, uint256 subscriptionFee) external  {
+      require(docExists(docId), "this document has not been registered");
+        require(
+            msg.sender == _authorPerDocId[docId],
+            "only the author of the document can change authorisations"
+        );
+      _subscriptionFeePerDocId[docId] = subscriptionFee;
+    }
+
     function getAuthor(string calldata docId) external view returns (address) {
       require(docExists(docId), "this document has not been registered");
       return _authorPerDocId[docId];
