@@ -1,4 +1,11 @@
-<h1>My Documents</h1>
+<div fxLayout="row" fxLayoutAlign="start center">
+    <div>
+        <h1>My Documents</h1>
+    </div>
+    <div>
+        <mat-icon matTooltip='Refresh the library' (click)="refreshLibrary()" style="cursor: pointer; padding-left: 8px; padding-bottom: 16px;">refresh</mat-icon>
+    </div>
+</div>
 <mat-drawer-container #container id="container" class="example-container" (click)="onContainerClick($event)">
     <app-document-list #docList [documents]="allCollections" (onSelectDoc)="select($event)"></app-document-list>
     <mat-drawer #drawer class="example-sidenav" mode="side" position="end">

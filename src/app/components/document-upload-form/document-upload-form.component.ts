@@ -14,6 +14,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { ENTER, COMMA } from '@angular/cdk/keycodes';
 import { EthService } from 'src/app/ethereum/eth.service';
+import { DocService } from 'src/app/doc-manager/doc.service';
 
 @Component({
   selector: 'app-document-upload-form',
@@ -42,6 +43,7 @@ export class DocumentUploadFormComponent implements OnInit {
     private libraryService: LibraryService,
     private ethService: EthService,
     private _snackBar: MatSnackBar,
+    private docService: DocService,
     @Inject(MAT_DIALOG_DATA) public data: any) {
   }
 
@@ -91,6 +93,23 @@ export class DocumentUploadFormComponent implements OnInit {
       const existingCollectionData: DocCollectionData = this.libraryService.findCollectionByTitle(title);
       if (!existingCollectionData) {
         resolve({docId: '', title, version: 1}); // initial version
+        return;
+      }
+      if (!this.docService.canPublishNewVersion(existingCollectionData)) {
+        const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+          width: '350px',
+          data: {
+            title: "Existing Document",
+            message: `A document called '${title}' already exists in the library. Please choose another title`,
+            actions: [
+              {text: 'OK', result: true}
+            ]
+          }
+        });
+        confirmDialogRef.afterClosed().subscribe(result => {
+          reject('title already used in library');
+          return;
+        });
         return;
       }
       const confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {

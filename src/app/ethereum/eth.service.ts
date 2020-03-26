@@ -233,8 +233,14 @@ export class EthService {
       return this.web3.utils.isAddress(address);
     }
 
-    public toWei(amount_inETH: number): string {
+    public ethToWei(amount_inETH: number): string {
       return this.web3.utils.toWei(amount_inETH.toString(), 'ether');
     }
 
+    public weiToEth(amount_inWei: string): string {
+      return this.web3.utils.fromWei(amount_inWei, 'ether');
+    }
+
+
 }
+

@@ -68,6 +68,43 @@ export class LibraryService {
     return undefined;
   }
 
+  public async refresh(): Promise<DocCollectionData[]> {
+    return new Promise<DocCollectionData[]> ((resolve, reject) => {
+      // first load everything from arweave
+      this.updateLibrary().then(async (documents) => {
+        // then add pending docs (not yet confirmed on arweave)
+        const promises = [];
+        this._pendingDocumentsPerHash.forEach(({doc: docMetaData, txId}, key) => {
+          try {
+            promises.push( new Promise<void>((resolve2, reject2) => {
+              this.getCollectionOrCreate(docMetaData).then((collection) => {
+                this.addInLibrary(docMetaData, txId, collection).then(() => {
+                  resolve2();
+                }).catch(err => { // addInLibbrary failed
+                  reject2(err);
+                });
+              }).catch(err => { // getCollectionOrCreate failed
+                reject2(err);
+              });
+            }));
+          } catch (err) {
+            console.error(err);
+          }
+        });
+        try {
+          await Promise.all(promises);
+        } catch (err) {
+          console.error(err);
+          reject(err);
+        }
+        resolve(Array.from(this._collectionPerId.values()));
+      }).catch(err => {
+        console.error(err);
+        reject(err);
+      });
+    });
+  }
+
   // public get collections(): Observable<DocCollectionData[]> {
   //   return new Observable<DocCollectionData[]> ((observer) => {
   //     this.updateLibrary().then((documents) => {
@@ -119,25 +156,29 @@ export class LibraryService {
                   this.getCollectionOrCreate(docMetaData).then((collection) => {
                     this.addInLibrary(docMetaData, txId, collection).then(() => {
                       allDocs.push( docMetaData );
-                      resolve();
+                      resolve2();
                     }).catch(err => { // addInLibbrary failed
+                      console.error('add in library failed', err);
                       reject2(err);
                     });
                   }).catch(err => { // getCollectionOrCreate failed
+                    console.error('getCollectionOrCreate', err);
                     reject2(err);
                   });
                 }
               }).catch(err => { // getTransaction failed
+                console.error('getTransaction failed', err);
                 reject2(err);
               });
             }));
           } catch (err) {
             console.error(err);
+            reject(err);
           }
         }
         try {
           await Promise.all(promises);
-        } catch(err) {console.error(err);}
+        } catch (err) {console.error(err);}
         resolve(allDocs);
       }).catch(err => {
         reject(err);

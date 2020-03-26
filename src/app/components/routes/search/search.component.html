@@ -1,6 +1,14 @@
+<div fxLayout="row" fxLayoutAlign="start center">
+    <div>
+        <h1>Search in PermaLibrary</h1>
+        <h4>(total: {{allCollections.length}} documents)</h4>
+    </div>
+    <div>
+        <mat-icon matTooltip='Refresh the library' (click)="refreshLibrary()" style="cursor: pointer; padding-left: 8px; padding-bottom: 16px;">refresh</mat-icon>
+    </div>
+</div>
 <mat-drawer-container class="example-container" autosize>
-    <h1>Search in PermaLibrary</h1>
-    <h4>(total: {{allCollections.length}} documents)</h4>
+    <!-- <h1>Search in PermaLibrary</h1> -->
     <form [formGroup]="form" (ngSubmit)="submit(form)">
         <div class="filter">
             <h3>Select your Filter Criteria</h3>

@@ -27,7 +27,8 @@ export class DocService {
    }
 
    public subscribe(docId: string) {
-    this._dvsRegistry.subscribe(docId).then(() => {
+     const fee = this.libraryService.findCollectionByDocId(docId).subscriptionFee;
+    this._dvsRegistry.subscribe(docId, fee).then(() => {
       console.log("successfully subscribed to doc", docId);
       this._dvsRegistry.getDocumentKey(docId).then((key) => {
         this.libraryService.findCollectionByDocId(docId).accessKey = key;
@@ -42,7 +43,7 @@ export class DocService {
    }
    public canDownload(document: DocCollectionData, version: number): boolean {
      return ((document.getDataForVersion(version).uploadingStatus === eDocumentUploadingStatus.CONFIRMED)
-     && ((document.accessKey !== undefined) || (document.accessType === eAccessType.PUBLIC)));
+     && (this.isInMyLibrary(document) || (document.accessType === eAccessType.PUBLIC)));
    }
    public canPublishNewVersion(document: DocCollectionData): boolean {
     return document.getDataForLatestVersion().author === this.arweaveService.address;

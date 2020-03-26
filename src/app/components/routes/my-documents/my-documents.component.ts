@@ -32,7 +32,7 @@ export class MyDocumentsComponent implements OnInit {
 
   ngOnInit(): void {
     this.library.libraryCollections.subscribe((collections: DocCollectionData[]) => {
-      this.allCollections = collections.filter(() => this.filterCollection);
+      this.allCollections = collections.filter((coll: DocCollectionData) => this.filterCollection(coll));
     });
   }
 
@@ -53,5 +53,12 @@ export class MyDocumentsComponent implements OnInit {
 
   private filterCollection(coll: DocCollectionData): boolean {
     return this.docService.isInMyLibrary(coll);
+  }
+
+  refreshLibrary() {
+    this.library.refresh().then((collections) => {
+      this.allCollections = collections.filter((coll: DocCollectionData) => this.filterCollection(coll));
+    }).catch(err => {
+    });
   }
 }

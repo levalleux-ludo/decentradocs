@@ -53,13 +53,12 @@ export class SearchComponent implements OnInit {
       this.allCollections = collections;
       this.allAuthors = this.library.authors;
     });
-
   }
 
   submit(form: FormGroup) {
     console.log("Search: submit form");
     form.patchValue({keywords: this.keywords});
-    this.searchResults = this.allCollections.filter(() => this.filterCollection(form.controls));
+    this.searchResults = this.allCollections.filter((coll: DocCollectionData) => this.filterCollection(coll, form.controls));
   }
 
   addKeyword(event: MatChipInputEvent): void {
@@ -91,8 +90,8 @@ export class SearchComponent implements OnInit {
     this.docDetails.document = event.document;
   }
 
-  filterCollection(controls: { [key: string]: AbstractControl }): (coll: DocCollectionData) => boolean {
-    return (coll: DocCollectionData) => {
+  filterCollection(coll: DocCollectionData, controls: { [key: string]: AbstractControl }): boolean {
+    // return (coll: DocCollectionData) => {
       let result = true;
       if (controls.filterByAuthor.value) {
         result = coll.getDataForLatestVersion().author === controls.author.value;
@@ -115,7 +114,16 @@ export class SearchComponent implements OnInit {
         }
       }
       return result;
-    };
+    // };
   }
+
+  refreshLibrary() {
+    this.library.refresh().then((collections) => {
+      this.allCollections = collections;
+      this.allAuthors = this.library.authors;
+    }).catch(err => {
+    });
+  }
+
 
 }

@@ -18,7 +18,9 @@ export class DVSRegistry extends Contract{
     return new Promise<number>((resolve, reject) => {
       this._contract.methods.getSubscriptionFee(docId).call().then((fee: string) => {
         try {
-          resolve(parseInt(fee, 10));
+          const feeInETHstr: string = this.eth.weiToEth(fee);
+          const feeInETH: number = parseFloat(feeInETHstr);
+          resolve(feeInETH);
         } catch (err) {
           reject(err);
         }
@@ -36,7 +38,7 @@ export class DVSRegistry extends Contract{
   }
   public async setSubscriptionFee(docId: string, subscriptionFee_inETH: number): Promise<void> {
     return new Promise<any>((resolve, reject) => {
-      const subscriptionFee: string = this.eth.toWei(subscriptionFee_inETH);
+      const subscriptionFee: string = this.eth.ethToWei(subscriptionFee_inETH);
       this._contract.methods.setSubscriptionFee(docId, subscriptionFee)
       .send({from: this.eth.currentAccountValue}).then((receipt: any) => {
         console.log("DVSResgitry::setSubscriptionFee", receipt);
@@ -49,7 +51,7 @@ export class DVSRegistry extends Contract{
   }
   public async registerDoc(docId: string, encryptedKey: string, subscriptionFee_inETH: number, authorizedAddresses: string[]) {
     return new Promise<any>((resolve, reject) => {
-      const subscriptionFee: string = this.eth.toWei(subscriptionFee_inETH);
+      const subscriptionFee: string = this.eth.ethToWei(subscriptionFee_inETH);
       this._contract.methods.registerDoc(docId, encryptedKey, subscriptionFee, authorizedAddresses)
       .send({from: this.eth.currentAccountValue}).then((receipt: any) => {
         console.log("DVSResgitry::registerDoc", receipt);
@@ -60,7 +62,8 @@ export class DVSRegistry extends Contract{
       });
     });
   }
-  public async subscribe(docId: string): Promise<void> {
-    return this._contract.methods.subscribe(docId).send({from: this.eth.currentAccountValue});
+  public async subscribe(docId: string, amount_inETH: number): Promise<void> {
+    const amount: string = this.eth.ethToWei(amount_inETH);
+    return this._contract.methods.subscribe(docId).send({from: this.eth.currentAccountValue, value: amount});
   }
 }
