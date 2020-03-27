@@ -12,12 +12,20 @@
                 <span *ngIf="!arweaveService.authenticated" style="color:red;">
                   <mat-icon>warning</mat-icon>Arweave login required</span>
             </div>
-            <div fxFlex class="account" fxLayout="row" xLayoutAlign="end center" matTooltip="Ethereum account">
+            <div fxFlex class="account" fxLayout="row" xLayoutAlign="end center" matTooltip="Ethereum account" *ngIf="blockchainService.blockchain == 'Ethereum'">
                 <img fxFlex src=" ../assets/ethereum-icon-purple.56fbef66.svg " height="30px">
                 <span *ngIf="ethService.currentAccountValue "> {{ethService.currentAccountValue}}</span>
                 <span *ngIf="!ethService.currentAccountValue " style="color:red; ">
                     <mat-icon>warning</mat-icon>
                     <span>ETH login required</span>
+                </span>
+            </div>
+            <div fxFlex class="account" fxLayout="row" xLayoutAlign="end center" matTooltip="NEAR account" *ngIf="blockchainService.blockchain == 'NEAR'">
+                <img fxFlex src=" ../assets/near_logo_white_crop.png " height="30px">
+                <span *ngIf="nearService.currentAccountValue "> @{{nearService.currentAccountValue}}</span>
+                <span *ngIf="!nearService.currentAccountValue " style="color:red; ">
+                  <mat-icon>warning</mat-icon>
+                  <span>NEAR login required</span>
                 </span>
             </div>
         </div>

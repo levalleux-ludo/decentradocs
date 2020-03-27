@@ -1,6 +1,12 @@
 <h1>Get Started !</h1>
-<p>Connect both to Arweave and Ethereum networks</p>
-<mat-vertical-stepper>
+<h2>
+    <ol>
+        <li>Connect to <a href="https://www.arweave.org/" target="_blank">Arweave</a></li>
+        <li>Choose the blockchain you want to use (<a href="https://ethereum.org" target="_blank">Ethereum</a> or <a href="https://nearprotocol.com" target="_blank">NEAR</a>)</li>
+        <li>Connect to the chosen blockchain</li>
+    </ol>
+</h2>
+<!-- <mat-vertical-stepper>
     <mat-step label="{{arweaveStepLabel}}">
         <div fxLayout="column">
             <div fxFlex>
@@ -27,4 +33,7 @@
             </div>
         </div>
     </mat-step>
-</mat-vertical-stepper>
+</mat-vertical-stepper> -->
+<app-profile-details></app-profile-details>
+
+<button mat-raised-button class="button" [disabled]="!isAuthenticated">Let's Go!</button>

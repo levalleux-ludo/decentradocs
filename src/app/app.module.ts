@@ -22,6 +22,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -54,6 +55,7 @@ import { MaterialFileSelectComponent } from './components/material-file-select/m
 import { DownloadComponent } from './components/routes/download/download.component';
 import { AccessCtrlComponent } from './components/routes/access-ctrl/access-ctrl.component';
 import { AccessCtrlDialogComponent } from './components/access-ctrl-dialog/access-ctrl-dialog.component';
+import { NearConnectComponent } from './components/near-connect/near-connect.component';
 
 @NgModule({
   declarations: [
@@ -80,7 +82,8 @@ import { AccessCtrlDialogComponent } from './components/access-ctrl-dialog/acces
     MaterialFileSelectComponent,
     DownloadComponent,
     AccessCtrlComponent,
-    AccessCtrlDialogComponent
+    AccessCtrlDialogComponent,
+    NearConnectComponent
   ],
   imports: [
     BrowserModule,
@@ -113,7 +116,8 @@ import { AccessCtrlDialogComponent } from './components/access-ctrl-dialog/acces
     MatMenuModule,
     MatRadioModule,
     NgSelectModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatButtonModule
   ],
   providers: [FormBuilder, WindowRef],
   bootstrap: [AppComponent],

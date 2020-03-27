@@ -1,11 +1,26 @@
-<div class="card-container " [@strech]="opened" flexLayout="row" fxLayoutAlign="center strech">
+<div class="card-container " [@strech]="opened" fxLayout="row" fxLayoutAlign="center strech">
 
-    <div class="" tabindex="0 " fxFlex>
+    <div class="" tabindex="0 " style="width: ">
+        <div fxLayout="row" style="height: 60px;    width: 50%;
+      align-items: center;
+      align-self: center;"></div>
         <app-arweave-connect></app-arweave-connect>
     </div>
 
-    <div class="" tabindex="0 " fxFlex>
-        <app-ethereum-connect></app-ethereum-connect>
+
+    <div class="" tabindex="0 " fxLayout="column">
+        <div fxLayout="row" style="height: 60px;    width: 50%;
+        align-items: center;
+        align-self: center;">
+            <span fxFlex matTooltip=''><img  src=" ../assets/ethereum.png " height="30px"></span>
+            <mat-slide-toggle fxFlex #useNear [checked]="blockchainService.blockchain == 'NEAR'" (change)="blockchainService.use('NEAR', useNear.checked)" style="    margin-left: 16px;
+            "></mat-slide-toggle>
+            <span fxFlex matTooltip=''><img  src=" ../assets/near_logo.svg " height="30px"></span>
+        </div>
+        <div>
+            <app-ethereum-connect *ngIf="blockchainService.blockchain == 'Ethereum'"></app-ethereum-connect>
+            <app-near-connect *ngIf="blockchainService.blockchain == 'NEAR'"></app-near-connect>
+        </div>
     </div>
 
 </div>

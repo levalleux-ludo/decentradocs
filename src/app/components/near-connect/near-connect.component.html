@@ -1,0 +1,30 @@
+<div fxLayout="row" fxLayoutWrap fxLayoutAlign="center start" class="near-connect">
+    <div fxFlex fxLayout="column" fxLayoutWrap fxLayoutAlign="start center" class="inner-content">
+        <div>
+            <img src="../../../assets/near_logo.svg" height="80px;" style="padding: 10px;">
+        </div>
+        <div fxFlex>
+            <mat-form-field appearance="fill" style="width:200px;">
+                <mat-label>Your Account ID</mat-label>
+                <input matInput readonly value="{{accountId}}">
+            </mat-form-field>
+        </div>
+        <div fxFlex fxLayout="row">
+            <div fxFlex>
+                <mat-form-field appearance="fill" style="width:200px;">
+                    <mat-label>Your Balance</mat-label>
+                    <input matInput readonly value="YOUR_BALANCE">
+                </mat-form-field>
+            </div>
+        </div>
+        <div fxFlex *ngIf="accountId" class="button" (click)="logout()">
+            <mat-icon>clear</mat-icon>
+            <span>Disconnect</span>
+        </div>
+        <div fxFlex *ngIf="!accountId" class="button" (click)="login()">
+            <mat-icon>clear</mat-icon>
+            <span>Connect</span>
+        </div>
+    </div>
+
+</div>

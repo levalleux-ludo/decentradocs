@@ -3,7 +3,8 @@ import { and, or, equals } from 'arql-ops';
 export const APP_NAME = 'DecentraDocs';
 export const APP_VERSION = '0.3';
 export enum eLocalStorageDataKey {
-  WALLET = 'arweave.wallet'
+  WALLET = 'arweave.wallet',
+  BLOCKCHAIN = 'blockchain'
 }
 export enum eDataType {
   DOC = 'Doc'

@@ -10,6 +10,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { DVSRegistry } from '../ethereum/DVSRegistry';
 import { DvsService } from '../ethereum/dvs.service';
 import { PUBLIC_KEY } from '../doc-manager/doc.service';
+import { AuthenticateService } from '../authenticate/authenticate.service';
 
 @Injectable({
   providedIn: 'root'
@@ -30,15 +31,20 @@ export class LibraryService {
   constructor(
     private arweaveService: ArweaveService,
     private dvs: DvsService,
-    private transactionsService: TransactionsService
+    private transactionsService: TransactionsService,
+    private authService: AuthenticateService
   ) {
     this._librarySubject = new BehaviorSubject<DocMetaData[]>([]);
     this._library = this._librarySubject.asObservable();
     this._libraryCollectionsSubject = new BehaviorSubject<DocCollectionData[]>([]);
     this._libraryCollections = this._libraryCollectionsSubject.asObservable();
-    this.dvs.getContract().then((contract) => {
-      this.dvsRegistry = contract;
-      this.updateLibrary();
+    this.authService.isAuthenticated().subscribe((isAuth) => {
+      if (isAuth) {
+        this.dvs.getContract().then((contract) => {
+          this.dvsRegistry = contract;
+          this.updateLibrary();
+        });
+      }
     });
 
   }

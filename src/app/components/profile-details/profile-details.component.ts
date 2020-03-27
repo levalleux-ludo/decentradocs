@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { BlockchainService } from 'src/app/blockchain/blockchain.service';
 
 @Component({
   selector: 'app-profile-details',
@@ -18,7 +19,9 @@ export class ProfileDetailsComponent implements OnInit {
 
   _opened: boolean = false;
 
-  constructor() { }
+  constructor(
+    public blockchainService: BlockchainService
+  ) { }
 
   @Input()
   set opened(value: boolean) {
