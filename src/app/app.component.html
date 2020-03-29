@@ -5,6 +5,27 @@
 
 
 <div class="main-content">
+    <div>
+        <h1>test NEAR</h1>
+        <p>accountId={{nearAccountId}}</p>
+        <p>balance={{nearBalance}}</p>
+        <p>contract={{nearContract}}</p>
+        <p>messages:</p>
+        <ul>
+            <li *ngFor="let msg of nearMessages">{{msg.text}}</li>
+        </ul>
+        <input type="text" #message>
+        <button (click)="createDoc(message.value)">Send</button>
+        <button (click)="checkDocExists(message.value)">Check</button>
+        <p>doc exists: {{docExists}}</p>
+        <button (click)="getOwner()">Get owner</button>
+        <p>dDOXContractOwner: {{dDOXContractOwner}}</p>
+        <input type="text" #account>
+        <button (click)="getBalance(account.value)">Get balance</button>
+        <p>Balance: {{balance}}</p>
+        <button (click)="getGreetings()">Get greetings</button>
+        <p>Greetings: {{greetings}}</p>
+    </div>
     <router-outlet name="download"></router-outlet>
     <router-outlet name="publish"></router-outlet>
     <router-outlet name="accessCtrl"></router-outlet>
