@@ -1,4 +1,5 @@
 export interface IDecentraDocsContract {
+  contractId: string;
   getMessage(): Promise<string>;
   docExists(docId: string): Promise<boolean>;
   getDocumentKey(docId: string): Promise<string>;

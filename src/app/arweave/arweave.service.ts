@@ -19,6 +19,8 @@ import { APP_NAME, APP_VERSION, ArQueries, eDataType, eDataField, eLocalStorageD
 import { LibraryService } from '../library/library.service';
 import { ArqlOp } from 'arql-ops';
 import { IArweave, FakeArweave } from './arweave.mock';
+import { DvsService } from '../ethereum/dvs.service';
+import { IDecentraDocsContract } from '../blockchain/IDecentraDocsContract';
 
 
 // // tslint:disable-next-line: variable-name
@@ -57,7 +59,8 @@ export class ArweaveService {
   }
 
   constructor(
-    private fileSaverService: FileSaverService
+    private fileSaverService: FileSaverService,
+    private dvs: DvsService
   ) {
     this.initialize();
   }
@@ -177,22 +180,29 @@ export class ArweaveService {
   }
 
   public async uploadDocument(docMetadata: DocMetaData, docInstance: DocInstance): Promise<string> {
-    if (!this.initialized) {
-      await this.initialize();
-    }
-    console.log("upload doc with hash", docInstance.hash);
-    if (debug) {
-      console.warn('DEBUG MODE: real uploading deactivated')
-      return uuid();
-    }
-    const tx = await this._arweave.createTransaction(
-      {
-        data: new Uint8Array(docInstance.content)
-      },
-      this._wallet
-    );
-    this.tagDocument(tx, docMetadata);
-    return this.signAndPostTransaction(tx);
+    return new Promise<string>(async (resolve, reject) => {
+      if (!this.initialized) {
+        // await this.initialize();
+        reject('arweaveService not initialized');
+        return;
+      }
+      console.log("upload doc with hash", docInstance.hash);
+      if (debug) {
+        console.warn('DEBUG MODE: real uploading deactivated')
+        resolve(uuid());
+        return;
+      }
+      const tx = await this._arweave.createTransaction(
+        {
+          data: new Uint8Array(docInstance.content)
+        },
+        this._wallet
+      );
+      this.dvs.getContract().then((decentraDocsContract: IDecentraDocsContract) => {
+        this.tagDocument(tx, docMetadata, decentraDocsContract.contractId);
+        resolve(this.signAndPostTransaction(tx));
+      }).catch(err => reject(err));
+    });
   }
 
   // public async uploadNewVersion(docMetadata: DocMetaData, version: string, docInstance: DocInstance): Promise<DocVersion> {
@@ -229,7 +239,7 @@ export class ArweaveService {
     if (!this.initialized) {
       await this.initialize();
     }
-    return this._arweave.arql(ArQueries.ALL_DOCS);
+    return this._arweave.arql(query);
   }
 
   public async getTransaction(txId: string): Promise<Transaction> {
@@ -264,9 +274,10 @@ export class ArweaveService {
     });
   }
 
-  protected tagDocument(tx: Transaction, docMetadata: DocMetaData) {
+  protected tagDocument(tx: Transaction, docMetadata: DocMetaData, contractId: string) {
     tx.addTag(eDataField.APP_NAME, APP_NAME);
     tx.addTag(eDataField.APP_VERSION, APP_VERSION);
+    tx.addTag(eDataField.CONTRACT_ID, contractId);
     tx.addTag(eDataField.TYPE, eDataType.DOC);
     tx.addTag(eDataField.AUTHOR, docMetadata.author);
     tx.addTag(eDataField.TITLE, docMetadata.title);

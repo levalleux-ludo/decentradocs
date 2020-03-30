@@ -16,6 +16,7 @@ export class Contract {
         return this.eth.getContract(contractData).then(
           (contract: EthContract) => {
             this._contract = contract;
+            this._address = contract.options.address;
             return true;
           }).catch(
           (err: any) => {

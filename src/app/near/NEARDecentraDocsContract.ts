@@ -1,5 +1,5 @@
 import { IDecentraDocsContract } from '../blockchain/IDecentraDocsContract';
-import { NearService } from './near.service';
+import { NearService, CONTRACTS } from './near.service';
 import { eContract } from '../blockchain/blockchain.service';
 
 export class NEARDecentraDocsContract implements IDecentraDocsContract {
@@ -13,6 +13,9 @@ export class NEARDecentraDocsContract implements IDecentraDocsContract {
         resolve (this.nearContract !== undefined);
       }).catch(err => reject(err));
     });
+  }
+  public get contractId(): string {
+    return CONTRACTS.DECENTRADOCS.id;
   }
   getMessage(): Promise<string> {
     throw new Error("Method not implemented.");

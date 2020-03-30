@@ -145,43 +145,47 @@ export class LibraryService {
     this._collectionPerTitle = new Map();
     this._allDocsPerHash = new Map();
     return new Promise<DocMetaData[]> ((resolve, reject) => {
-      this.arweaveService.getTxIds(ArQueries.ALL_DOCS).then(async(txIds: string[]) => {
-        const allDocs: DocMetaData[] = [];
-        // txIds.forEach(async (txId) => {
-        const promises = [];
-        for (const txId of txIds) {
-          try {
-            promises.push( new Promise<void>((resolve2, reject2) => {
-              this.arweaveService.getTransaction(txId).then((tx: Transaction) => {
-                const docMetaData = this.createDocMetaData(tx);
-                if (docMetaData) {
-                  this.getCollectionOrCreate(docMetaData).then((collection) => {
-                    this.addInLibrary(docMetaData, txId, collection).then(() => {
-                      allDocs.push( docMetaData );
-                      resolve2();
-                    }).catch(err => { // addInLibbrary failed
-                      console.error('add in library failed', err);
+      this.dvs.getContract().then((decentraDocsContract: IDecentraDocsContract) => {
+        this.arweaveService.getTxIds(ArQueries.ALL_DOCS(decentraDocsContract.contractId)).then(async(txIds: string[]) => {
+          const allDocs: DocMetaData[] = [];
+          // txIds.forEach(async (txId) => {
+          const promises = [];
+          for (const txId of txIds) {
+            try {
+              promises.push( new Promise<void>((resolve2, reject2) => {
+                this.arweaveService.getTransaction(txId).then((tx: Transaction) => {
+                  const docMetaData = this.createDocMetaData(tx);
+                  if (docMetaData) {
+                    this.getCollectionOrCreate(docMetaData).then((collection) => {
+                      this.addInLibrary(docMetaData, txId, collection).then(() => {
+                        allDocs.push( docMetaData );
+                        resolve2();
+                      }).catch(err => { // addInLibbrary failed
+                        console.error('add in library failed', err);
+                        reject2(err);
+                      });
+                    }).catch(err => { // getCollectionOrCreate failed
+                      console.error('getCollectionOrCreate', err);
                       reject2(err);
                     });
-                  }).catch(err => { // getCollectionOrCreate failed
-                    console.error('getCollectionOrCreate', err);
-                    reject2(err);
-                  });
-                }
-              }).catch(err => { // getTransaction failed
-                console.error('getTransaction failed', err);
-                reject2(err);
-              });
-            }));
-          } catch (err) {
-            console.error(err);
-            reject(err);
+                  }
+                }).catch(err => { // getTransaction failed
+                  console.error('getTransaction failed', err);
+                  reject2(err);
+                });
+              }));
+            } catch (err) {
+              console.error(err);
+              reject(err);
+            }
           }
-        }
-        try {
-          await Promise.all(promises);
-        } catch (err) {console.error(err);}
-        resolve(allDocs);
+          try {
+            await Promise.all(promises);
+          } catch (err) {console.error(err);}
+          resolve(allDocs);
+        }).catch(err => {
+          reject(err);
+        });
       }).catch(err => {
         reject(err);
       });

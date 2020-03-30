@@ -6,6 +6,9 @@ export class DVSRegistry extends Contract implements IDecentraDocsContract {
   constructor(protected eth: EthService) {
     super(eth);
   }
+  public get contractId(): string {
+    return this.address;
+  }
   public async getMessage(): Promise<string> {
     return this._contract.methods.message().call();
   }
