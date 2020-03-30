@@ -7,10 +7,10 @@ import { ArweaveService } from '../arweave/arweave.service';
 import { rejects } from 'assert';
 import { TransactionsService, eTransationStatus } from '../arweave/transactions.service';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { DVSRegistry } from '../ethereum/DVSRegistry';
 import { DvsService } from '../ethereum/dvs.service';
 import { PUBLIC_KEY } from '../doc-manager/doc.service';
 import { AuthenticateService } from '../authenticate/authenticate.service';
+import { IDecentraDocsContract } from '../blockchain/IDecentraDocsContract';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +25,6 @@ export class LibraryService {
   private _library: Observable<DocMetaData[]>;
   private _libraryCollectionsSubject: BehaviorSubject<DocCollectionData[]>;
   private _libraryCollections: Observable<DocCollectionData[]>;
-  public dvsRegistry: DVSRegistry = undefined;
 
 
   constructor(
@@ -40,10 +39,7 @@ export class LibraryService {
     this._libraryCollections = this._libraryCollectionsSubject.asObservable();
     this.authService.isAuthenticated().subscribe((isAuth) => {
       if (isAuth) {
-        this.dvs.getContract().then((contract) => {
-          this.dvsRegistry = contract;
-          this.updateLibrary();
-        });
+        this.updateLibrary();
       }
     });
 
@@ -225,7 +221,13 @@ export class LibraryService {
   //   return metaData;
   // }
 
-  public async getCollectionOrCreate(docMetaData: DocMetaData, accessControl?: {accessKey: string, subscriptionFee: number, authorEthAccount: string, authorizedAccounts: string[]}): Promise<DocCollectionData> {
+  public async getCollectionOrCreate(
+    docMetaData: DocMetaData,
+    accessControl?: {accessKey: string,
+      subscriptionFee: number,
+      authorEthAccount: string,
+      authorizedAccounts: string[]}
+      ): Promise<DocCollectionData> {
     return new Promise<DocCollectionData>(async (resolve, reject) => {
       let collection = this._collectionPerId.get(docMetaData.docId);
       if (!collection) {
@@ -237,51 +239,63 @@ export class LibraryService {
           collection.authorizedAccounts = accessControl.authorizedAccounts;
           collection.accessType = (accessControl.accessKey === PUBLIC_KEY) ? eAccessType.PUBLIC : eAccessType.RESTRICTED;
         } else {
-          if (await this.dvsRegistry.docExists(docMetaData.docId)) {
-            const promises = [
-              this.dvsRegistry.getAuthorAccount(docMetaData.docId).then((account) => {
-                console.log("got authorEthAccount", account);
-                collection.authorEthAccount = account;
-              }).catch(err => console.error(err)),
-              this.dvsRegistry.getSubscriptionFee(docMetaData.docId).then((fee: number) => {
-                console.log("got subscriptionFee", fee);
-                collection.subscriptionFee = fee;
-              }).catch(err => console.error(err)),
-              this.dvsRegistry.getAuthorizedAccounts(docMetaData.docId).then((authorized: string[]) => {
-                console.log("got authorized", authorized);
-                collection.authorizedAccounts = authorized;
-              }).catch(err => console.error(err)),
-              this.dvsRegistry.getDocumentKey(docMetaData.docId).then((key: string) => {
-                console.log("got document key", key);
-                collection.accessKey = key;
-                collection.accessType = (key === PUBLIC_KEY) ? eAccessType.PUBLIC : eAccessType.RESTRICTED;
-              }).catch(err => console.error(err))
-            ];
-            await Promise.all(promises);
-          } else {
-            console.warn(`Document ${JSON.stringify(docMetaData)} published on ${new Date(docMetaData.datePublication).toISOString()} is not registered in DVS contract`);
-            reject(`Document ${docMetaData.title} with id ${docMetaData.docId} is not registered in DVS contract`);
+          await this.dvs.getContract().then(async (decentraDocsContract: IDecentraDocsContract) => {
+            if (await decentraDocsContract.docExists(docMetaData.docId)) {
+              const promises = [
+                decentraDocsContract.getAuthorAccount(docMetaData.docId).then((account) => {
+                  console.log('got authorEthAccount', account);
+                  collection.authorEthAccount = account;
+                }).catch(err => console.error(err)),
+                decentraDocsContract.getSubscriptionFee(docMetaData.docId).then((fee: number) => {
+                  console.log('got subscriptionFee', fee);
+                  collection.subscriptionFee = fee;
+                }).catch(err => console.error(err)),
+                decentraDocsContract.getAuthorizedAccounts(docMetaData.docId).then((authorized: string[]) => {
+                  console.log('got authorized', authorized);
+                  collection.authorizedAccounts = authorized;
+                }).catch(err => console.error(err)),
+                decentraDocsContract.getDocumentKey(docMetaData.docId).then((key: string) => {
+                  console.log('got document key', key);
+                  collection.accessKey = key;
+                  collection.accessType = (key === PUBLIC_KEY) ? eAccessType.PUBLIC : eAccessType.RESTRICTED;
+                }).catch(err => console.error(err))
+              ];
+              await Promise.all(promises);
+            } else {
+              // tslint:disable-next-line: max-line-length
+              console.warn(`Document ${JSON.stringify(docMetaData)} published on ${new Date(docMetaData.datePublication).toISOString()} is not registered in DVS contract`);
+              collection = undefined;
+              reject(`Document ${docMetaData.title} with id ${docMetaData.docId} is not registered in DVS contract`);
+              return;
+            }
+          }).catch(err => {
+            collection = undefined;
+            reject('unable to get DecentraDocs contract from Blockchain:' + err);
             return;
-          }
+          });
         }
-        console.log("new collection", JSON.stringify(collection));
-        this._collectionPerId.set(docMetaData.docId, collection);
-        this._collectionPerTitle.set(docMetaData.title, collection);
+        if (collection) {
+          console.log('new collection', JSON.stringify(collection));
+          this._collectionPerId.set(docMetaData.docId, collection);
+          this._collectionPerTitle.set(docMetaData.title, collection);
+        } else {
+          return;
         }
+      }
       resolve(collection);
     });
   }
   public async addInLibrary(docMetaData: DocMetaData, txId: string, collection: DocCollectionData): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      console.log("adding txId", txId, " for doc ", docMetaData.docId, "version", docMetaData.version);
+      console.log('adding txId', txId, ' for doc ', docMetaData.docId, 'version', docMetaData.version);
       docMetaData.txId = txId;
-      console.log("Update Subject: LibraryCollection");
+      console.log('Update Subject: LibraryCollection');
       this._libraryCollectionsSubject.next(Array.from(this._collectionPerId.values()));
       collection.addVersion(docMetaData);
-      console.log("new doc", JSON.stringify(docMetaData));
+      console.log('new doc', JSON.stringify(docMetaData));
       this._allDocsPerHash.set(docMetaData.hash, docMetaData);
       this._allDocsPerAuthor.set(docMetaData.author, docMetaData);
-      console.log("Update Subject: Library");
+      console.log('Update Subject: Library');
       this._librarySubject.next(Array.from(this._allDocsPerHash.values()));
       if (docMetaData.uploadingStatus !== eDocumentUploadingStatus.CONFIRMED) {
         this._pendingDocumentsPerHash.set(docMetaData.hash, { doc: docMetaData, txId: txId });

@@ -1,19 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
+import { eContract } from '../blockchain/blockchain.service';
 const nearlib = require('nearlib');
 
-export enum eContract {
-  DECENTRADOCS = 'DecentraDocs',
-  DDOX_TOKEN = "DDoxToken"
-}
-
 export const CONTRACTS = {
-  DecentraDocs: {
+  DECENTRADOCS: {
     id: 'decentradocs',
     viewMethods: ['docExists', 'dDox_getOwner', 'getGreetings'],
     changeMethods: ['registerDoc']
   },
-  DDoxToken: {
+  DDOX_TOKEN: {
     id: 'ddox-token',
     viewMethods: ['balanceOf', 'getOwner'],
     changeMethods: ['init']
@@ -49,8 +45,8 @@ export class NearService {
       }
     }
     this.walletConnection.requestSignIn(
-      CONTRACTS[eContract.DECENTRADOCS].id,
-      CONTRACTS.DecentraDocs.id
+      CONTRACTS.DECENTRADOCS.id,
+      CONTRACTS.DECENTRADOCS.id
     )
   }
 

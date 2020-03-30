@@ -5,12 +5,21 @@ import { NearService } from '../near/near.service';
 import { resolve } from 'dns';
 import { eLocalStorageDataKey } from '../arweave/constants';
 import { Router } from '@angular/router';
+import { IDecentraDocsContract } from './IDecentraDocsContract';
 
 
 export enum eBlockchain {
   ETHEREUM = 'ETHEREUM',
   NEAR = 'NEAR'
 }
+
+export enum eContract {
+  DECENTRADOCS = 'DECENTRADOCS',
+  DDOX_TOKEN = "DDOX_TOKEN"
+}
+
+
+
 
 @Injectable({
   providedIn: 'root'

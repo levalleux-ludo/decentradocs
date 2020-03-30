@@ -4,9 +4,9 @@ import { ArweaveService } from 'src/app/arweave/arweave.service';
 import { LibraryService } from 'src/app/library/library.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AccessCtrlDialogComponent } from '../../access-ctrl-dialog/access-ctrl-dialog.component';
-import { DVSRegistry } from 'src/app/ethereum/DVSRegistry';
 import { DvsService } from 'src/app/ethereum/dvs.service';
 import { map } from 'rxjs/operators';
+import { IDecentraDocsContract } from 'src/app/blockchain/IDecentraDocsContract';
 
 @Component({
   selector: 'app-access-ctrl',
@@ -14,8 +14,6 @@ import { map } from 'rxjs/operators';
   styleUrls: ['./access-ctrl.component.scss']
 })
 export class AccessCtrlComponent implements OnInit {
-
-  public dvsRegistry: DVSRegistry = undefined;
 
   constructor(
     private dialog: MatDialog,
@@ -33,9 +31,6 @@ export class AccessCtrlComponent implements OnInit {
     } else {
       this.router.navigate(this.route.snapshot.parent.url);
     }
-    this.dvs.getContract().then((contract) => {
-      this.dvsRegistry = contract;
-    });
   }
 
   showForm(docId: string) {
@@ -53,10 +48,11 @@ export class AccessCtrlComponent implements OnInit {
         if (!data) {
           return;
         }
+        this.dvs.getContract().then((decentraDocsContract: IDecentraDocsContract) => {
         const subscriptionFee: number = +data.subscriptionFee;
         const authorizedAddresses = data.authorizedAddresses;
         if (document.subscriptionFee !== subscriptionFee) {
-          this.dvsRegistry.setSubscriptionFee(docId, subscriptionFee).then(() => {
+            decentraDocsContract.setSubscriptionFee(docId, subscriptionFee).then(() => {
             document.subscriptionFee = subscriptionFee;
           }).catch(err => console.error(err));
         }
@@ -73,10 +69,11 @@ export class AccessCtrlComponent implements OnInit {
           }
         }
         if ((addressToAdd.length > 0) || (addressToRemove.length > 0)) {
-          this.dvsRegistry.setAccess(docId, addressToAdd, addressToRemove).then(() => {
+            decentraDocsContract.setAccess(docId, addressToAdd, addressToRemove).then(() => {
             document.authorizedAccounts = authorizedAddresses;
           }).catch(err => console.error(err));
         }
+        }).catch(err => console.error(err));
       });
   }
 

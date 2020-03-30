@@ -10,10 +10,10 @@ import { LibraryService } from 'src/app/library/library.service';
 import { DocMetaData } from 'src/app/_model/DocMetaData';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { DVSRegistry } from 'src/app/ethereum/DVSRegistry';
 import { EthService } from 'src/app/ethereum/eth.service';
 import { PUBLIC_KEY } from 'src/app/doc-manager/doc.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { IDecentraDocsContract } from 'src/app/blockchain/IDecentraDocsContract';
 
 @Component({
   selector: 'app-publish',
@@ -25,7 +25,6 @@ export class PublishComponent implements OnInit {
   docMetadata: DocMetaData;
   txId = '';
   status: eTransationStatus = eTransationStatus.UNKNOWN;
-  public dvsRegistry: DVSRegistry = undefined;
 
 
   constructor(
@@ -47,9 +46,6 @@ export class PublishComponent implements OnInit {
     } else {
       this.router.navigate(this.route.snapshot.parent.url);
     }
-    this.dvs.getContract().then((contract) => {
-      this.dvsRegistry = contract;
-    });
   }
 
   showUploadDocumentForm(docId?: string) {
@@ -105,7 +101,11 @@ export class PublishComponent implements OnInit {
             if (existingCollection) {
               registerPromise = new Promise((resolve, reject) => resolve());
             } else {
-              registerPromise = this.dvsRegistry.registerDoc(this.docMetadata.docId, accessKey, subscriptionFee, authorizedAddresses);
+              registerPromise = new Promise((resolve, reject) => {
+                this.dvs.getContract().then((decentraDocsContract: IDecentraDocsContract) => {
+                  resolve(decentraDocsContract.registerDoc(this.docMetadata.docId, accessKey, subscriptionFee, authorizedAddresses));
+                }).catch(err => reject(err));
+              });
             }
             this._snackBar.open('Connecting contract... Please validate transaction !');
             registerPromise.then(() => {

@@ -34,7 +34,7 @@
         <mat-label class="label">Author:</mat-label>
         <div fxFlex class="property">
             <mat-icon>account_box</mat-icon>
-            <div class="author">{{document.getDataForLatestVersion().author}}</div>
+            <div class="author" *ngIf="document.getDataForLatestVersion()">{{document.getDataForLatestVersion().author}}</div>
             <div class="author">@ETH:{{document.authorEthAccount}}</div>
         </div>
     </div>
@@ -74,8 +74,8 @@
                         <mat-panel-title>
                             <div class="version">version:{{version}}</div>
                             <div class="status">
-                                <mat-spinner *ngIf="document.getDataForLatestVersion().uploadingStatus == 'Pending'" [diameter]=24 matTooltip='Waiting for uploading transaction to complete'></mat-spinner>
-                                <mat-icon *ngIf="document.getDataForLatestVersion().uploadingStatus == 'Failed'" matTooltip='Uploading transaction failed'>error_outline</mat-icon>
+                                <mat-spinner *ngIf="document.getDataForLatestVersion() && document.getDataForLatestVersion().uploadingStatus == 'Pending'" [diameter]=24 matTooltip='Waiting for uploading transaction to complete'></mat-spinner>
+                                <mat-icon *ngIf="document.getDataForLatestVersion() && document.getDataForLatestVersion().uploadingStatus == 'Failed'" matTooltip='Uploading transaction failed'>error_outline</mat-icon>
                             </div>
                         </mat-panel-title>
                     </mat-expansion-panel-header>
@@ -83,19 +83,19 @@
                         <div fxFlex class="section">
                             <mat-label class="label">Published On:</mat-label>
                             <div fxFlex class="property">
-                                <div class="date-publication">{{document.getDataForVersion(version).datePublication | date:'medium'}}</div>
+                                <div *ngIf="document.getDataForVersion(version)" class="date-publication">{{document.getDataForVersion(version).datePublication | date:'medium'}}</div>
                             </div>
                         </div>
                         <div fxFlex class="section">
                             <mat-label class="label">Last Modified:</mat-label>
                             <div fxFlex class="property">
-                                <div class="last-modified">{{document.getDataForVersion(version).lastModified | date:'medium'}}</div>
+                                <div *ngIf="document.getDataForVersion(version)" class="last-modified">{{document.getDataForVersion(version).lastModified | date:'medium'}}</div>
                             </div>
                         </div>
                         <div fxFlex class="section">
                             <mat-label class="label">Description:</mat-label>
                             <div fxFlex class="property">
-                                <div class="description">{{document.getDataForVersion(version).description}}</div>
+                                <div *ngIf="document.getDataForVersion(version)" class="description">{{document.getDataForVersion(version).description}}</div>
                             </div>
                         </div>
                         <div class="button" [routerLink]="[{ outlets: { download: ['download', {docId:document.docId, title:document.title, txId:document.getDataForVersion(version).txId, version:version}] } }]" *ngIf="docService.canDownload(document, version)">

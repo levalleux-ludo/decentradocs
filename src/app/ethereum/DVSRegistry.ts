@@ -1,7 +1,8 @@
 import { Contract } from './Contract';
 import { EthService } from './eth.service';
+import { IDecentraDocsContract } from '../blockchain/IDecentraDocsContract';
 
-export class DVSRegistry extends Contract{
+export class DVSRegistry extends Contract implements IDecentraDocsContract {
   constructor(protected eth: EthService) {
     super(eth);
   }

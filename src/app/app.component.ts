@@ -61,13 +61,13 @@ export class AppComponent implements OnInit, OnDestroy {
     private dialog: MatDialog) {}
   ngOnInit() {
 
-    this.dvs.getContract().then((contract) => {
-      this.dvsRegistry = contract;
-      this.dvsRegistry.getMessage().then((message: string) => {
-        console.log("message", message);
-        this.message = message;
-      }).catch(err => console.error(err));
-    }).catch(err => console.error(err));
+    // this.dvs.getContract().then((contract) => {
+    //   this.dvsRegistry = contract;
+    //   this.dvsRegistry.getMessage().then((message: string) => {
+    //     console.log("message", message);
+    //     this.message = message;
+    //   }).catch(err => console.error(err));
+    // }).catch(err => console.error(err));
 
     this.nearService.isAuthenticated().then((isAuth) => {
       if (isAuth) {

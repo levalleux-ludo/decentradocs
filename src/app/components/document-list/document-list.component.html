@@ -43,8 +43,8 @@
         </div>
         <div class="status">
             <!-- <mat-icon *ngIf="document.getDataForLatestVersion().uploadingStatus == 'Pending'" matTooltip='Waiting for uploading transaction to complete'>hourglass_empty</mat-icon> -->
-            <mat-spinner *ngIf="document.getDataForLatestVersion().uploadingStatus == 'Pending'" [diameter]=30 matTooltip='Waiting for uploading transaction to complete'></mat-spinner>
-            <mat-icon *ngIf="document.getDataForLatestVersion().uploadingStatus == 'Failed'" matTooltip='Uploading transaction failed'>error_outline</mat-icon>
+            <mat-spinner *ngIf="document.getDataForLatestVersion() && document.getDataForLatestVersion().uploadingStatus == 'Pending'" [diameter]=30 matTooltip='Waiting for uploading transaction to complete'></mat-spinner>
+            <mat-icon *ngIf="document.getDataForLatestVersion() && document.getDataForLatestVersion().uploadingStatus == 'Failed'" matTooltip='Uploading transaction failed'>error_outline</mat-icon>
         </div>
         <div class="button" [routerLink]="[{ outlets: { download: ['download', {docId:document.docId, title:document.title, txId:document.getDataForLatestVersion().txId, version:document.latestVersion}] } }]" *ngIf="docService.canDownload(document, document.latestVersion)">
             <mat-icon matTooltip='Download latest version'>cloud_download</mat-icon>

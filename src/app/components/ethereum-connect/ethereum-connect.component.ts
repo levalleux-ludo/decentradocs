@@ -1,7 +1,6 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { EthService } from 'src/app/ethereum/eth.service';
-import { DVSRegistry } from 'src/app/ethereum/DVSRegistry';
 
 @Component({
   selector: 'app-ethereum-connect',
