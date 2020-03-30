@@ -6,12 +6,12 @@ const nearlib = require('nearlib');
 export const CONTRACTS = {
   DECENTRADOCS: {
     id: 'decentradocs',
-    viewMethods: ['docExists', 'getAuthorizedAccounts', 'getAuthor', 'getSubscriptionFee'],
+    viewMethods: ['docExists', 'getAuthorizedAccounts', 'getAuthor', 'getSubscriptionFee', 'getDocumentKey', 'isAuthorized'],
     changeMethods: [
       'registerDoc',
       'setAccess',
       'subscribe',
-      'getDocumentKey', // getDocumentKey does not modify the state but need to be in 'changeMethods' because it requires 'signer_account_id' (refer to https://docs.rs/near-vm-logic/0.7.0/src/near_vm_logic/logic.rs.html l.497 fn signer_account_id)
+      // 'getDocumentKey', // getDocumentKey does not modify the state but need to be in 'changeMethods' because it requires 'signer_account_id' (refer to https://docs.rs/near-vm-logic/0.7.0/src/near_vm_logic/logic.rs.html l.497 fn signer_account_id)
       'setSubscriptionFee'
     ]
   },

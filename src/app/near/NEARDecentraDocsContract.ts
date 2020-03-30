@@ -5,7 +5,11 @@ import { PUBLIC_KEY } from '../doc-manager/doc.service';
 
 export class NEARDecentraDocsContract implements IDecentraDocsContract {
   nearContract: any;
+  nonce = 0;
   constructor(private nearService: NearService) {
+  }
+  private getNonce() {
+    return this.nonce++;
   }
   public async initialize(): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
@@ -27,12 +31,12 @@ export class NEARDecentraDocsContract implements IDecentraDocsContract {
   }
   public async getDocumentKey(docId: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-      // const BOATLOAD_OF_GAS = '10000000000000000';
-      // this.nearContract.getDocumentKey({docId}).then((key) => {
-      //   resolve(key);
-      // }, BOATLOAD_OF_GAS, '0').catch(err => reject(err));
+      const BOATLOAD_OF_GAS = '10000000000000000';
+      this.nearContract.getDocumentKey({docId, account: this.nearService.currentAccountValue}).then((key) => {
+        resolve(key);
+      }).catch(err => reject(err));
       // resolve('PUBLIC_KEY');
-      resolve('xxxxxxxxxxxxxx');
+      // resolve('xxxxxxxxxxxxxx');
     });
   }
   public async getSubscriptionFee(docId: string): Promise<number> {
