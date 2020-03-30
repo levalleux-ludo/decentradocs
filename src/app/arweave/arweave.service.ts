@@ -48,7 +48,7 @@ export class ArweaveService {
   private _initialized = false;
   private _public_address: any = undefined;
 
-  public onAccountChanged: EventEmitter<void>;
+  public onAccountChanged: EventEmitter<void> = new EventEmitter();
 
 
   public static getTxTags(tx: Transaction): Map<eDataField, string> {
