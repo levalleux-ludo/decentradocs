@@ -4,10 +4,11 @@ import { EthService } from '../ethereum/eth.service';
 import { NearService } from '../near/near.service';
 import { resolve } from 'dns';
 import { eLocalStorageDataKey } from '../arweave/constants';
+import { Router } from '@angular/router';
 
 
 export enum eBlockchain {
-  ETHEREUM = 'Ethereum',
+  ETHEREUM = 'ETHEREUM',
   NEAR = 'NEAR'
 }
 
@@ -20,11 +21,15 @@ export class BlockchainService {
 
   constructor(
     private ethService: EthService,
-    private nearService: NearService
+    private nearService: NearService,
+    private router: Router
   ) {
     const prevBlockchain = localStorage.getItem(eLocalStorageDataKey.BLOCKCHAIN);
     if (prevBlockchain) {
-      this._blockchain = eBlockchain[prevBlockchain];
+      let blockchain = eBlockchain[prevBlockchain];
+      if (blockchain) {
+        this._blockchain = blockchain;
+      }
     }
   }
 
@@ -34,6 +39,10 @@ export class BlockchainService {
   public set blockchain(value: eBlockchain) {
     if (value !== this._blockchain) {
       console.log(`switching from ${this._blockchain} to ${value}`);
+      // this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+      // this.router.onSameUrlNavigation = 'reload';
+      // this.router.navigateByUrl(this.router.url);
+      this.router.navigate(['/authenticate'], { queryParams: { returnUrl: this.router.url }});
     }
     this._blockchain = value;
     localStorage.setItem(eLocalStorageDataKey.BLOCKCHAIN, this._blockchain);

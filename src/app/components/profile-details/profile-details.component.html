@@ -18,7 +18,7 @@
             <span fxFlex matTooltip=''><img  src=" ../assets/near_logo.svg " height="30px"></span>
         </div>
         <div>
-            <app-ethereum-connect *ngIf="blockchainService.blockchain == 'Ethereum'"></app-ethereum-connect>
+            <app-ethereum-connect *ngIf="blockchainService.blockchain == 'ETHEREUM'"></app-ethereum-connect>
             <app-near-connect *ngIf="blockchainService.blockchain == 'NEAR'"></app-near-connect>
         </div>
     </div>

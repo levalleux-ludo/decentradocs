@@ -12,7 +12,7 @@
                 <span *ngIf="!arweaveService.authenticated" style="color:red;">
                   <mat-icon>warning</mat-icon>Arweave login required</span>
             </div>
-            <div fxFlex class="account" fxLayout="row" xLayoutAlign="end center" matTooltip="Ethereum account" *ngIf="blockchainService.blockchain == 'Ethereum'">
+            <div fxFlex class="account" fxLayout="row" xLayoutAlign="end center" matTooltip="Ethereum account" *ngIf="blockchainService.blockchain == 'ETHEREUM'">
                 <img fxFlex src=" ../assets/ethereum-icon-purple.56fbef66.svg " height="30px">
                 <span *ngIf="ethService.currentAccountValue "> {{ethService.currentAccountValue}}</span>
                 <span *ngIf="!ethService.currentAccountValue " style="color:red; ">

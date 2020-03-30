@@ -13,20 +13,17 @@ export class AuthGuard implements CanActivate {
     ) {}
 
     public async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
-      console.log("canActivate ?");
-      try {
-        if (await this.authenticateService.isAuthenticated()) {
-            // authenticated so return true
-            console.log("canActivate: true");
-            return true;
-        }
-      } catch (err) {
-        console.warn(err);
-      }
-
-        // console.log("canActivate: false", "arweave:", this.arweaveService.authenticated, "eth:", this.eth.authenticated);
-        // not logged in so redirect to login page with the return url
-        this.router.navigate(['/authenticate'], { queryParams: { returnUrl: state.url }});
-        return false;
+      return new Promise<boolean>((resolve, reject) => {
+        console.log("canActivate ?");
+        this.authenticateService.isAuthenticated().subscribe((isAuth) => {
+          console.log("canActivate:", isAuth);
+          if (!isAuth) {
+            // console.log("canActivate: false", "arweave:", this.arweaveService.authenticated, "eth:", this.eth.authenticated);
+            // not logged in so redirect to login page with the return url
+            this.router.navigate(['/authenticate'], { queryParams: { returnUrl: state.url }});
+          }
+          resolve(isAuth);
+        }, (err) => reject(err));
+      });
     }
-}
+  }
