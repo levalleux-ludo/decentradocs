@@ -1,5 +1,5 @@
 <form [formGroup]="form" fxLayout="column" fxLayoutAlign="start start">
-    <button class="close" type="cancel" mat-button mat-button-close (click)="close()">X</button>
+    <!-- <button class="close" type="cancel" mat-button mat-button-close (click)="close()">X</button> -->
     <h1 mat-dialog-title>Access Control</h1>
     <!-- <mat-label fxFlex>Access Control</mat-label> -->
     <div fxFlex>
@@ -15,27 +15,26 @@
         <mat-checkbox #usersList class="example-radio-button" [checked]="authorizedAddresses.length > 0">Authorized Users</mat-checkbox>
         <div *ngIf="usersList.checked">
             <mat-form-field>
-                <mat-label>Enter users ETH address</mat-label>
+                <mat-label>Enter users {{accountDescription}}</mat-label>
                 <mat-chip-list #addressesList aria-label="Addresses" formControlName="authorizedAddresses">
                     <mat-chip *ngFor="let address of authorizedAddresses" [selectable]="true" [removable]="true" (removed)="removeAddress(address)">
                         {{address}}
                         <mat-icon matChipRemove>cancel</mat-icon>
                     </mat-chip>
-                    <input #addressInput placeholder="New ETH address..." [matChipInputFor]="addressesList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="addAddress($event)">
-                    <mat-error *ngIf="(addressInput.value != '') && !isAddress(addressInput.value)">The address {{addressInput.value}} is not a valid ETH address</mat-error>
+                    <input #addressInput placeholder="New {{accountDescription}}..." [matChipInputFor]="addressesList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="addAddress($event)">
+                    <mat-error *ngIf="(addressInput.value != '') && !isAddress(addressInput.value)">The address {{addressInput.value}} is not a valid {{accountDescription}}</mat-error>
                 </mat-chip-list>
                 <!-- <input required #keywords matInput placeholder="Enter Some Keywords" formControlName="keywords"> -->
             </mat-form-field>
         </div>
         <mat-checkbox #onSubscription class="example-radio-button" [checked]="parseInt(subscriptionFee) > 0">On Subscription</mat-checkbox>
         <div *ngIf="onSubscription.checked">
-            <!-- <mat-form-field>
-                      <input matInput type="text" placeholder="Subscription Fee" formControlName="subscriptionFee" [value]="{updateOn:'blur'}" (change)="setFee($event.target.value)" />
-                      </mat-form-field> -->
+
             <mat-form-field appearance="fill">
                 <mat-label>Amount</mat-label>
-                <input matInput type="number" min="0.0000001" max="0.01" step="0.0000001" class="example-right-align" placeholder="Subscription Fee" formControlName="subscriptionFee">
-                <span matSuffix>ETH</span>
+                <input matInput readonly="subscriptionCurrency == 'NEAR'" type="number" min="0.0000001" max="0.01" step="0.0000001" class="example-right-align" placeholder="Subscription Fee" formControlName="subscriptionFee">
+                <span matSuffix>{{subscriptionCurrency}}</span>
+                <span style="color: red; font-style: italic;" *ngIf="subscriptionCurrency == 'NEAR'">Setting subscription fees not yet available with NEAR blockchain</span>
             </mat-form-field>
         </div>
     </div>

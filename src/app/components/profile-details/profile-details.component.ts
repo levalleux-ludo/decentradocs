@@ -1,6 +1,8 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, Inject } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { BlockchainService } from 'src/app/blockchain/blockchain.service';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { element } from 'protractor';
 
 @Component({
   selector: 'app-profile-details',
@@ -20,8 +22,10 @@ export class ProfileDetailsComponent implements OnInit {
   _opened: boolean = false;
 
   constructor(
-    public blockchainService: BlockchainService
-  ) { }
+    public blockchainService: BlockchainService,
+    @Inject(MAT_DIALOG_DATA) public params: {cssClass: string}
+  ) {
+   }
 
   @Input()
   set opened(value: boolean) {

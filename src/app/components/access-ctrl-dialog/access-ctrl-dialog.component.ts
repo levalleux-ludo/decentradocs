@@ -7,6 +7,7 @@ import { EthService } from 'src/app/ethereum/eth.service';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { ENTER, COMMA } from '@angular/cdk/keycodes';
 import { strict } from 'assert';
+import { BlockchainService, eBlockchain } from 'src/app/blockchain/blockchain.service';
 
 @Component({
   selector: 'app-access-ctrl-dialog',
@@ -19,6 +20,8 @@ export class AccessCtrlDialogComponent implements OnInit {
   subscriptionFee: string;
   restricted: boolean;
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+  subscriptionCurrency: string;
+  accountDescription: string;
 
   @Input()
   document: DocCollectionData;
@@ -28,10 +31,21 @@ export class AccessCtrlDialogComponent implements OnInit {
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<DocumentUploadFormComponent>,
     private ethService: EthService,
+    private blockchainService: BlockchainService,
     @Inject(MAT_DIALOG_DATA) public data: {document: DocCollectionData}
   ) { }
 
   ngOnInit(): void {
+    this.subscriptionCurrency = this.blockchainService.subscriptionCurrency;
+    switch (this.blockchainService.blockchain) {
+      case eBlockchain.ETHEREUM:
+        this.accountDescription = 'ETH address';
+        break;
+      case eBlockchain.NEAR:
+        this.accountDescription = 'NEAR accountId';
+        break;
+    }
+
     this.authorizedAddresses = Array.from(this.data.document.authorizedAccounts);
     this.subscriptionFee = this.data.document.subscriptionFee.toString();
     this.restricted = (this.data.document.accessType !== eAccessType.PUBLIC);

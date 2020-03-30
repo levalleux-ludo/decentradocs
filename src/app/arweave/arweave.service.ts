@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import Arweave, { Config, CreateTransactionInterface } from 'arweave/web';
 import Transaction from 'arweave/web/lib/transaction';
 import { DocInstance } from '../_model/DocInstance';
@@ -47,6 +47,9 @@ export class ArweaveService {
   private _wallet: JWKInterface;
   private _initialized = false;
   private _public_address: any = undefined;
+
+  public onAccountChanged: EventEmitter<void>;
+
 
   public static getTxTags(tx: Transaction): Map<eDataField, string> {
     const tags: Map<eDataField, string> = new Map();
@@ -145,7 +148,10 @@ export class ArweaveService {
         console.log("waller read:", e.target.result);
         console.log("Arweave", this._arweave);
         this.submitWallet(JSON.parse(e.target.result.toString()))
-        .then(address => resolve(address))
+        .then(address => {
+          resolve(address);
+          this.onAccountChanged.emit();
+        })
         .catch(err => reject(err));
         // return this._arweave.wallets.jwkToAddress(this._wallet).then((address) => {
         //   console.log("address", address);
@@ -177,6 +183,7 @@ export class ArweaveService {
     this._wallet = undefined;
     this._public_address = undefined;
     localStorage.removeItem(eLocalStorageDataKey.WALLET);
+    this.onAccountChanged.emit();
   }
 
   public async uploadDocument(docMetadata: DocMetaData, docInstance: DocInstance): Promise<string> {

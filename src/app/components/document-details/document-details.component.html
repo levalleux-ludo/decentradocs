@@ -35,7 +35,7 @@
         <div fxFlex class="property">
             <mat-icon>account_box</mat-icon>
             <div class="author" *ngIf="document.getDataForLatestVersion()">{{document.getDataForLatestVersion().author}}</div>
-            <div class="author">@ETH:{{document.authorEthAccount}}</div>
+            <div class="author">@{{blockchainId}}:{{document.authorEthAccount}}</div>
         </div>
     </div>
     <div fxFlex class="section">
@@ -50,7 +50,7 @@
     <div fxFlex class="section" *ngIf="document.accessType === 'Restricted'">
         <mat-label class="label">Subscription Fee:</mat-label>
         <div fxFlex class="property">
-            <div class="price">{{document.subscriptionFee}} ETH</div>
+            <div class="price">{{document.subscriptionFee}} {{subscriptionCurrency}}</div>
         </div>
     </div>
     <div fxFlex class="section">

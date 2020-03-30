@@ -1,6 +1,7 @@
 import { IDecentraDocsContract } from '../blockchain/IDecentraDocsContract';
 import { NearService, CONTRACTS } from './near.service';
 import { eContract } from '../blockchain/blockchain.service';
+import { PUBLIC_KEY } from '../doc-manager/doc.service';
 
 export class NEARDecentraDocsContract implements IDecentraDocsContract {
   nearContract: any;
@@ -17,35 +18,97 @@ export class NEARDecentraDocsContract implements IDecentraDocsContract {
   public get contractId(): string {
     return CONTRACTS.DECENTRADOCS.id;
   }
-  getMessage(): Promise<string> {
-    throw new Error("Method not implemented.");
+  public async docExists(docId: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      this.nearContract.docExists({docId}).then((exists) => {
+        resolve(exists);
+      }).catch(err => reject(err));
+    });
   }
-  docExists(docId: string): Promise<boolean> {
-    throw new Error("Method not implemented.");
+  public async getDocumentKey(docId: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      // const BOATLOAD_OF_GAS = '10000000000000000';
+      // this.nearContract.getDocumentKey({docId}).then((key) => {
+      //   resolve(key);
+      // }, BOATLOAD_OF_GAS, '0').catch(err => reject(err));
+      // resolve('PUBLIC_KEY');
+      resolve('xxxxxxxxxxxxxx');
+    });
   }
-  getDocumentKey(docId: string): Promise<string> {
-    throw new Error("Method not implemented.");
+  public async getSubscriptionFee(docId: string): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      this.nearContract.getSubscriptionFee({docId}).then((fee) => {
+        resolve(fee);
+      }).catch(err => reject(err));
+    });
   }
-  getSubscriptionFee(docId: string): Promise<number> {
-    throw new Error("Method not implemented.");
+  public async getAuthorAccount(docId: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      this.nearContract.getAuthor({docId}).then((author) => {
+        resolve(author);
+      }).catch(err => reject(err));
+    });
   }
-  getAuthorAccount(docId: string): Promise<string> {
-    throw new Error("Method not implemented.");
+  public async getAuthorizedAccounts(docId: string): Promise<string[]> {
+    return new Promise<string[]>((resolve, reject) => {
+      this.nearContract.getAuthorizedAccounts({docId}).then((authorizedAccounts) => {
+        resolve(authorizedAccounts);
+      }).catch(err => reject(err));
+    });
   }
-  getAuthorizedAccounts(docId: string): Promise<string[]> {
-    throw new Error("Method not implemented.");
+  public async setAccess(docId: string, addressToAdd: string[], addressToRemove: string[]): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      console.log("setAccess", docId);
+      const BOATLOAD_OF_GAS = '10000000000000000';
+      this.nearContract.setAccess(
+        {
+          docId,
+          authorizedAddresses: addressToAdd,
+          deniedAddresses: addressToRemove
+        }, BOATLOAD_OF_GAS, '0'). then(() => {
+        resolve();
+      }).catch(err => reject(err));
+    });
   }
-  setAccess(docId: string, addressToAdd: string[], addressToRemove: string[]): Promise<void> {
-    throw new Error("Method not implemented.");
+  public async setSubscriptionFee(docId: string, subscriptionFee_inETHorDDOX: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      console.log("setSubscriptionFee", docId);
+      const BOATLOAD_OF_GAS = '10000000000000000';
+      this.nearContract.setSubscriptionFee(
+        {
+          docId,
+          subscriptionFee: subscriptionFee_inETHorDDOX.toString(), // conversion into u64 requires to pass arg as string
+        }, BOATLOAD_OF_GAS, '0'). then(() => {
+        resolve();
+      }).catch(err => reject(err));
+    });
   }
-  setSubscriptionFee(docId: string, subscriptionFee_inETHorDDOX: number): Promise<void> {
-    throw new Error("Method not implemented.");
+  public async registerDoc(docId: string, encryptedKey: string, subscriptionFee_inETHorDDOX: number, authorizedAddresses: string[]) {
+    return new Promise<void>((resolve, reject) => {
+      console.log("registerDoc", docId);
+      const BOATLOAD_OF_GAS = '10000000000000000';
+      this.nearContract.registerDoc(
+        {
+          docId,
+          encryptedKey,
+          subscriptionFee: subscriptionFee_inETHorDDOX.toString(), // conversion into u64 requires to pass arg as string
+          authorizedAddresses
+        }, BOATLOAD_OF_GAS, '0'). then(() => {
+        resolve();
+      }).catch(err => reject(err));
+    });
   }
-  registerDoc(docId: string, encryptedKey: string, subscriptionFee_inETHorDDOX: number, authorizedAddresses: string[]) {
-    throw new Error("Method not implemented.");
-  }
-  subscribe(docId: string, amount_inETHorDDOX: number): Promise<void> {
-    throw new Error("Method not implemented.");
+  public async subscribe(docId: string, amount_inETHorDDOX: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      console.log("subscribe", docId);
+      const BOATLOAD_OF_GAS = '10000000000000000';
+      this.nearContract.subscribe(
+        {
+          docId
+        }, BOATLOAD_OF_GAS, '0'). then(() => {
+        resolve();
+      }).catch(err => reject(err));
+    });
   }
 
 }

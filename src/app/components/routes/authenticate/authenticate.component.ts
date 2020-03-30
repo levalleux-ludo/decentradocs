@@ -3,11 +3,15 @@ import { ArweaveService } from 'src/app/arweave/arweave.service';
 import { EthService } from 'src/app/ethereum/eth.service';
 import { AuthenticateService } from 'src/app/authenticate/authenticate.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-authenticate',
   templateUrl: './authenticate.component.html',
-  styleUrls: ['./authenticate.component.scss']
+  styleUrls: ['./authenticate.component.scss'],
+  providers: [
+    { provide: MAT_DIALOG_DATA, useValue: {} },
+  ]
 })
 export class AuthenticateComponent implements OnInit {
 

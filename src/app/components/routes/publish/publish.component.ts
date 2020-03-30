@@ -14,6 +14,7 @@ import { EthService } from 'src/app/ethereum/eth.service';
 import { PUBLIC_KEY } from 'src/app/doc-manager/doc.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { IDecentraDocsContract } from 'src/app/blockchain/IDecentraDocsContract';
+import { BlockchainService } from 'src/app/blockchain/blockchain.service';
 
 @Component({
   selector: 'app-publish',
@@ -31,6 +32,7 @@ export class PublishComponent implements OnInit {
     private dvs: DvsService,
     private arweaveService: ArweaveService,
     private ethService: EthService,
+    private blockchainService: BlockchainService,
     private arTransactionsService: TransactionsService,
     private libraryService: LibraryService,
     private router: Router,
@@ -65,6 +67,8 @@ export class PublishComponent implements OnInit {
     }
 
     dialogConfig.disableClose = true;
+    dialogConfig.width = '650px';
+    dialogConfig.height = '80%';
     dialogConfig.autoFocus = true;
     dialogConfig.data = {
       docId,
@@ -116,7 +120,7 @@ export class PublishComponent implements OnInit {
                 {
                   accessKey,
                   subscriptionFee,
-                  authorEthAccount: this.ethService.currentAccountValue,
+                  authorEthAccount: this.blockchainService.currentAccountValue,
                   authorizedAccounts: authorizedAddresses
                 }
               ).then((collection) => {

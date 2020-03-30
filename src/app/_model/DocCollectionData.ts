@@ -76,7 +76,7 @@ export class DocCollectionData {
   }
 
   public get versions(): number[] {
-    return Array.from(this._versions.keys());
+    return Array.from(this._versions.keys()).sort((n1,n2) => n1 - n2);
   }
 
   public get accessType(): eAccessType {

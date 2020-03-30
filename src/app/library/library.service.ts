@@ -146,11 +146,13 @@ export class LibraryService {
     this._allDocsPerHash = new Map();
     return new Promise<DocMetaData[]> ((resolve, reject) => {
       this.dvs.getContract().then((decentraDocsContract: IDecentraDocsContract) => {
+        console.log(`updateLibrary get all document from Areweave matching contract ${decentraDocsContract.contractId}`);
         this.arweaveService.getTxIds(ArQueries.ALL_DOCS(decentraDocsContract.contractId)).then(async(txIds: string[]) => {
           const allDocs: DocMetaData[] = [];
           // txIds.forEach(async (txId) => {
           const promises = [];
           for (const txId of txIds) {
+            console.log("txId", txId);
             try {
               promises.push( new Promise<void>((resolve2, reject2) => {
                 this.arweaveService.getTransaction(txId).then((tx: Transaction) => {
@@ -267,7 +269,7 @@ export class LibraryService {
               await Promise.all(promises);
             } else {
               // tslint:disable-next-line: max-line-length
-              console.warn(`Document ${JSON.stringify(docMetaData)} published on ${new Date(docMetaData.datePublication).toISOString()} is not registered in DVS contract`);
+              console.warn(`Document ${JSON.stringify(docMetaData)} published on ${new Date(docMetaData.datePublication).toISOString()} is not registered in DVS contract ${decentraDocsContract.contractId}`);
               collection = undefined;
               reject(`Document ${docMetaData.title} with id ${docMetaData.docId} is not registered in DVS contract`);
               return;

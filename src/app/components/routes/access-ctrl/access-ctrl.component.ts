@@ -39,7 +39,8 @@ export class AccessCtrlComponent implements OnInit {
         return;
       }
       const dialogRef = this.dialog.open(AccessCtrlDialogComponent, {
-          width: '500px',
+          width: '550px',
+          height: '500px',
           data: {
             document
           }

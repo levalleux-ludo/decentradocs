@@ -6,6 +6,7 @@ import { eDocumentUploadingStatus } from '../_model/DocMetaData';
 import { ArweaveService } from '../arweave/arweave.service';
 import { LibraryService } from '../library/library.service';
 import { IDecentraDocsContract } from '../blockchain/IDecentraDocsContract';
+import { BlockchainService } from '../blockchain/blockchain.service';
 
 export const PUBLIC_KEY = '00000-00000-00000-00000-00000';
 @Injectable({
@@ -16,6 +17,7 @@ export class DocService {
   constructor(
     private dvs: DvsService,
     private ethService: EthService,
+    private blockchainService: BlockchainService,
     private libraryService: LibraryService,
     private arweaveService: ArweaveService
   ) {
@@ -35,7 +37,7 @@ export class DocService {
 
    public canSubscribe(document: DocCollectionData): boolean {
     // return ((document.accessKey === undefined)
-    // && (document.authorEthAccount !== this.ethService.currentAccountValue));
+    // && (document.authorEthAccount !== this.blockchainService.currentAccountValue));
     return !this.isInMyLibrary(document);
    }
    public canDownload(document: DocCollectionData, version: number): boolean {
@@ -47,11 +49,11 @@ export class DocService {
     return document.getDataForLatestVersion() && (document.getDataForLatestVersion().author === this.arweaveService.address);
   }
   public canChangeAccessControl(document: DocCollectionData): boolean {
-    return document.authorEthAccount === this.ethService.currentAccountValue;
+    return document.authorEthAccount === this.blockchainService.currentAccountValue;
   }
   isInMyLibrary(coll: DocCollectionData): boolean {
-    return coll.authorEthAccount && ((coll.authorEthAccount === this.ethService.currentAccountValue)
-    || coll.authorizedAccounts.includes(this.ethService.currentAccountValue));
+    return coll.authorEthAccount && ((coll.authorEthAccount === this.blockchainService.currentAccountValue)
+    || coll.authorizedAccounts.includes(this.blockchainService.currentAccountValue));
   }
 
 

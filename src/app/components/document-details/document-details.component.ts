@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Pipe, PipeTransform } from '@angular/core';
 import { DocCollectionData } from 'src/app/_model/DocCollectionData';
 import { DocService } from 'src/app/doc-manager/doc.service';
+import { BlockchainService, eBlockchain } from 'src/app/blockchain/blockchain.service';
 
 @Pipe({ name: 'reverse', pure: false })
 export class ReversePipe implements PipeTransform {
@@ -19,6 +20,8 @@ export class DocumentDetailsComponent implements OnInit {
 
   _document: DocCollectionData = undefined;
   _selectedVersion: number;
+  subscriptionCurrency;
+  blockchainId;
 
   public get selectedVersion(): number {
     return this._selectedVersion;
@@ -41,10 +44,22 @@ export class DocumentDetailsComponent implements OnInit {
 
   constructor(
     private reverse: ReversePipe,
+    private blockchainService: BlockchainService,
     public docService: DocService
   ) { }
 
   ngOnInit(): void {
+    this.subscriptionCurrency = this.blockchainService.subscriptionCurrency;
+    switch (this.blockchainService.blockchain) {
+      case eBlockchain.ETHEREUM: {
+        this.blockchainId = 'ETH';
+        break;
+      }
+      case eBlockchain.NEAR: {
+        this.blockchainId = 'NEAR';
+        break;
+      }
+    }
   }
 
 }

@@ -18,7 +18,12 @@ export enum eContract {
   DDOX_TOKEN = "DDOX_TOKEN"
 }
 
-
+export enum eCurrency {
+  ETH = 'ETH',
+  NEAR = 'NEAR',
+  ARX = 'ARX',
+  DDOX = 'DDOX'
+}
 
 
 @Injectable({
@@ -38,6 +43,28 @@ export class BlockchainService {
       let blockchain = eBlockchain[prevBlockchain];
       if (blockchain) {
         this._blockchain = blockchain;
+      }
+    }
+  }
+
+  public get currentAccountValue(): string {
+    switch (this._blockchain) {
+      case eBlockchain.ETHEREUM: {
+        return this.ethService.currentAccountValue;
+      }
+      case eBlockchain.NEAR: {
+        return this.nearService.currentAccountValue;
+      }
+    }
+  }
+
+  public get subscriptionCurrency(): eCurrency {
+    switch (this._blockchain) {
+      case eBlockchain.ETHEREUM: {
+        return eCurrency.ETH;
+      }
+      case eBlockchain.NEAR: {
+        return eCurrency.NEAR;
       }
     }
   }

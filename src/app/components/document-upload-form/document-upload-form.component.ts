@@ -15,6 +15,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
 import { ENTER, COMMA } from '@angular/cdk/keycodes';
 import { EthService } from 'src/app/ethereum/eth.service';
 import { DocService } from 'src/app/doc-manager/doc.service';
+import { BlockchainService, eCurrency, eBlockchain } from 'src/app/blockchain/blockchain.service';
 
 @Component({
   selector: 'app-document-upload-form',
@@ -34,6 +35,9 @@ export class DocumentUploadFormComponent implements OnInit {
   subscriptionFee: string = '0.0001';
   authorizedAddresses: string[] = [];
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+  subscriptionCurrency: string;
+  defaultSubscriptionFee: number;
+  accountDescription: string;
 
   constructor(
     private dialog: MatDialog,
@@ -41,6 +45,7 @@ export class DocumentUploadFormComponent implements OnInit {
     private dialogRef: MatDialogRef<DocumentUploadFormComponent>,
     private arweaveService: ArweaveService,
     private libraryService: LibraryService,
+    private blockchainService: BlockchainService,
     private ethService: EthService,
     private _snackBar: MatSnackBar,
     private docService: DocService,
@@ -52,6 +57,22 @@ export class DocumentUploadFormComponent implements OnInit {
     if (this.data.docId) {
       this.canChangeTitle = false;
       this.existingCollection = true;
+    }
+    this.subscriptionCurrency = this.blockchainService.subscriptionCurrency;
+    switch(this.subscriptionCurrency) {
+      case eCurrency.ETH:
+        this.subscriptionFee = '0.0001';
+        break;
+      default:
+        this.subscriptionFee = '0';
+    }
+    switch (this.blockchainService.blockchain) {
+      case eBlockchain.ETHEREUM:
+        this.accountDescription = 'ETH address';
+        break;
+      case eBlockchain.NEAR:
+        this.accountDescription = 'NEAR accountId';
+        break;
     }
     this.form = this.fb.group({
       docId: this.data.docId,
@@ -318,7 +339,16 @@ export class DocumentUploadFormComponent implements OnInit {
   }
 
   public isAddress(address: string): boolean {
-    return this.ethService.isAddress(address);
+    switch(this.blockchainService.blockchain) {
+      case eBlockchain.ETHEREUM: {
+        return this.ethService.isAddress(address);
+      }
+      case eBlockchain.NEAR: {
+        return (address.length >= 2) && (address.length <= 64) && /^(([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+$/.test(address)
+        ;
+      }
+    }
+
   }
 
 
