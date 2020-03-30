@@ -9,6 +9,7 @@ import { SearchComponent } from './components/routes/search/search.component';
 import { HomeComponent } from './components/routes/home/home.component';
 import { DownloadComponent } from './components/routes/download/download.component';
 import { AccessCtrlComponent } from './components/routes/access-ctrl/access-ctrl.component';
+import { HelpComponent } from './components/routes/help/help.component';
 
 
 const commonChildren = [
@@ -31,6 +32,9 @@ const routes: Routes = [
     children: commonChildren},
   { path: 'publish',
     component: PublishComponent, canActivate: [AuthGuard] },
+  { path: 'help',
+    component: HelpComponent,
+    children: commonChildren},
   { path: '',
     component: HomeComponent,
     children: commonChildren},

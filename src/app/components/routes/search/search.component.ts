@@ -53,6 +53,8 @@ export class SearchComponent implements OnInit {
       this.allCollections = collections;
       this.allAuthors = this.library.authors;
     });
+    this.library.refresh();
+
   }
 
   submit(form: FormGroup) {

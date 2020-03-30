@@ -34,6 +34,7 @@ export class MyDocumentsComponent implements OnInit {
     this.library.libraryCollections.subscribe((collections: DocCollectionData[]) => {
       this.allCollections = collections.filter((coll: DocCollectionData) => this.filterCollection(coll));
     });
+    this.library.refresh();
   }
 
   select(event: any) {

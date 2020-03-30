@@ -76,6 +76,8 @@
 .results {
     border-bottom-style: solid;
     width: auto;
+    overflow: scroll;
+    height: 100%;
 }
 
 .example-container {

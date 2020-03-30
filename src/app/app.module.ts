@@ -56,6 +56,11 @@ import { DownloadComponent } from './components/routes/download/download.compone
 import { AccessCtrlComponent } from './components/routes/access-ctrl/access-ctrl.component';
 import { AccessCtrlDialogComponent } from './components/access-ctrl-dialog/access-ctrl-dialog.component';
 import { NearConnectComponent } from './components/near-connect/near-connect.component';
+import { VersionControlComponent } from './components/help/version-control/version-control.component';
+import { HelpComponent } from './components/routes/help/help.component';
+import { CheckerComponent } from './components/help/checker/checker.component';
+import { AccessControlComponent } from './components/help/access-control/access-control.component';
+import { SubscriptionComponent } from './components/help/subscription/subscription.component';
 
 @NgModule({
   declarations: [
@@ -83,7 +88,12 @@ import { NearConnectComponent } from './components/near-connect/near-connect.com
     DownloadComponent,
     AccessCtrlComponent,
     AccessCtrlDialogComponent,
-    NearConnectComponent
+    NearConnectComponent,
+    VersionControlComponent,
+    HelpComponent,
+    CheckerComponent,
+    AccessControlComponent,
+    SubscriptionComponent
   ],
   imports: [
     BrowserModule,
