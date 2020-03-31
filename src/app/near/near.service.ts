@@ -53,7 +53,8 @@ export class NearService {
     this.walletConnection.requestSignIn(
       CONTRACTS.DECENTRADOCS.id,
       CONTRACTS.DECENTRADOCS.id
-    )
+    );
+    this._currentAccountSubject.next(this.walletConnection.getAccountId());
   }
 
   public logout() {
@@ -99,19 +100,23 @@ export class NearService {
     return this._currentAccount;
   }
 
-  public async isAuthenticated(): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
-      // if (this._isInitialized) {
-      // this.initialize().then(() => {
-        this.currentAccount().subscribe((account) => {
-          resolve(this._isInitialized && (account !== undefined) && (account !== ''));
-        }, err => reject(err));
-      // }, err => reject(err));
-      // } else {
-      //   resolve(false);
-      // }
-    });
+  public get authenticated(): boolean {
+    return this._isInitialized && this.currentAccountValue && (this.currentAccountValue !== '');
   }
+
+  // public async isAuthenticated(): Promise<boolean> {
+  //   return new Promise<boolean>((resolve, reject) => {
+  //     // if (this._isInitialized) {
+  //     // this.initialize().then(() => {
+  //       this.currentAccount().subscribe((account) => {
+  //         resolve(this._isInitialized && (account !== undefined) && (account !== ''));
+  //       }, err => reject(err));
+  //     // }, err => reject(err));
+  //     // } else {
+  //     //   resolve(false);
+  //     // }
+  //   });
+  // }
 
   public async getContract(contractType: eContract): Promise<any> {
     return new nearlib.Contract(this.walletConnection.account(), CONTRACTS[contractType].id, {

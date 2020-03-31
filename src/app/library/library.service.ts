@@ -19,6 +19,7 @@ export class LibraryService {
   _collectionPerId: Map<string, DocCollectionData> = new Map();
   _collectionPerTitle: Map<string, DocCollectionData> = new Map();
   _allDocsPerHash: Map<string, DocMetaData> = new Map();
+  _allDocsPerTx: Map<string, DocMetaData> = new Map();
   _allDocsPerAuthor: Map<string, DocMetaData> = new Map();
   _pendingDocumentsPerHash: Map<string, {doc: DocMetaData, txId: string}> = new Map();
   private _librarySubject: BehaviorSubject<DocMetaData[]>;
@@ -40,6 +41,8 @@ export class LibraryService {
     this.authService.isAuthenticated().subscribe((isAuth) => {
       if (isAuth) {
         this.updateLibrary();
+      } else {
+        this.clearLibrary();
       }
     });
 
@@ -140,10 +143,17 @@ export class LibraryService {
     return this._collectionPerTitle;
   }
 
-  private async updateLibrary(): Promise<DocMetaData[]> {
+  private clearLibrary() {
     this._collectionPerId = new Map();
     this._collectionPerTitle = new Map();
     this._allDocsPerHash = new Map();
+    this._allDocsPerTx = new Map();
+    this._libraryCollectionsSubject.next(Array.from(this._collectionPerId.values()));
+    this._librarySubject.next(Array.from(this._allDocsPerHash.values()));
+  }
+
+  private async updateLibrary(): Promise<DocMetaData[]> {
+    // this.clearLibrary();
     return new Promise<DocMetaData[]> ((resolve, reject) => {
       this.dvs.getContract().then((decentraDocsContract: IDecentraDocsContract) => {
         console.log(`updateLibrary get all document from Areweave matching contract ${decentraDocsContract.contractId}`);
@@ -152,12 +162,16 @@ export class LibraryService {
           // txIds.forEach(async (txId) => {
           const promises = [];
           for (const txId of txIds) {
+            if (this._allDocsPerTx.has(txId)) {
+              continue;
+            }
             console.log("txId", txId);
             try {
               promises.push( new Promise<void>((resolve2, reject2) => {
                 this.arweaveService.getTransaction(txId).then((tx: Transaction) => {
                   const docMetaData = this.createDocMetaData(tx);
                   if (docMetaData) {
+                    this._allDocsPerTx.set(txId, docMetaData);
                     this.getCollectionOrCreate(docMetaData).then((collection) => {
                       this.addInLibrary(docMetaData, txId, collection).then(() => {
                         allDocs.push( docMetaData );
@@ -360,3 +374,4 @@ export class LibraryService {
 
 
 }
+

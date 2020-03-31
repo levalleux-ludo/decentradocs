@@ -48,14 +48,14 @@ export class EthService {
 
   private _initialized = false;
   private _currentAccountSubject: BehaviorSubject<string>;
-  private _currentAccount: Observable<string>;
+  // private _currentAccount: Observable<string>;
 
   constructor(
     @Inject(WEB3) private web3: Web3,
     private winRef: WindowRef
   ) {
     this._currentAccountSubject = new BehaviorSubject<string>(undefined);
-    this._currentAccount = this._currentAccountSubject.asObservable();
+    // this._currentAccount = this._currentAccountSubject.asObservable();
     this.initialize();
   }
 
@@ -69,11 +69,7 @@ export class EthService {
 
   public async isAuthenticated(): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-      this.initialize().subscribe((initialized) => {
-        this.currentAccount().subscribe((account) => {
-          resolve(this.authenticated);
-        }, err => reject(err));
-      }, err => reject(err));
+      resolve(this.authenticated);
     });
   }
 
@@ -120,6 +116,14 @@ export class EthService {
           console.log("ETH EVENT: networkChanged", networkId);
         });
 
+        this.winRef.nativeWindow.ethereum.on('accountsChanged', (accounts) => {
+          // Time to reload your interface with accounts[0]!
+          this.getWeb3().subscribe(() => {
+            console.log("ETH event accounts:", accounts);
+            this.checkCurrentAccount();
+          });
+        });
+
       } else if (this.winRef.nativeWindow.web3) {
         // Legacy dapp browsers...
         web3Provider = this.winRef.nativeWindow.web3.currentProvider;
@@ -130,6 +134,7 @@ export class EthService {
       this.web3.setProvider(web3Provider);
 
       this._initialized = web3Provider !== undefined;
+      this.checkCurrentAccount();
       observer.next(this._initialized);
       observer.complete();
     });
@@ -179,50 +184,23 @@ export class EthService {
 
     /** Get the current account */
     public currentAccount(): Observable<string | Error> {
-      return new Observable<string | Error>(observer => {
-        this.winRef.nativeWindow.ethereum.on('accountsChanged', (accounts) => {
-          // Time to reload your interface with accounts[0]!
-          this.getWeb3().subscribe(() => {
-            console.log("ETH event accounts:", accounts);
-            observer.next(accounts[0]);
+      return this._currentAccountSubject.asObservable();
+    }
+
+    private async checkCurrentAccount() {
+      console.log("get currentAccount()");
+      if (this.web3.eth.defaultAccount) {
+        this._currentAccountSubject.next(this.web3.eth.defaultAccount);
+      } else {
+        this.getAccounts().subscribe((accounts: string[]) => {
+          if (accounts.length === 0) {
+            console.error('No accounts available');
+            this._currentAccountSubject.next(undefined);
+          } else {
             this._currentAccountSubject.next(accounts[0]);
-          });
+          }
         });
-        console.log("get currentAccount()");
-        if (this.web3.eth.defaultAccount) {
-          observer.next(this.web3.eth.defaultAccount);
-          this._currentAccountSubject.next(this.web3.eth.defaultAccount);
-        } else {
-          this.getAccounts().subscribe((accounts: string[]) => {
-            if (accounts.length === 0) {
-              console.error('No accounts available');
-              observer.error('No accounts available');
-            } else {
-              observer.next(accounts[0]);
-              this._currentAccountSubject.next(accounts[0]);
-            }
-          });
-          // this.getAccounts().pipe(
-          //     tap((accounts: string[]) => {
-          //         console.log("ETH accounts:", accounts);
-          //         if (accounts.length === 0) { throw new Error('No accounts available'); }
-          //         return accounts;
-          //     }),
-          //     map((accounts: string[]) => {
-          //       console.log("ETH accounts:", accounts);
-          //       return accounts[0];
-          //     }),
-          //     tap((account: string) => {
-          //       console.log("ETH account", account);
-          //       observer.next(this.web3.defaultAccount = account);
-          //     }),
-          //     catchError((err: Error) => {
-          //       console.error(err);
-          //       return of(err);
-          //     })
-          // );
-        }
-      });
+      }
     }
 
     public get currentAccountValue(): string {

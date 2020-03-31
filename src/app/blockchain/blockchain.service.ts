@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 import { EthService } from '../ethereum/eth.service';
 import { NearService } from '../near/near.service';
@@ -32,6 +32,7 @@ export enum eCurrency {
 export class BlockchainService {
 
   private _blockchain: eBlockchain = eBlockchain.ETHEREUM;
+  public onAccountChanged: EventEmitter<void> = new EventEmitter();
 
   constructor(
     private ethService: EthService,
@@ -45,6 +46,16 @@ export class BlockchainService {
         this._blockchain = blockchain;
       }
     }
+    ethService.currentAccount().subscribe((account) => {
+      if (this._blockchain === eBlockchain.ETHEREUM) {
+        this.onAccountChanged.emit();
+      }
+    });
+    nearService.currentAccount().subscribe((account) => {
+      if (this._blockchain === eBlockchain.NEAR) {
+        this.onAccountChanged.emit();
+      }
+    });
   }
 
   public get currentAccountValue(): string {
@@ -78,6 +89,7 @@ export class BlockchainService {
       // this.router.routeReuseStrategy.shouldReuseRoute = () => false;
       // this.router.onSameUrlNavigation = 'reload';
       // this.router.navigateByUrl(this.router.url);
+      this.onAccountChanged.emit();
       this.router.navigate(['/authenticate'], { queryParams: { returnUrl: this.router.url }});
     }
     this._blockchain = value;
@@ -103,19 +115,26 @@ export class BlockchainService {
     }
   }
 
-  public isAuthenticated(): Observable<boolean> {
-    return new Observable<boolean>((observer) => {
-        if (this.blockchain === eBlockchain.ETHEREUM) {
-          this.ethService.isAuthenticated().then((ethAuth) => {
-            observer.next(ethAuth);
-          }).catch(err => observer.error(err));
-        } else {
-          this.nearService.isAuthenticated().then((nearAuth) => {
-            observer.next(nearAuth);
-          }).catch(err => observer.error(err));
-        }
-    });
+  public get authenticated(): boolean {
+    return ((this.blockchain === eBlockchain.ETHEREUM) && this.ethService.authenticated)
+    || ((this.blockchain === eBlockchain.NEAR) && this.nearService.authenticated);
   }
+
+  // public isAuthenticated(): Observable<boolean> {
+  //   return new Observable<boolean>((observer) => {
+  //       if (this.blockchain === eBlockchain.ETHEREUM) {
+  //         this.ethService.isAuthenticated().then((ethAuth) => {
+  //           observer.next(ethAuth);
+  //           // this.onAccountChanged.emit();
+  //         }).catch(err => observer.error(err));
+  //       } else {
+  //         this.nearService.isAuthenticated().then((nearAuth) => {
+  //           observer.next(nearAuth);
+  //           this.onAccountChanged.emit();
+  //         }).catch(err => observer.error(err));
+  //       }
+  //   });
+  // }
 
 
 }

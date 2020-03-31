@@ -21,6 +21,7 @@ import { ArqlOp } from 'arql-ops';
 import { IArweave, FakeArweave } from './arweave.mock';
 import { DvsService } from '../ethereum/dvs.service';
 import { IDecentraDocsContract } from '../blockchain/IDecentraDocsContract';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 
 // // tslint:disable-next-line: variable-name
@@ -47,6 +48,7 @@ export class ArweaveService {
   private _wallet: JWKInterface;
   private _initialized = false;
   private _public_address: any = undefined;
+  private _currentAccountSubject: BehaviorSubject<string>;
 
   public onAccountChanged: EventEmitter<void> = new EventEmitter();
 
@@ -63,9 +65,12 @@ export class ArweaveService {
 
   constructor(
     private fileSaverService: FileSaverService,
-    private dvs: DvsService
+    private dvs: DvsService,
   ) {
-    this.initialize();
+    this._currentAccountSubject = new BehaviorSubject<string>(undefined);
+    this.initialize().then((address) => {
+      this.onAccountChanged.emit();
+    });
   }
 
   public async useFakeArweave(useFake: boolean): Promise<boolean> {
@@ -89,6 +94,7 @@ export class ArweaveService {
     return new Promise<string>((resolve, reject) => {
       if (this._initialized) {
         resolve(this._public_address);
+        this._currentAccountSubject.next(this._public_address);
       } else {
         try {
           this._arweave = Arweave.init({host: 'arweave.net', port: 443, protocol: 'https'});
@@ -97,20 +103,26 @@ export class ArweaveService {
             this.submitWallet(JSON.parse(localStoredWallet)).then((address) => {
               console.log("Wallet successfully restored from loaclStorage");
               resolve(this._public_address);
+              this._currentAccountSubject.next(this._public_address);
               this._initialized = true;
             }).catch(err => {
               console.warn('Unable to restore wallet from localStorage ->  clear localStorage', err);
               localStorage.removeItem(eLocalStorageDataKey.WALLET);
               resolve(this._public_address);
+              this._currentAccountSubject.next(this._public_address);
               this._initialized = true;
             });
           } else {
             resolve(this._public_address);
+            this._currentAccountSubject.next(this._public_address);
             this._initialized = true;
           }
         } catch (err) {
           console.error(err);
+          this._public_address = undefined;
+          this._wallet = undefined;
           this._initialized = false;
+          this._currentAccountSubject.next(this._public_address);
           reject(err);
         }
       }
@@ -125,22 +137,15 @@ export class ArweaveService {
     return this.initialized && (this._public_address !== undefined);
   }
 
-  public async isAuthenticated(): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
-      this.initialize().then((address) => {
-        resolve(this.authenticated);
-      }).catch(err => reject(err));
-    });
-  }
-
   public get address() {
     return this._public_address;
   }
 
+  public currentAccount(): Observable<string> {
+    return this._currentAccountSubject.asObservable();
+  }
+
   public async login(walletFile: File): Promise<string> {
-    if (!this.initialized) {
-      await this.initialize();
-    }
     return new Promise<string>((resolve, reject) => {
       const myReader: FileReader = new FileReader();
       // console.log("read file", walletFile);
@@ -149,7 +154,8 @@ export class ArweaveService {
         console.log("Arweave", this._arweave);
         this.submitWallet(JSON.parse(e.target.result.toString()))
         .then(address => {
-          resolve(address);
+          resolve(this._public_address);
+          this._currentAccountSubject.next(this._public_address);
           this.onAccountChanged.emit();
         })
         .catch(err => reject(err));
@@ -163,7 +169,7 @@ export class ArweaveService {
     });
   }
 
-  public submitWallet(wallet: JWKInterface): Promise<string> {
+  private submitWallet(wallet: JWKInterface): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       this._arweave.wallets.jwkToAddress(wallet).then((address) => {
         console.log("address", address);
@@ -183,6 +189,7 @@ export class ArweaveService {
     this._wallet = undefined;
     this._public_address = undefined;
     localStorage.removeItem(eLocalStorageDataKey.WALLET);
+    this._currentAccountSubject.next(this._public_address);
     this.onAccountChanged.emit();
   }
 
@@ -236,23 +243,14 @@ export class ArweaveService {
   }
 
   public async getTxStatus(txId: string): Promise<any> {
-    if (!this.initialized) {
-      await this.initialize();
-    }
     return this._arweave.transactions.getStatus(txId);
   }
 
   public async getTxIds(query: ArqlOp): Promise<string[]> {
-    if (!this.initialized) {
-      await this.initialize();
-    }
     return this._arweave.arql(query);
   }
 
   public async getTransaction(txId: string): Promise<Transaction> {
-    if (!this.initialized) {
-      await this.initialize();
-    }
     return this._arweave.transactions.get(txId);
   }
 
