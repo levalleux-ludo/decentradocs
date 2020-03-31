@@ -52,3 +52,6 @@ Thumbs.db
 !/build/contracts/DVSRegistry.json
 #!*/DVSResgitry.json
 .secrets
+
+# firebase
+*.cache
